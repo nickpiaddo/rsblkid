@@ -30,5 +30,7 @@
 //! To get information about device partitions and/or topology you must use the low-level API.
 
 pub use cache_error_enum::CacheError;
+pub use cache_struct::Cache;
 
 mod cache_error_enum;
+mod cache_struct;

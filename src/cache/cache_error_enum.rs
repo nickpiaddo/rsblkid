@@ -8,7 +8,7 @@ use thiserror::Error;
 
 // From this library
 
-/// `Cache` runtime errors.
+/// [`Cache`](crate::cache::Cache) runtime errors.
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum CacheError {}
