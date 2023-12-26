@@ -1,0 +1,31 @@
+[package]
+name = "rsblkid"
+description = "Safe Rust wrapper around the `util-linux/libblkid` C library"
+version = "0.1.0"
+authors = ["Nick Piaddo <nick.piaddo@protonmail.com>"]
+license = "Apache-2.0 OR MIT"
+rust-version = "1.72"
+edition = "2021"
+repository = "https://github.com/nickpiaddo/rsblkid"
+homepage = "https://github.com/nickpiaddo/rsblkid"
+documentation = "https://docs.rs/rsblkid"
+readme = "README.md"
+keywords = [ "blkid", "device-topology", "libblkid", "util-linux", "wrapper"]
+categories = ["api-bindings"]
+exclude = ["web-snapshots/*", "test_harness/*", "scripts/*"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+libblkid = { package="rsblkid-sys", version="0.1.0" }
+libc = "0.2.151"
+log = "0.4.20"
+num_enum = "0.7.3"
+thiserror = "1.0.52"
+typed-builder = "0.20.0"
+
+[dev-dependencies]
+pretty_assertions = "1.4.0"
+
+[build-dependencies]
+pkg-config = "0.3.30"

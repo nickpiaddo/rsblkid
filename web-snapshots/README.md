@@ -35,6 +35,11 @@ These tools were essential for collecting copies:
 [C header includes in NixOS][9] [[a]][10]
 [NixOS - Environment variables][11] [[a]][12]
 
+## Rust
+
+[Using C Libraries in Rust][13] [[a]][14]
+[Wrapping Unsafe C Libraries in Rust][15] [[a]][16]
+
 [1]: https://wiki.alpinelinux.org/wiki/Repositories#Managing_repositories
 [2]: alpine-linux/managing-repositories.html
 [3]: https://unix.stackexchange.com/questions/751105/how-to-enable-automatic-login-in-alpine-linux-for-root
@@ -47,3 +52,7 @@ These tools were essential for collecting copies:
 [10]: nixos/c-header-includes.html
 [11]: https://nixos.wiki/wiki/Environment_variables
 [12]: nixos/environment-variables.html
+[13]: https://medium.com/dwelo-r-d/using-c-libraries-in-rust-13961948c72a
+[14]: rust/using-c-libraries-in-rust.html
+[15]: https://medium.com/dwelo-r-d/wrapping-unsafe-c-libraries-in-rust-d75aeb283c65
+[16]: rust/wrapping-unsafe-c-libraries.html
