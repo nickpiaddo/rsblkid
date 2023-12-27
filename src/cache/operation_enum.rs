@@ -3,7 +3,6 @@
 
 use num_enum::IntoPrimitive;
 
-#[allow(dead_code)]
 #[derive(Clone, Copy, Debug, IntoPrimitive)]
 #[repr(i32)]
 /// Cache operation flags.

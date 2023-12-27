@@ -7,6 +7,7 @@
 use std::ffi::CString;
 use std::mem::MaybeUninit;
 use std::path::{Path, PathBuf};
+use std::ptr::NonNull;
 
 // From this library
 use crate::core::device::Tag;
@@ -14,9 +15,11 @@ use crate::core::device::TagName;
 use crate::core::errors::ConversionError;
 use crate::core::partition::RawBytes;
 
+use crate::cache::operation_enum::Operation;
 use crate::cache::Builder;
 use crate::cache::CacheBuilder;
 use crate::cache::CacheError;
+use crate::cache::Device;
 
 use crate::ffi_utils;
 
@@ -27,11 +30,11 @@ pub struct Cache {
     inner: libblkid::blkid_cache,
 }
 
-impl Cache {
+impl<'cache> Cache {
     #[doc(hidden)]
     /// Creates a device cache.
     ///
-    /// # Argument
+    /// # Arguments
     ///
     /// `dest_file` -- name of the file to save changes to.
     ///
@@ -315,6 +318,73 @@ impl Cache {
         }
     }
 
+    /// Returns the first device with a matching `tag`. This function returns `None`,
+    /// if no device with the given `tag` was found.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// # use pretty_assertions::assert_eq;
+    /// use std::path::Path;
+    /// use rsblkid::core::device::Tag;
+    /// use rsblkid::cache::Cache;
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut cache = Cache::builder()
+    ///         .discard_changes_on_drop()
+    ///         .build()?;
+    ///
+    ///     cache.probe_all_devices()?;
+    ///
+    ///     let label: Tag = "LABEL='nixos'".parse()?;
+    ///     let device = cache.find_device_with_tag(&label)
+    ///         .expect("found no device with tag: LABEL='nixos'");
+    ///
+    ///     let actual = device.name();
+    ///     let expected = Path::new("/dev/vda");
+    ///     assert_eq!(actual, expected);
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn find_device_with_tag(&mut self, tag: &Tag) -> Option<Device> {
+        log::debug!(
+            "Cache::find_device_with_tag trying to find device with tag: {:?}",
+            tag
+        );
+
+        let key_cstr = tag.name().to_c_string();
+        let value_cstr = tag.value_to_c_string().ok()?;
+
+        let mut ptr = MaybeUninit::<libblkid::blkid_dev>::uninit();
+        unsafe {
+            ptr.write(libblkid::blkid_find_dev_with_tag(
+                self.inner,
+                key_cstr.as_ptr(),
+                value_cstr.as_ptr(),
+            ));
+        }
+
+        match unsafe { ptr.assume_init() } {
+            ptr if ptr.is_null() => {
+                let err_msg = format!("found no device with tag {:?}", tag);
+                log::debug!("Cache::find_device_with_tag {}. blkid_find_dev_with_tag returned a NULL pointer", err_msg);
+
+                None
+            }
+            device_ptr => {
+                log::debug!(
+                    "Cache::find_device_with_tag found device with tag: {:?}",
+                    tag
+                );
+                let device_ptr = unsafe { NonNull::new_unchecked(device_ptr) };
+                let device = Device::new(self, device_ptr);
+
+                Some(device)
+            }
+        }
+    }
+
     /// Returns the name of the first device with a matching `tag`. This function returns `None`,
     /// if no device matching the given `tag` was found.
     ///
@@ -528,6 +598,215 @@ impl Cache {
 
         Self::device_name_from_spec(self, path_cstr)
     }
+
+    #[doc(hidden)]
+    /// Helper function for device search by name. This is a Swiss-army knife function from `libblkid`,
+    /// depending on the value of its `flag` parameter it will:
+    /// - `Operation::Create`: create an empty device if `device_name` is not found in the cache,
+    /// - `Operation::Find`: look-up a device entry matching `device_name` in the cache,
+    /// - `Operation::Normal`: get a valid Device structure representing the named device, either
+    /// from the cache or by probing `device_name`,
+    /// - `Operation::Verify`: refresh data in the cache belonging to `device_name`.
+    fn search_for_device_info(
+        &'cache self,
+        device_name: &Path,
+        flag: Operation,
+    ) -> Result<Device<'cache>, CacheError> {
+        log::debug!(
+            "Cache::search_for_device_info searching for device {:?}",
+            device_name
+        );
+
+        if device_name.as_os_str().is_empty() {
+            let err_msg = "can not search for device with empty name".to_owned();
+            log::debug!("Cache::search_for_device_info {}", err_msg);
+
+            return Err(CacheError::EmptyDeviceName(err_msg));
+        }
+
+        let dev_name = ffi_utils::as_ref_path_to_c_string(device_name).map_err(|e| {
+            let err_msg = format!("failed to convert {:?} to a `CString`. {}", device_name, e);
+            ConversionError::CString(err_msg)
+        })?;
+
+        let mut ptr = MaybeUninit::<libblkid::blkid_dev>::uninit();
+
+        unsafe {
+            ptr.write(libblkid::blkid_get_dev(
+                self.inner,
+                dev_name.as_ptr(),
+                flag.into(),
+            ));
+        }
+
+        match unsafe { ptr.assume_init() } {
+            ptr if ptr.is_null() => match flag {
+                Operation::Create => {
+                    let err_msg = format!("failed to create new device entry: {:?}", device_name);
+                    log::debug!("Cache::search_for_device_info {}. libblkid::blkid_get_dev returned a NULL pointer", err_msg);
+
+                    Err(CacheError::DeviceCreation(err_msg))
+                }
+                _otherwise => {
+                    let err_msg = format!("failed to find device: {:?}", device_name);
+                    log::debug!("Cache::search_for_device_info {}. libblkid::blkid_get_dev returned a NULL pointer", err_msg);
+
+                    Err(CacheError::DeviceNotFound(err_msg))
+                }
+            },
+            device_ptr => {
+                log::debug!(
+                    "Cache::search_for_device_info found device named {:?}",
+                    device_name
+                );
+
+                let ptr = unsafe { NonNull::new_unchecked(device_ptr) };
+
+                Ok(Device::new(self, ptr))
+            }
+        }
+    }
+
+    /// Adds a device named `device_name` to the cache, provided the device exists and one entry
+    /// with the same name is not already present.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// # use pretty_assertions::assert_eq;
+    /// use std::path::Path;
+    /// use rsblkid::cache::Cache;
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut cache = Cache::builder().discard_changes_on_drop().build()?;
+    ///
+    ///     let path = "/dev/vda";
+    ///     let device = cache.add_new_entry(path)?;
+    ///     let actual = device.name();
+    ///     let expected = Path::new(path);
+    ///     assert_eq!(actual, expected);
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn add_new_entry<T>(&'cache mut self, device_name: T) -> Result<Device<'cache>, CacheError>
+    where
+        T: AsRef<Path>,
+    {
+        log::debug!("Cache::add_new_entry adding new empty cache entry");
+
+        Self::search_for_device_info(self, device_name.as_ref(), Operation::Create)
+    }
+
+    /// Finds a device by name, either from the cache or by probing block devices connected to the
+    /// system.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// # use pretty_assertions::assert_eq;
+    /// use std::path::Path;
+    /// use rsblkid::cache::Cache;
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut cache = Cache::builder().build()?;
+    ///     cache.probe_all_devices()?;
+    ///
+    ///     // Search for /dev/vda
+    ///     let name = "/dev/vda";
+    ///     let device = cache.find_device_by_name(name)
+    ///         .expect("device '/dev/vda' not found");
+    ///
+    ///     let actual = device.name();
+    ///     let expected = Path::new(name);
+    ///     assert_eq!(actual, expected);
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn find_device_by_name<T>(&'cache mut self, device_name: T) -> Option<Device<'cache>>
+    where
+        T: AsRef<Path>,
+    {
+        let device_name = device_name.as_ref();
+        log::debug!(
+            "Cache::find_device_by_name probing for device named {:?} ",
+            device_name
+        );
+
+        Self::search_for_device_info(self, device_name, Operation::Normal).ok()
+    }
+
+    /// Finds a device by name by only searching the cache. **Does NOT refresh any cached data
+    /// before searching for a device.**
+    pub fn lookup_device_by_name<T>(
+        &'cache mut self,
+        device_name: T,
+    ) -> Result<Device<'cache>, CacheError>
+    where
+        T: AsRef<Path>,
+    {
+        let device_name = device_name.as_ref();
+        log::debug!(
+            "Cache::lookup_device_by_name looking-up device named {:?} ",
+            device_name
+        );
+
+        Self::search_for_device_info(self, device_name, Operation::Find)
+    }
+
+    /// Refreshes the cache **before** searching for a device by name.
+    pub fn lookup_refreshed_device_by_name<T>(
+        &'cache mut self,
+        device_name: T,
+    ) -> Result<Device<'cache>, CacheError>
+    where
+        T: AsRef<Path>,
+    {
+        let device_name = device_name.as_ref();
+        log::debug!(
+            "Cache::lookup_refreshed_device_by_name refreshing cache then looking-up device named {:?} ",
+            device_name
+        );
+
+        Self::search_for_device_info(self, device_name, Operation::Verify)
+    }
+
+    /// Probes all block devices and populates the `Cache`.
+    /// Checks that cached data in the `device` argument is consistent with its current state
+    /// on the system, and refreshes it if necessary.
+    ///
+    /// For long running processes, cached data on removable devices can go stale. Use this
+    /// function to refresh your copy of the `device`'s metadata if you need up-to-date
+    /// information.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use rsblkid::cache::Cache;
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut cache = Cache::builder().build()?;
+    ///     let device = cache.find_device_by_name("/dev/vda")?;
+    ///
+    ///     // Run a long-lived process that might modify /dev/vda
+    ///     // ...
+    ///     // ...
+    ///
+    ///     // Update cached information.
+    ///     let refreshed_device = cache.refresh_device_data(device);
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn refresh_device_data(&'cache mut self, device: Device<'cache>) -> Device<'cache> {
+        log::debug!(
+            "Cache::refresh_device_data refreshing data about device named {:?} ",
+            device.name()
+        );
+
+        Self::lookup_refreshed_device_by_name(self, device.name()).unwrap_or(device)
+    }
 }
 
 impl Drop for Cache {
@@ -567,5 +846,39 @@ mod tests {
             .discard_changes_on_drop()
             .build()
             .unwrap();
+    }
+
+    const DEV_DUMMY: &'static str = "/dev/DUMMY_DEVICE";
+
+    #[test]
+    #[should_panic]
+    fn add_new_entry_panics_when_device_does_not_exist() {
+        let mut cache = Cache::builder().build().unwrap();
+
+        let _ = cache.add_new_entry(DEV_DUMMY).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn find_device_by_name_panics_when_device_does_not_exist() {
+        let mut cache = Cache::builder().build().unwrap();
+
+        let _ = cache.find_device_by_name(DEV_DUMMY).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn lookup_device_by_name_panics_when_device_does_not_exist() {
+        let mut cache = Cache::builder().build().unwrap();
+
+        let _ = cache.lookup_device_by_name(DEV_DUMMY).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn lookup_refreshed_device_by_name_panics_when_device_does_not_exist() {
+        let mut cache = Cache::builder().build().unwrap();
+
+        let _ = cache.lookup_refreshed_device_by_name(DEV_DUMMY).unwrap();
     }
 }

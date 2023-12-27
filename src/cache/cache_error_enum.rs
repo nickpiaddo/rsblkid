@@ -13,6 +13,18 @@ use crate::core::errors::ConversionError;
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum CacheError {
+    /// Error while searching for a device by name.
+    #[error("{0}")]
+    DeviceNotFound(String),
+
+    /// Error creating a new device entry, by name, in the device cache.
+    #[error("{0}")]
+    DeviceCreation(String),
+
+    /// Given an empty string as a device name.
+    #[error("{0}")]
+    EmptyDeviceName(String),
+
     /// Error during a [`Cache`](crate::cache::Cache) initialization.
     #[error("{0}")]
     Creation(String),

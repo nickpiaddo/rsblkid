@@ -64,6 +64,30 @@ pub fn const_c_char_array_to_bytes<'a>(ptr: *const libc::c_char) -> &'a [u8] {
 ///
 ///  - The memory referenced by the returned CStr must not be mutated for the duration of lifetime 'a.
 ///
+pub fn const_c_char_array_to_path_ref<'a>(ptr: *const libc::c_char) -> &'a Path {
+    unsafe {
+        log::debug!(
+            "ffi_utils::const_c_char_array_to_path_buf converting `*const libc::c_char` to `PathBuf`: {:?}",
+            CStr::from_ptr(ptr)
+        );
+
+        let bytes = CStr::from_ptr(ptr).to_bytes();
+        Path::new(OsStr::from_bytes(bytes))
+    }
+}
+#[doc(hidden)]
+/// Converts a `const` [`c_char`](libc::c_char) C string to a [`PathBuf`].
+///
+///  # Safety
+///
+///  - Assumes the  memory pointed to by `ptr` contains a valid nul terminator at the end of the string.
+///
+///  - `ptr` must be valid for reads of bytes up to and including the null terminator. This means in particular:
+///      The entire memory range of the C string must be contained within a single allocated object!
+///      `ptr` must be non-null even for a zero-length `cstr`.
+///
+///  - The memory referenced by the returned CStr must not be mutated for the duration of lifetime 'a.
+///
 pub fn const_c_char_array_to_path_buf(ptr: *const libc::c_char) -> PathBuf {
     unsafe {
         log::debug!(
