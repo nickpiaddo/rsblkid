@@ -5,6 +5,7 @@
 
 // From standard library
 use std::ffi::CString;
+use std::fmt;
 use std::mem::MaybeUninit;
 use std::path::{Path, PathBuf};
 use std::ptr::NonNull;
@@ -20,6 +21,7 @@ use crate::cache::Builder;
 use crate::cache::CacheBuilder;
 use crate::cache::CacheError;
 use crate::cache::Device;
+use crate::cache::EntryIter;
 
 use crate::ffi_utils;
 
@@ -27,7 +29,7 @@ use crate::ffi_utils;
 #[derive(Debug)]
 #[repr(transparent)]
 pub struct Cache {
-    inner: libblkid::blkid_cache,
+    pub(crate) inner: libblkid::blkid_cache,
 }
 
 impl<'cache> Cache {
@@ -599,6 +601,36 @@ impl<'cache> Cache {
         Self::device_name_from_spec(self, path_cstr)
     }
 
+    /// Returns an iterator over the device entries in the cache.
+    ///
+    /// The iterator yields all items in the `Cache`, from start to end.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it is not able to instantiate a new [`EntryIter`].
+    ///
+    /// # Examples
+    /// ----
+    ///
+    /// ```
+    /// use rsblkid::cache::Cache;
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut cache = Cache::builder().discard_changes_on_drop().build()?;
+    ///     cache.probe_all_devices()?;
+    ///
+    ///     for device in cache.iter() {
+    ///         println!("{}", device.name().display());
+    ///     }
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn iter(&'cache self) -> EntryIter<'cache> {
+        log::debug!("Cache::iter creating a new `EntryIter` instance");
+        EntryIter::new(self).unwrap()
+    }
+
     #[doc(hidden)]
     /// Helper function for device search by name. This is a Swiss-army knife function from `libblkid`,
     /// depending on the value of its `flag` parameter it will:
@@ -806,6 +838,18 @@ impl<'cache> Cache {
         );
 
         Self::lookup_refreshed_device_by_name(self, device.name()).unwrap_or(device)
+    }
+}
+
+impl fmt::Display for Cache {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let output = self
+            .iter()
+            .map(|device| format!("<device>{}</device>", device.name().display()))
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        write!(f, "{}", output)
     }
 }
 

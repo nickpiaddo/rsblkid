@@ -81,6 +81,35 @@ impl<'a> Device<'a> {
     }
 
     /// Returns `true` if the `Device` has a [`Tag`] with the exact values matching the argument.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use rsblkid::core::device::Tag;
+    /// use rsblkid::cache::{Cache, Device};
+    /// use std::error::Error;
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut cache = Cache::builder()
+    ///         .discard_changes_on_drop()
+    ///         .build()?;
+    ///
+    ///     cache.probe_all_devices()?;
+    ///
+    ///     let label: Tag = "LABEL=007".parse()?;
+    ///     let devices: Vec<_> = cache
+    ///         .iter()
+    ///         .filter(|device| device.has_tag(&label))
+    ///         .collect();
+    ///
+    ///     // We expect no device will have '007' as label.
+    ///     let actual = devices.is_empty();
+    ///     let expected = true;
+    ///     assert_eq!(actual, expected);
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn has_tag<T>(&self, tag: T) -> bool
     where
         T: AsRef<Tag>,
@@ -111,6 +140,36 @@ impl<'a> Device<'a> {
     }
 
     /// Returns `true` if the `Device` has a [`Tag`] with a [`TagName`] matching the function argument.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use rsblkid::core::device::TagName;
+    /// use rsblkid::cache::{Cache, Device};
+    /// use std::error::Error;
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut cache = Cache::builder()
+    ///         .discard_changes_on_drop()
+    ///         .build()?;
+    ///
+    ///     cache.probe_all_devices()?;
+    ///
+    ///     // Linux Unified Key Setup (LUKS) owner subsystem tag.
+    ///     let tag_name = TagName::SubSystem;
+    ///     let devices: Vec<_> = cache
+    ///         .iter()
+    ///         .filter(|device| device.has_tag_named(tag_name))
+    ///         .collect();
+    ///
+    ///     // We expect the system not to have a LUKS device.
+    ///     let actual = devices.is_empty();
+    ///     let expected = true;
+    ///     assert_eq!(actual, expected);
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn has_tag_named<T>(&self, tag_name: T) -> bool
     where
         T: AsRef<TagName>,
