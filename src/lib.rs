@@ -348,3 +348,7 @@
 //! [107]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Miscellaneous-utils.html#blkid-parse-tag-string
 //! [108]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Miscellaneous-utils.html#blkid-parse-version-string
 //! [109]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Miscellaneous-utils.html#blkid-send-uevent
+
+pub use error::*;
+
+mod error;
