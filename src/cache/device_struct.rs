@@ -15,13 +15,14 @@ use crate::core::device::Tag;
 use crate::core::device::TagName;
 
 use crate::cache::Cache;
+use crate::cache::TagIter;
 
 use crate::ffi_utils;
 
 /// A block device entry in a [`Cache`].
 #[derive(Debug)]
 pub struct Device<'a> {
-    inner: libblkid::blkid_dev,
+    pub(crate) inner: libblkid::blkid_dev,
     _marker: PhantomData<&'a Cache>,
 }
 
@@ -185,12 +186,51 @@ impl<'a> Device<'a> {
 
         Self::check_tag(self.inner, c_tag_name.as_ptr(), std::ptr::null())
     }
+
+    /// Returns an iterator over the device tags.
+    ///
+    /// The iterator yields all device [`Tag`]s from start to end.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it can not instantiate an new [`TagIter`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use rsblkid::cache::Cache;
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut cache = Cache::builder()
+    ///         .discard_changes_on_drop()
+    ///         .build()?;
+    ///
+    ///     cache.probe_all_devices()?;
+    ///
+    ///     // For each device in the cache...
+    ///     for device in cache.iter() {
+    ///         print!("{} :\t", device.name().display());
+    ///
+    ///         // display its tags.
+    ///         for tag in device.iter() {
+    ///             print!("{}\t", tag);
+    ///         }
+    ///         println!();
+    ///     }
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn iter(&'a self) -> TagIter<'a> {
+        log::debug!("Device::iter creating new `TagIter` instance");
+        TagIter::new(self).unwrap()
+    }
 }
 
 impl<'a> PartialEq for Device<'a> {
     /// Two `Device`s are equal when they share the same name.
     fn eq(&self, other: &Self) -> bool {
-        self.name() == other.name()
+        self.name() == other.name() && self.iter().eq(other.iter())
     }
 }
 
@@ -206,6 +246,10 @@ impl<'a> Ord for Device<'a> {
     /// `Device`s are ordered by the lexicographical order of their names.
     ///
     fn cmp(&self, other: &Self) -> Ordering {
-        self.name().cmp(other.name())
+        // Order by device name then by tags
+        let name_cmp = self.name().cmp(other.name());
+        let tags_cmp = self.iter().cmp(other.iter());
+
+        name_cmp.then(tags_cmp)
     }
 }

@@ -845,7 +845,19 @@ impl fmt::Display for Cache {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let output = self
             .iter()
-            .map(|device| format!("<device>{}</device>", device.name().display()))
+            .map(|device| {
+                let device_tags = device
+                    .iter()
+                    .map(|tag| tag.to_string())
+                    .collect::<Vec<_>>()
+                    .join(" ");
+
+                format!(
+                    "<device {}>{}</device>",
+                    device_tags,
+                    device.name().display()
+                )
+            })
             .collect::<Vec<_>>()
             .join("\n");
 

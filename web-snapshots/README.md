@@ -42,6 +42,7 @@ These tools were essential for collecting copies:
 [Rust Conversions][37] [[a]][38]
 [How to build a Rust API with the builder pattern][39] [[a]][40]
 [Hand-Implementing PartialEq, Eq, Hash, PartialOrd and Ord in Rust][41] [[a]][42]
+[How to combine two cmp conditions in `Ord::cmp()`][43] [[a]][44]
 
 ## File systems
 
@@ -104,3 +105,5 @@ These tools were essential for collecting copies:
 [40]: rust/build-a-rust-api-with-the-builder-pattern.html
 [41]: https://www.philipdaniels.com/blog/2019/rust-equality-and-ordering/
 [42]: rust/rust-equality-and-ordering.html
+[43]: https://stackoverflow.com/questions/67335967/how-to-combine-two-cmp-conditions-in-ordcmp
+[44]: rust/how-to-combine-two-orderings.html
