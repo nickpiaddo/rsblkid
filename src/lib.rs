@@ -351,6 +351,7 @@
 
 pub use error::*;
 
+pub mod cache;
 pub mod core;
 pub mod debug;
 mod error;
