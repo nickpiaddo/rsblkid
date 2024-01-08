@@ -160,8 +160,8 @@
 //! | `libblkid`                                | `rsblkid`                                                                                        |
 //! | ----------------------------------------- | ---------                                                                                        |
 //! | [`blkid_free_probe`][24]                  | [`Probe`](crate::probe::Probe) is automatically deallocated when it goes out of scope.           |
-//! | [`blkid_new_probe`][25]                   |                                                                                                  |
-//! | [`blkid_new_probe_from_filename`][26]     |                                                                                                  |
+//! | [`blkid_new_probe`][25]                   | [`Probe::builder`](crate::probe::Probe::builder)                                                 |
+//! | [`blkid_new_probe_from_filename`][26]     | [`ProbeBuilder::scan_device`](crate::probe::ProbeBuilder::scan_device)                           |
 //! | [`blkid_probe_get_devno`][27]             | [`Probe::device_number`](crate::probe::Probe::device_number)                                     |
 //! | [`blkid_probe_get_fd`][28]                | [`Probe::device_file`](crate::probe::Probe::device_file)                                         |
 //! | [`blkid_probe_get_offset`][29]            | [`Probe::scanned_device_segment_location`](crate::probe::Probe::scanned_device_segment_location) |
@@ -175,7 +175,7 @@
 //! | [`blkid_probe_reset_hints`][37]           | [`Probe::discard_hints`](crate::probe::Probe::discard_hints)                                     |
 //! | [`blkid_probe_set_device`][38]            | Not implemented.                                                                                 |
 //! | [`blkid_probe_set_hint`][39]              | [`Probe::set_hint`](crate::probe::Probe::set_hint)                                               |
-//! | [`blkid_probe_set_sectorsize`][40]        |                                                                                                  |
+//! | [`blkid_probe_set_sectorsize`][40]        | [`ProbeBuilder::bytes_per_sector`](crate::probe::ProbeBuilder::bytes_per_sector)                 |
 //! | [`blkid_probe_step_back`][41]             | [`Probe::backtrack`](crate::probe::Probe::backtrack)                                             |
 //! | [`blkid_reset_probe`][42]                 | [`Probe::reset`](crate::probe::Probe::reset)                                                     |
 //!

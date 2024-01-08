@@ -10,6 +10,11 @@
 //! # Table of Contents
 //! 1. [Description](#description)
 //! 2. [Overview](#overview)
+//! 3. [Usage](#usage)
+//! 4. [Examples](#examples)
+//!     1. [Create a `Probe`](#create-a-probe)
+//!     2. [Create a `Probe` in Read/Write mode](#create-a-probe-in-readwrite-mode)
+//!     3. [Limit search area](#limit-search-area)
 //!
 //! ## Description
 //!
@@ -93,11 +98,117 @@
 //! node. After gathering all the information available, we reach the end of the collection process.
 //!
 //! If however, the user does not want data on the device's topology we go to the `End` node.
+//!
+//! ## Usage
+//!
+//! To extract information from a device, `rsblkid` provides the [`ProbeBuilder`] struct, to configure and create a
+//! new [`Probe`] instance. Through [`ProbeBuilder`], a user can specify:
+//! - the categories to explore (`superblocks`, `partitions`, `topology`),
+//! - the device region to scan,
+//! - the search functions to run in each category,
+//! - the file system properties to collect,
+//! - the partition table types to explore,
+//! - or whether we can alter the metadata stored on device, or in memory.
+//!
+//! ## Examples
+//! ### Create a `Probe`
+//!
+//! First we need to instantiate a [`ProbeBuilder`] by invoking the [`Probe::builder`] method. From
+//! there, we must either provide the path to the device to scan, or a [`File`](std::fs::File) object pointing to
+//! an opened device file to associate with the [`Probe`].
+//!
+//! ```ignore
+//! use std::error::Error;
+//! use std::fs::OpenOptions;
+//! use rsblkid::probe::Probe;
+//!
+//! fn main() -> Result<(), Box<dyn Error>> {
+//!     // Create a Probe from a device path
+//!     let probe = Probe::builder()
+//!         .scan_device("/dev/vda")
+//!         .build();
+//!     assert!(probe.is_ok());
+//!
+//!     // Create a Probe from a File object
+//!     let file = OpenOptions::new()
+//!         .read(true)
+//!         .open("/dev/vda")?;
+//!
+//!     let probe = Probe::builder()
+//!         .scan_file(file)
+//!         .build();
+//!     assert!(probe.is_ok());
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
+//! ### Create a `Probe` in Read/Write mode
+//!
+//! By default, a [`Probe`] will access the device in read-only mode. However, if you need to
+//! modify the device's metadata invoke the configuration method [`ProbeBuilder::allow_writes`].
+//!
+//! ```ignore
+//! use std::error::Error;
+//! use std::fs::OpenOptions;
+//! use rsblkid::probe::Probe;
+//!
+//! fn main() -> Result<(), Box<dyn Error>> {
+//!     // Create a Probe from a device path in read/write mode
+//!     let probe = Probe::builder()
+//!         .scan_device("/dev/vda")
+//!         // Open device in read/write mode. By default, a Probe opens a device
+//!         // in read-only mode.
+//!         .allow_writes()
+//!         .build();
+//!     assert!(probe.is_ok());
+//!
+//!     // Create a Probe from a File object in read/write mode
+//!     let file = OpenOptions::new()
+//!         .read(true)
+//!         .write(true)
+//!         .open("/dev/vda")?;
+//!
+//!     let probe = Probe::builder()
+//!         .scan_file(file)
+//!         .build();
+//!     assert!(probe.is_ok());
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
+//! ### Limit search area
+//!
+//! By default, a [`Probe`] scans the device it is assigned in its entirety. Nonetheless, `rsblkid` allows
+//! you to limit the area it searches for properties, by providing a location and region size
+//! to the method [`ProbeBuilder::scan_device_segment`].
+//!
+//!
+//! ```ignore
+//! use rsblkid::probe::Probe;
+//!
+//! fn main() -> rsblkid::Result<()> {
+//!     let probe = Probe::builder()
+//!         .scan_device("/dev/vda")
+//!         // Only scan a 100MB region starting at byte offset 32486
+//!         .scan_device_segment(32486, 104857600)
+//!         .build();
+//!     assert!(probe.is_ok());
+//!
+//!     Ok(())
+//! }
+//! ```
 
 pub use io_hint_struct::IoHint;
+pub use probe_builder_error_enum::ProbeBuilderError;
+pub(crate) use probe_builder_struct::PrbBuilder;
+pub use probe_builder_struct::ProbeBuilder;
 pub use probe_error_enum::ProbeError;
 pub use probe_struct::Probe;
 
 mod io_hint_struct;
+mod probe_builder_error_enum;
+mod probe_builder_struct;
 mod probe_error_enum;
 mod probe_struct;

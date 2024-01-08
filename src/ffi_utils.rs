@@ -7,6 +7,9 @@
 
 // From standard library
 use std::ffi::{CStr, CString, NulError, OsStr};
+use std::fs::File;
+use std::io;
+use std::os::fd::AsRawFd;
 use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 
@@ -134,4 +137,39 @@ pub fn c_char_array_to_string(ptr: *const libc::c_char) -> String {
 
     // Get copy-on-write Cow<'_, str>, then guarantee a freshly-owned String allocation
     String::from_utf8_lossy(cstr.to_bytes()).to_string()
+}
+
+#[doc(hidden)]
+/// Returns the read/write status of an open `File`.
+fn is_file_open_read_write(file: &File) -> io::Result<(bool, bool)> {
+    const RWMODE: libc::c_int = libc::O_RDONLY | libc::O_RDWR | libc::O_WRONLY;
+
+    unsafe {
+        let mode = match libc::fcntl(file.as_raw_fd(), libc::F_GETFL) {
+            -1 => {
+                log::debug!("utils::is_file_open_read_write failed to get file status flags");
+                Err(io::Error::last_os_error())
+            }
+            status_flags => {
+                log::debug!("utils::is_file_open_read_write got file status flags");
+                Ok(status_flags)
+            }
+        }?;
+
+        match mode & RWMODE {
+            libc::O_WRONLY => Ok((false, true)),
+            libc::O_RDONLY => Ok((true, false)),
+            libc::O_RDWR => Ok((true, true)),
+            _ => unreachable!("utils::is_file_open_read_write unsupported status flag"),
+        }
+    }
+}
+
+#[doc(hidden)]
+/// Returns `true` if a file is open in read-write mode.
+pub fn is_open_read_write(file: &File) -> io::Result<bool> {
+    let state = is_file_open_read_write(file)? == (true, true);
+    log::debug!("utils::is_open_read_write value: {:?}", state);
+
+    Ok(state)
 }

@@ -18,6 +18,7 @@ use crate::cache::CacheError;
 use crate::cache::EntryIterError;
 use crate::cache::TagIterError;
 
+use crate::probe::ProbeBuilderError;
 use crate::probe::ProbeError;
 
 /// A specialized [`Result`](std::result::Result) type for `rsblkid`.
@@ -77,6 +78,9 @@ pub enum RsBlkidError {
 
     #[error(transparent)]
     Probe(#[from] ProbeError),
+
+    #[error(transparent)]
+    ProbeBuilder(#[from] ProbeBuilderError),
 
     #[error(transparent)]
     TagIter(#[from] TagIterError),
