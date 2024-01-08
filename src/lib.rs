@@ -75,7 +75,8 @@
 //!  - or reading information from [udev](https://wiki.archlinux.org/title/Udev)'s
 //! `/dev/disk/by-*` symlinks (method used by default).
 //!
-//! The low-level API, on the other hand, always scans a block device directly.
+//! The [low-level API](crate::probe), on the other hand, always scans a block device directly. It offers more
+//! fine-grained control over the data collected.
 //!
 //! ## From `libblkid` to `rsblkid`
 //!
@@ -380,3 +381,4 @@ pub mod core;
 pub mod debug;
 mod error;
 pub(crate) mod ffi_utils;
+pub mod probe;

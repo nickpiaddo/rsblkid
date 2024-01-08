@@ -50,6 +50,8 @@ These tools were essential for collecting copies:
 [Design of the FAT file system][19] [[a]][20]
 [Journaling file system][21] [[a]][22]
 [Logical block addressing][23] [[a]][24]
+[What is a Superblock, Inode, Dentry and a File?][45] [[a]][46]
+[What's a file system's "magic" number in a super block?][47] [[a]][48]
 
 ## Disks
 
@@ -107,3 +109,7 @@ These tools were essential for collecting copies:
 [42]: rust/rust-equality-and-ordering.html
 [43]: https://stackoverflow.com/questions/67335967/how-to-combine-two-cmp-conditions-in-ordcmp
 [44]: rust/how-to-combine-two-orderings.html
+[45]: https://unix.stackexchange.com/questions/4402/what-is-a-superblock-inode-dentry-and-a-file
+[46]: filesystems/what-is-a-superblock.html
+[47]: https://superuser.com/questions/239088/whats-a-file-systems-magic-number-in-a-super-block
+[48]: filesystems/what-is-a-filesystem-s-magic-number.html

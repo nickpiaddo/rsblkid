@@ -29,6 +29,9 @@
         # Development environment
         devShells.default = with pkgs; mkShell {
           buildInputs = [
+            # Diagrams
+            d2
+
             # Markdown
             glow
             pandoc

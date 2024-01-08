@@ -1,0 +1,169 @@
+classes: {
+  yes-arrow: {
+    label: "yes"
+    style: {
+      stroke-width: 3
+      font-size: 26
+    }
+  }
+
+  no-arrow: {
+    label: "no"
+    style: {
+      stroke-width: 3
+      font-size: 26
+    }
+  }
+
+  process: {
+    shape: rectangle
+    style: {
+      stroke-width: 3
+      font-size: 26
+    }
+  }
+
+  decision: {
+    shape: diamond
+    style: {
+      stroke-width: 3
+      font-size: 26
+    }
+  }
+
+  connector: {
+    shape: circle
+    style: {
+      stroke-width: 3
+      font-size: 26
+    }
+  }
+}
+
+fs: {
+  label: "File systems scanner"
+
+  apfs: {
+    class: decision
+    label: "Is APFS?"
+  }
+
+  bfs: {
+    class: decision
+    label: "Is BFS?"
+  }
+
+  ext4: {
+    class: decision
+    label: "Is ext4?"
+  }
+
+  other: {
+    class: decision
+    label: "Is ...?"
+  }
+
+  process: {
+    class: process
+    label: "collect file system properties"
+  }
+
+  apfs -> bfs: {class: no-arrow}
+  bfs -> ext4: {class: no-arrow}
+  ext4 -> other: {class: no-arrow}
+
+  apfs -> process: {class: yes-arrow}
+  bfs -> process: {class: yes-arrow}
+  ext4 -> process: {class: yes-arrow}
+  other -> process: {class: yes-arrow}
+}
+
+partitions: {
+  label: "Partitions scanner"
+
+  aix: {
+    class: decision
+    label: "Has an AIX partition table?"
+  }
+
+  dos: {
+    class: decision
+    label: "Has a DOS partition table?"
+  }
+
+  gpt: {
+    class: decision
+    label: "Has a GPT partition table?"
+  }
+
+  other: {
+    class: decision
+    label: "Has a ... partition table?"
+  }
+
+  process: {
+    class: process
+    label: "Collect per-partition properties"
+  }
+
+  aix -> dos: {class: no-arrow}
+  dos -> gpt: {class: no-arrow}
+  gpt -> other: {class: no-arrow}
+
+  aix -> process: {class: yes-arrow}
+  dos -> process: {class: yes-arrow}
+  gpt -> process: {class: yes-arrow}
+  other -> process: {class: yes-arrow}
+}
+
+topology: {
+  label: "Topology scanner"
+
+  process: {
+    class: process
+    label: "Collect device topology data"
+  }
+}
+
+start: {
+  class: connector
+  label: "Start"
+}
+
+scan-fs: {
+  class: decision
+  label: "Scan for file systems?"
+}
+
+scan-partitions: {
+  class: decision
+  label: "Scan for partitions?"
+}
+
+scan-topology: {
+  class: decision
+  label: "Extract device topology?"
+}
+
+end: {
+  class: connector
+  label: "End"
+  style: {
+    double-border: true
+  }
+}
+
+start -> scan-fs
+scan-fs -> scan-partitions: {class: no-arrow}
+fs.other -> scan-partitions: {class: no-arrow}
+fs.process -> scan-partitions
+scan-fs -> fs.apfs: {class: yes-arrow}
+
+scan-partitions -> partitions.aix: {class: yes-arrow}
+scan-partitions -> scan-topology: {class: no-arrow}
+partitions.other -> scan-topology: {class: no-arrow}
+partitions.process -> scan-topology
+
+scan-topology -> topology.process: {class: yes-arrow}
+scan-topology -> end: {class: no-arrow}
+topology.process -> end
