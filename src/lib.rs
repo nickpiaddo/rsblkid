@@ -33,7 +33,8 @@
 //! - etc.
 //!
 //! `rsblkid` presents the data it gathers as key/value pairs (tags), where the keys can be for
-//! example  a device's `LABEL`, `UUID`, file system `TYPE`, etc.
+//! example  a device's `LABEL`, `UUID`, file system `TYPE`, etc. (see
+//! [`FsProperty`](crate::probe::FsProperty) for the list of keys supported by `rsblkid`).
 //!
 //! ## API structure
 //!
