@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 // From dependency library
+use enum_iterator::All;
 
 // From standard library
 use std::fs::{File, OpenOptions};
@@ -11,7 +12,12 @@ use std::os::unix::fs::OpenOptionsExt;
 use std::path::Path;
 
 // From this library
+use crate::core::device::Usage;
 use crate::core::errors::ConversionError;
+use crate::core::partition::FileSystem;
+
+use crate::probe::Filter;
+use crate::probe::FsProperty;
 use crate::probe::IoHint;
 use crate::probe::PrbBuilder;
 use crate::probe::ProbeBuilder;
@@ -512,6 +518,358 @@ impl Probe {
         log::debug!("Probe::reset resetting `Probe`");
 
         unsafe { libblkid::blkid_reset_probe(self.inner) }
+    }
+
+    #[doc(hidden)]
+    /// Activates/Deactivates file system superblock scanning.
+    fn configure_chain_superblocks(
+        ptr: libblkid::blkid_probe,
+        enable: bool,
+    ) -> Result<(), ProbeError> {
+        log::debug!("Probe::configure_chain_superblocks enable: {}", enable);
+
+        let operation = if enable { "enable" } else { "disable" };
+        let enable = if enable { 1 } else { 0 };
+
+        let result = unsafe { libblkid::blkid_probe_enable_superblocks(ptr, enable) };
+
+        match result {
+            0 => {
+                log::debug!(
+                    "Probe::configure_chain_superblocks {}d superblocks chain",
+                    operation
+                );
+
+                Ok(())
+            }
+            code => {
+                let err_msg = format!("failed to {} superblocks scanning", operation);
+                log::debug!("Probe::configure_chain_superblocks {}. libblkid::blkid_probe_enable_superblocks returned error code {}", err_msg, code);
+
+                Err(ProbeError::Config(err_msg))
+            }
+        }
+    }
+
+    #[doc(hidden)]
+    /// Activate file system search functions.
+    pub(super) fn enable_chain_superblocks(&mut self) -> Result<(), ProbeError> {
+        log::debug!("Probe::enable_chain_superblocks enabling superblocks chain");
+        Self::configure_chain_superblocks(self.inner, true)
+    }
+
+    #[doc(hidden)]
+    /// Deactivate file system search functions.
+    pub(super) fn disable_chain_superblocks(&mut self) -> Result<(), ProbeError> {
+        log::debug!("Probe::disable_chain_superblocks disabling superblocks chain");
+        Self::configure_chain_superblocks(self.inner, false)
+    }
+
+    /// Returns an iterator over all file systems supported by `rsblkid`.
+    pub fn iter_supported_file_systems() -> All<FileSystem> {
+        log::debug!("Probe::iter_supported_file_systems iterating all supported file systems");
+
+        enum_iterator::all::<FileSystem>()
+    }
+
+    /// Specifies which file systems to search for/exclude when scanning a device. By default,
+    /// a `Probe` will try to identify any of the supported [`FileSystem`]s.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::probe::{Filter, Probe};
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let probe = Probe::builder()
+    ///         .scan_device("/dev/vda")
+    ///         .scan_device_superblocks(true)
+    ///         // Specify which file systems to search for when scanning the device, by default all
+    ///         // supported search functions are tried.
+    ///         .scan_superblocks_for_file_systems(Filter::In,
+    ///             vec![
+    ///                 FileSystem::APFS,
+    ///                 FileSystem::Ext4,
+    ///                 FileSystem::VFAT,
+    ///             ])
+    ///         .build()?;
+    ///
+    ///     // Do some work...
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn scan_superblocks_for_file_systems(
+        &mut self,
+        filter: Filter,
+        fs_types: &[FileSystem],
+    ) -> Result<(), ProbeError> {
+        log::debug!(
+            "Probe::scan_superblocks_for_file_systems scanning for superblocks with file systems {:?} [{:?}]",
+            filter,
+            fs_types
+        );
+
+        // Convert each FileSystem element to CString
+        let fs_filters: Vec<_> = fs_types.iter().map(|fs| fs.to_c_string()).collect();
+
+        // Convert each CString to a C char array
+        let mut filters: Vec<_> = fs_filters
+            .iter()
+            .map(|str| str.as_ptr() as *mut _)
+            .collect();
+
+        // Add a terminal NULL pointer to the array of char arrays
+        filters.push(std::ptr::null_mut());
+
+        let result = unsafe {
+            libblkid::blkid_probe_filter_superblocks_type(
+                self.inner,
+                filter.into(),
+                filters.as_mut_ptr(),
+            )
+        };
+
+        match result {
+            0 => {
+                log::debug!("Probe::scan_superblocks_for_file_systems scan successful");
+
+                Ok(())
+            }
+            code => {
+                let err_msg = format!(
+                    "failed to find superblocks matching the list of file systems: {:?}",
+                    fs_types
+                );
+                log::debug!("Probe::scan_superblocks_for_file_systems {}. libblkid::blkid_probe_filter_superblocks_type returned error code {}", err_msg, code);
+
+                Err(ProbeError::Config(err_msg))
+            }
+        }
+    }
+
+    /// Specifies which file systems to search for/exclude when scanning a device based on their
+    /// [`Usage`]. By default, a `Probe` will try to identify any of the supported [`FileSystem`]s.
+    ///
+    /// # Arguments
+    ///
+    /// - `filter` -- [`Filter`](crate::probe::Filter) for including/excluding .
+    /// - `usage_flags` -- [`Usage`](crate::core::device::Usage) flags to search for/exclude during a scan.
+    pub fn scan_superblocks_with_usage_flags(
+        &mut self,
+        filter: Filter,
+        usage_flags: &[Usage],
+    ) -> Result<(), ProbeError> {
+        let flags_str = usage_flags
+            .iter()
+            .map(|u| u.to_string())
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        log::debug!("Probe::scan_superblocks_with_usage_flags searching for superblocks with usage flags {} [{}]", filter, flags_str);
+
+        let flags = usage_flags
+            .iter()
+            .fold(0i32, |acc, &item| acc | item as i32);
+
+        let result = unsafe {
+            libblkid::blkid_probe_filter_superblocks_usage(self.inner, filter.into(), flags)
+        };
+
+        match result {
+            0 => {
+                log::debug!("Probe::scan_superblocks_with_usage_flags found superblocks with usage flags {} [{}]", filter, flags_str);
+
+                Ok(())
+            }
+            code => {
+                let err_msg = format!(
+                    "failed to find superblocks with usage flags {} [{}]",
+                    filter, flags_str
+                );
+                log::debug!("Probe::scan_superblocks_with_usage_flags {}. libblkid::blkid_probe_filter_superblocks_usage returned error code {:?}", err_msg, code);
+
+                Err(ProbeError::Config(err_msg))
+            }
+        }
+    }
+
+    /// Inverts the scanning [`Filter`](crate::probe::Filter) defined during the [`Probe`]'s creation.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::probe::{Filter, Probe};
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut probe = Probe::builder()
+    ///         .scan_device_superblocks(true)
+    ///         .scan_device("/dev/vda")
+    ///         // Search ONLY for the presence of an ext4 file system
+    ///         .scan_superblocks_for_file_systems(Filter::In,
+    ///             vec![
+    ///                 FileSystem::Ext4,
+    ///             ])
+    ///         .build()?;
+    ///
+    ///     // Do some work...
+    ///
+    ///     // From now on, the Probe will search for ALL supported file systems EXCEPT ext4...
+    ///     probe.invert_superblocks_scanning_filter()?;
+    ///
+    ///     // ...
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn invert_superblocks_scanning_filter(&mut self) -> Result<(), ProbeError> {
+        log::debug!(
+            "Probe::invert_superblocks_scanning_filter inverting superblocks scanning filter"
+        );
+        let result = unsafe { libblkid::blkid_probe_invert_superblocks_filter(self.inner) };
+
+        match result {
+            0 => {
+                log::debug!("Probe::invert_superblocks_scanning_filter inverted superblocks scanning filter");
+                Ok(())
+            }
+            code => {
+                let err_msg = "failed to invert superblocks scanning filter".to_owned();
+                log::debug!("Probe::invert_superblocks_scanning_filter {}. libblkid::blkid_probe_invert_superblocks_filter returned error code {:?}", err_msg,  code);
+
+                Err(ProbeError::Config(err_msg))
+            }
+        }
+    }
+
+    /// Resets the scanning [`Filter`](crate::probe::Filter) of a [`Probe`] to its value
+    /// at creation.
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::probe::{Filter, Probe};
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut probe = Probe::builder()
+    ///         .scan_device("/dev/vda")
+    ///         .scan_device_superblocks(true)
+    ///         // Search ONLY for the presence of an ext4 file system
+    ///         .scan_superblocks_for_file_systems(Filter::In,
+    ///             vec![
+    ///                 FileSystem::Ext4,
+    ///             ])
+    ///         .build()?;
+    ///
+    ///     // Do some work...
+    ///
+    ///     // Now, the Probe will search for ALL supported file systems EXCEPT ext4.
+    ///     // This is equivalent to calling the method `scan_superblocks_for_file_systems` above
+    ///     // with the `filter` parameter set to `Filter::Out`.
+    ///     probe.invert_superblocks_scanning_filter()?;
+    ///
+    ///     // ...
+    ///
+    ///     // From this point on, we are BACK to searching ONLY for an ext4 file system...
+    ///     probe.reset_superblocks_scanning_filter()?;
+    ///
+    ///     // ...
+    ///
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn reset_superblocks_scanning_filter(&mut self) -> Result<(), ProbeError> {
+        log::debug!(
+            "Probe::reset_superblocks_scanning_filter resetting superblocks scanning filter to initial value"
+        );
+        let result = unsafe { libblkid::blkid_probe_reset_superblocks_filter(self.inner) };
+
+        match result {
+            0 => {
+                log::debug!("Probe::reset_superblocks_scanning_filter superblocks scanning filter reset to initial value");
+
+                Ok(())
+            }
+            code => {
+                let err_msg =
+                    "failed to reset superblocks scanning filter to initial value".to_owned();
+                log::debug!("Probe::reset_superblocks_scanning_filter {}. libblkid::blkid_probe_reset_superblocks_filter returned error code {:?}", err_msg, code);
+
+                Err(ProbeError::Config(err_msg))
+            }
+        }
+    }
+
+    /// Collects [`Tag`](crate::core::device::Tag)s matching the given list of file system properties during a
+    /// device scan.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use rsblkid::probe::{FsProperty, Probe};
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let probe = Probe::builder()
+    ///         .scan_device("/dev/vda")
+    ///         .scan_device_superblocks(true)
+    ///         // Collect `KeyValue` pairs matching the given list of file system properties
+    ///         // during the device scan.
+    ///         .collect_fs_properties(
+    ///             vec![
+    ///                 FsProperty::Label,
+    ///                 FsProperty::Uuid,
+    ///                 FsProperty::FsInfo,
+    ///                 FsProperty::Version,
+    ///             ]
+    ///         )
+    ///         .build()?;
+    ///
+    ///     // Do some work...
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn collect_fs_properties(
+        &mut self,
+        fs_properties: &[FsProperty],
+    ) -> Result<(), ProbeError> {
+        let fs_properties_str = fs_properties
+            .iter()
+            .map(|x| x.to_string())
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        log::debug!(
+            "Probe::collect_fs_properties selecting superblocks properties [{}]",
+            fs_properties_str
+        );
+
+        let fs_properties = fs_properties
+            .iter()
+            .fold(0i32, |acc, &item| acc | item as i32);
+
+        let result =
+            unsafe { libblkid::blkid_probe_set_superblocks_flags(self.inner, fs_properties) };
+
+        match result {
+            0 => {
+                log::debug!("Probe::collect_fs_properties selected superblocks properties");
+
+                Ok(())
+            }
+            code => {
+                let err_msg = format!(
+                    "failed to select superblocks properties [{}]",
+                    fs_properties_str
+                );
+                log::debug!("Probe::collect_fs_properties {}. libblkid::blkid_probe_set_superblocks_flags returned error code {:?}", err_msg,  code);
+
+                Err(ProbeError::Config(err_msg))
+            }
+        }
     }
 }
 

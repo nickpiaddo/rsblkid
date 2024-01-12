@@ -43,6 +43,8 @@ These tools were essential for collecting copies:
 [How to build a Rust API with the builder pattern][39] [[a]][40]
 [Hand-Implementing PartialEq, Eq, Hash, PartialOrd and Ord in Rust][41] [[a]][42]
 [How to combine two cmp conditions in `Ord::cmp()`][43] [[a]][44]
+[How can I convert a Vec T into a C-friendly *mut T?][49] [[a]][50]
+[Passing Vec String from Rust to char** in C][51] [[a]][52]
 
 ## File systems
 
@@ -113,3 +115,7 @@ These tools were essential for collecting copies:
 [46]: filesystems/what-is-a-superblock.html
 [47]: https://superuser.com/questions/239088/whats-a-file-systems-magic-number-in-a-super-block
 [48]: filesystems/what-is-a-filesystem-s-magic-number.html
+[49]: https://stackoverflow.com/questions/28758246/how-can-i-convert-a-vect-into-a-c-friendly-mut-t
+[50]: rust/convert-vec-T-into-C-friendly-mut-T.html
+[51]: https://stackoverflow.com/questions/42717473/passing-vecstring-from-rust-to-char-in-c
+[52]: rust/passing-vec-string-to-array-of-char-array-in-c.html

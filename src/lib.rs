@@ -224,21 +224,21 @@
 //!
 //! #### Superblocks probing
 //!
-//! | `libblkid`                                    | `rsblkid` |
-//! | ------------------                            | --------- |
-//! | [`blkid_probe_enable_superblocks`][51]        |           |
-//! | [`blkid_known_fstype`][52]                    |           |
-//! | [`blkid_superblocks_get_name`][53]            |           |
-//! | [`blkid_probe_filter_superblocks_type`][54]   |           |
-//! | [`blkid_probe_filter_superblocks_usage`][55]  |           |
-//! | [`blkid_probe_invert_superblocks_filter`][56] |           |
-//! | [`blkid_probe_reset_superblocks_filter`][57]  |           |
-//! | [`blkid_probe_set_superblocks_flags`][58]     |           |
-//! | [`blkid_probe_reset_filter`][59]              |           |
-//! | [`blkid_probe_filter_types`][60]              |           |
-//! | [`blkid_probe_filter_usage`][61]              |           |
-//! | [`blkid_probe_invert_filter`][62]             |           |
-//! | [`blkid_probe_set_request`][63]               |           |
+//! | `libblkid`                                    | `rsblkid`                                                                                                                                                                                                                  |
+//! | ------------------                            | ---------                                                                                                                                                                                                                  |
+//! | [`blkid_probe_enable_superblocks`][51]        | [`ProbeBuilder::scan_device_superblocks`](crate::probe::ProbeBuilder::scan_device_superblocks)                                                                                                                             |
+//! | [`blkid_known_fstype`][52]                    | Not implemented. [`FileSystem`](crate::core::partition::FileSystem) lists all supported file systems.                                                                                                                      |
+//! | [`blkid_superblocks_get_name`][53]            | [`Probe::iter_supported_file_systems`](crate::probe::Probe::iter_supported_file_systems)                                                                                                                                   |
+//! | [`blkid_probe_filter_superblocks_type`][54]   | [`ProbeBuilder::scan_superblocks_for_file_systems`](crate::probe::ProbeBuilder::scan_superblocks_for_file_systems)<br>[`Probe::scan_superblocks_for_file_systems`](crate::probe::Probe::scan_superblocks_for_file_systems) |
+//! | [`blkid_probe_filter_superblocks_usage`][55]  | [`ProbeBuilder::scan_superblocks_with_usage_flags`](crate::probe::ProbeBuilder::scan_superblocks_with_usage_flags)<br>[`Probe::scan_superblocks_with_usage_flags`](crate::probe::Probe::scan_superblocks_with_usage_flags) |
+//! | [`blkid_probe_invert_superblocks_filter`][56] | [`Probe::invert_superblocks_scanning_filter`](crate::probe::Probe::invert_superblocks_scanning_filter)                                                                                                                     |
+//! | [`blkid_probe_reset_superblocks_filter`][57]  | [`Probe::reset_superblocks_scanning_filter`](crate::probe::Probe::reset_superblocks_scanning_filter)                                                                                                                       |
+//! | [`blkid_probe_set_superblocks_flags`][58]     | [`Probe::collect_fs_properties`](crate::probe::Probe::collect_fs_properties)                                                                                                                                               |
+//! | [`blkid_probe_reset_filter`][59]              | Deprecated.                                                                                                                                                                                                                |
+//! | [`blkid_probe_filter_types`][60]              | Deprecated.                                                                                                                                                                                                                |
+//! | [`blkid_probe_filter_usage`][61]              | Deprecated.                                                                                                                                                                                                                |
+//! | [`blkid_probe_invert_filter`][62]             | Deprecated.                                                                                                                                                                                                                |
+//! | [`blkid_probe_set_request`][63]               | Deprecated.                                                                                                                                                                                                                |
 //!
 //!
 //! [51]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Superblocks-probing.html#blkid-probe-enable-superblocks
