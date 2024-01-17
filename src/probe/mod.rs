@@ -395,6 +395,7 @@
 pub use filter_enum::Filter;
 pub use fs_property_enum::FsProperty;
 pub use io_hint_struct::IoHint;
+pub use partition_struct::Partition;
 pub use probe_builder_error_enum::ProbeBuilderError;
 pub(crate) use probe_builder_struct::PrbBuilder;
 pub use probe_builder_struct::ProbeBuilder;
@@ -406,6 +407,7 @@ pub use tag_iter_struct::TagIter;
 mod filter_enum;
 mod fs_property_enum;
 mod io_hint_struct;
+mod partition_struct;
 mod probe_builder_error_enum;
 mod probe_builder_struct;
 mod probe_error_enum;
