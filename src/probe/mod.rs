@@ -93,3 +93,7 @@
 //! node. After gathering all the information available, we reach the end of the collection process.
 //!
 //! If however, the user does not want data on the device's topology we go to the `End` node.
+
+pub use io_hint_struct::IoHint;
+
+mod io_hint_struct;
