@@ -8,16 +8,28 @@ use std::mem::MaybeUninit;
 
 // From this library
 use crate::ffi_utils;
+use crate::probe::PartitionTable;
 use crate::probe::Probe;
 
 /// A device partition.
 #[derive(Debug)]
 pub struct Partition<'a> {
     pub(super) ptr: libblkid::blkid_partition,
-    _marker: &'a Probe,
+    marker: &'a Probe,
 }
 
 impl<'a> Partition<'a> {
+    #[doc(hidden)]
+    /// Creates a new `Partition` instance.
+    pub(super) fn new(marker: &'a Probe, partition: libblkid::blkid_partition) -> Partition<'a> {
+        log::debug!("Partition::new creating a new `Partition` instance");
+
+        Self {
+            ptr: partition,
+            marker,
+        }
+    }
+
     /// Returns the partition's name, if supported by the partition type (e.g. `Mac`).
     pub fn name(&self) -> Option<String> {
         log::debug!("Partition::name getting partition name");
@@ -164,6 +176,36 @@ impl<'a> Partition<'a> {
                 );
 
                 Some(partition_type)
+            }
+        }
+    }
+
+    /// Returns a partition's parent partition table.
+    ///
+    /// In general, all partitions on a device share the same parent partition table. Except for
+    /// systems with nested partition tables, for example `BSD` or `Solaris` that use a partition
+    /// table inside a standard DOS Primary Partition.
+    pub fn partition_table(&self) -> Option<PartitionTable> {
+        log::debug!("Partition::partition_table getting partition's parent partition table.");
+
+        unsafe {
+            let mut ptr = MaybeUninit::<libblkid::blkid_parttable>::uninit();
+            ptr.write(libblkid::blkid_partition_get_table(self.ptr));
+
+            match ptr.assume_init() {
+                table if table.is_null() => {
+                    let err_msg = "failed to get partition's parent partition table".to_owned();
+                    log::debug!("Partition::partition_table {}. libblkid::blkid_partition_get_table returned a NULL pointer", err_msg);
+
+                    None
+                }
+                table => {
+                    log::debug!(
+                        "Partition::partition_table got partition's parent partition table."
+                    );
+
+                    Some(PartitionTable::new(self.marker, table))
+                }
             }
         }
     }
