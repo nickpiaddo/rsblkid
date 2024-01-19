@@ -39,7 +39,4 @@ pub enum ProbeError {
     /// Error while searching for device properties.
     #[error("{}", .0)]
     Search(String),
-
-    #[error("{}", .0)]
-    Settings(String),
 }

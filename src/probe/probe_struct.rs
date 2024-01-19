@@ -16,12 +16,16 @@ use crate::core::device::Tag;
 use crate::core::device::TagName;
 use crate::core::device::Usage;
 use crate::core::errors::ConversionError;
+
 use crate::core::partition::FileSystem;
+use crate::core::partition::PartitionTableType;
 use crate::core::partition::RawBytes;
 
 use crate::probe::Filter;
 use crate::probe::FsProperty;
 use crate::probe::IoHint;
+use crate::probe::PartitionIter;
+use crate::probe::PartitionScanningOption;
 use crate::probe::PrbBuilder;
 use crate::probe::ProbeBuilder;
 use crate::probe::ProbeError;
@@ -180,6 +184,8 @@ impl Probe {
         // Required if we want to erase device properties on device or in memory
         let flags = [FsProperty::Magic];
         probe.collect_fs_properties(&flags)?;
+        let option = [PartitionScanningOption::Magic];
+        probe.set_partitions_scanning_options(&option)?;
 
         Ok(probe)
     }
@@ -566,11 +572,13 @@ impl Probe {
     ///
     /// ```ignore
     /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::core::partition::PartitionTableType;
     /// use rsblkid::probe::{Filter, Probe, ScanResult};
     ///
     /// fn main() -> rsblkid::Result<()> {
     ///     let mut probe = Probe::builder()
-    ///         // Assuming `/dev/vda` has an ext4 file system
+    ///         // Assuming `/dev/vda` has an ext4 file system on a partition,
+    ///         // in a GPT partition table
     ///         .scan_device("/dev/vda")
     ///         // Search device for the following types of file system.
     ///         .scan_superblocks_for_file_systems(Filter::In,
@@ -580,6 +588,16 @@ impl Probe {
     ///                 FileSystem::Ext4,
     ///                 FileSystem::VFAT,
     ///                 FileSystem::ZFS,
+    ///             ])
+    ///         // Activate partition search functions.
+    ///         .scan_device_partitions(true)
+    ///         // Search for partition in the following partition tables
+    ///         .scan_partitions_for_partition_tables(Filter::In,
+    ///             vec![
+    ///                 PartitionTableType::AIX,
+    ///                 PartitionTableType::BSD,
+    ///                 PartitionTableType::GPT,
+    ///                 PartitionTableType::SGI,
     ///             ])
     ///         .build()?;
     ///
@@ -594,6 +612,11 @@ impl Probe {
     ///     //     search function: Ext4 [ ]
     ///     //     search function: VFAT [ ]
     ///     //     search function: ZFS  [ ]
+    ///     // category: partitions
+    ///     //     search function: AIX  [ ]
+    ///     //     search function: BSD  [ ]
+    ///     //     search function: GPT  [ ]
+    ///     //     search function: SGI  [ ]
     ///     match probe.find_device_properties() {
     ///         // After
     ///         //
@@ -603,10 +626,30 @@ impl Probe {
     ///         //     search function: Ext4 [#]
     ///         //     search function: VFAT [ ]
     ///         //     search function: ZFS  [ ]
+    ///         // category: partitions
+    ///         //     search function: AIX  [*]
+    ///         //     search function: BSD  [*]
+    ///         //     search function: GPT  [#]
+    ///         //     search function: SGI  [ ]
     ///         ScanResult::FoundProperties => {
     ///             // Print collected file system properties
     ///             for property in probe.iter_device_properties() {
     ///                 println!("{property}")
+    ///             }
+    ///
+    ///             // Print metadata about partition table entries
+    ///             // Header
+    ///             println!("Partition table");
+    ///             println!("{} {:>10} {:>10}  {:>10}\n----", "number", "start", "size", "part_type");
+    ///
+    ///             for partition in probe.iter_partitions() {
+    ///                 let number = partition.number();
+    ///                 let start = partition.location_in_sectors();
+    ///                 let size = partition.size_in_sectors();
+    ///                 let part_type = partition.partition_type();
+    ///
+    ///                 // Row
+    ///                 println!("#{}: {:>10} {:>10}  0x{:x}", number, start, size, part_type)
     ///             }
     ///         }
     ///         _ => eprintln!("could not find any supported file system properties"),
@@ -618,14 +661,12 @@ impl Probe {
     pub fn find_device_properties(&mut self) -> ScanResult {
         log::debug!("Probe::find_device_properties collecting all device properties");
 
-        unsafe {
-            let rc = libblkid::blkid_do_fullprobe(self.inner);
-            Self::to_scan_result(
-                rc,
-                "libblkid::blkid_do_fullprobe",
-                "Probe::find_device_properties",
-            )
-        }
+        let rc = unsafe { libblkid::blkid_do_fullprobe(self.inner) };
+        Self::to_scan_result(
+            rc,
+            "libblkid::blkid_do_fullprobe",
+            "Probe::find_device_properties",
+        )
     }
 
     /// Follows the same process as [`Probe::find_device_properties`]. However, instead of moving
@@ -645,11 +686,13 @@ impl Probe {
     ///
     /// ```ignore
     /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::core::partition::PartitionTableType;
     /// use rsblkid::probe::{Filter, Probe, ScanResult};
     ///
     /// fn main() -> rsblkid::Result<()> {
     ///     let mut probe = Probe::builder()
-    ///         // Assuming `/dev/vda` has an ext4 file system
+    ///         // Assuming `/dev/vda` has an ext4 file system on a partition,
+    ///         // in a GPT partition table
     ///         .scan_device("/dev/vda")
     ///         // Search device for the following types of file system.
     ///         .scan_superblocks_for_file_systems(Filter::In,
@@ -659,6 +702,16 @@ impl Probe {
     ///                 FileSystem::Ext4,
     ///                 FileSystem::VFAT,
     ///                 FileSystem::ZFS,
+    ///             ])
+    ///         // Activate partition search functions.
+    ///         .scan_device_partitions(true)
+    ///         // Search for partition in the following partition tables
+    ///         .scan_partitions_for_partition_tables(Filter::In,
+    ///             vec![
+    ///                 PartitionTableType::AIX,
+    ///                 PartitionTableType::BSD,
+    ///                 PartitionTableType::GPT,
+    ///                 PartitionTableType::SGI,
     ///             ])
     ///         .build()?;
     ///
@@ -673,6 +726,11 @@ impl Probe {
     ///     //     search function: Ext4 [ ]
     ///     //     search function: VFAT [ ]
     ///     //     search function: ZFS  [ ]
+    ///     // category: partitions
+    ///     //     search function: AIX  [ ]
+    ///     //     search function: BSD  [ ]
+    ///     //     search function: GPT  [ ]
+    ///     //     search function: SGI  [ ]
     ///     match probe.find_all_device_properties() {
     ///         // After
     ///         //
@@ -682,10 +740,30 @@ impl Probe {
     ///         //     search function: Ext4 [#]
     ///         //     search function: VFAT [*]
     ///         //     search function: ZFS  [*]
+    ///         // category: partitions
+    ///         //     search function: AIX  [*]
+    ///         //     search function: BSD  [*]
+    ///         //     search function: GPT  [#]
+    ///         //     search function: SGI  [*]
     ///         ScanResult::FoundProperties => {
     ///             // Print collected file system properties
     ///             for property in probe.iter_device_properties() {
     ///                 println!("{property}")
+    ///             }
+    ///
+    ///             // Print metadata about partition table entries
+    ///             // Header
+    ///             println!("Partition table");
+    ///             println!("{} {:>10} {:>10}  {:>10}\n----", "number", "start", "size", "part_type");
+    ///
+    ///             for partition in probe.iter_partitions() {
+    ///                 let number = partition.number();
+    ///                 let start = partition.location_in_sectors();
+    ///                 let size = partition.size_in_sectors();
+    ///                 let part_type = partition.partition_type();
+    ///
+    ///                 // Row
+    ///                 println!("#{}: {:>10} {:>10}  0x{:x}", number, start, size, part_type)
     ///             }
     ///         }
     ///         _ => eprintln!("could not find any supported file system properties"),
@@ -697,14 +775,12 @@ impl Probe {
     pub fn find_all_device_properties(&mut self) -> ScanResult {
         log::debug!("Probe::find_all_device_properties collecting all device properties and checking value consistencies");
 
-        unsafe {
-            let rc = libblkid::blkid_do_safeprobe(self.inner);
-            Self::to_scan_result(
-                rc,
-                "libblkid::blkid_do_safeprobe",
-                "Probe::find_all_device_properties",
-            )
-        }
+        let rc = unsafe { libblkid::blkid_do_safeprobe(self.inner) };
+        Self::to_scan_result(
+            rc,
+            "libblkid::blkid_do_safeprobe",
+            "Probe::find_all_device_properties",
+        )
     }
 
     /// Runs sequentially each search function for device properties in the current category, until
@@ -724,11 +800,13 @@ impl Probe {
     ///
     /// ```ignore
     /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::core::partition::PartitionTableType;
     /// use rsblkid::probe::{Filter, Probe, ScanResult};
     ///
     /// fn main() -> rsblkid::Result<()> {
     ///     let mut probe = Probe::builder()
-    ///         // Assuming `/dev/vda` has an ext4 file system
+    ///         // Assuming `/dev/vda` has an ext4 file system on a partition,
+    ///         // in a GPT partition table
     ///         .scan_device("/dev/vda")
     ///         // Search device for the following types of file system.
     ///         .scan_superblocks_for_file_systems(Filter::In,
@@ -738,6 +816,16 @@ impl Probe {
     ///                 FileSystem::Ext4,
     ///                 FileSystem::VFAT,
     ///                 FileSystem::ZFS,
+    ///             ])
+    ///         // Activate partition search functions.
+    ///         .scan_device_partitions(true)
+    ///         // Search for partition in the following partition tables
+    ///         .scan_partitions_for_partition_tables(Filter::In,
+    ///             vec![
+    ///                 PartitionTableType::AIX,
+    ///                 PartitionTableType::BSD,
+    ///                 PartitionTableType::GPT,
+    ///                 PartitionTableType::SGI,
     ///             ])
     ///         .build()?;
     ///
@@ -752,6 +840,11 @@ impl Probe {
     ///     //     search function: Ext4 [ ]
     ///     //     search function: VFAT [ ]
     ///     //     search function: ZFS  [ ]
+    ///     // category: partitions
+    ///     //     search function: AIX  [ ]
+    ///     //     search function: BSD  [ ]
+    ///     //     search function: GPT  [ ]
+    ///     //     search function: SGI  [ ]
     ///     match probe.run_scan() {
     ///         // After
     ///         //
@@ -760,7 +853,12 @@ impl Probe {
     ///         //     search function: NTFS [*]
     ///         //     search function: Ext4 [#] ◁─── last position
     ///         //     search function: VFAT [ ]
-    ///         //     search function: ZFS  [ ]
+    ///         //     search function: Zfs  [ ]
+    ///         // category: partitions
+    ///         //     search function: AIX  [ ]
+    ///         //     search function: BSD  [ ]
+    ///         //     search function: GPT  [ ]
+    ///         //     search function: SGI  [ ]
     ///         ScanResult::FoundProperties => {
     ///             // Print collected file system properties
     ///             for property in probe.iter_device_properties() {
@@ -770,16 +868,46 @@ impl Probe {
     ///         _ => eprintln!("could not find any supported file system properties"),
     ///     }
     ///
+    ///     // Second function call
+    ///     match probe.run_scan() {
+    ///         // category: superblocks
+    ///         //     search function: Apfs [*]
+    ///         //     search function: Ntfs [*]
+    ///         //     search function: Ext4 [#]
+    ///         //     search function: VFAT [ ]
+    ///         //     search function: Zfs  [ ]
+    ///         // category: partitions
+    ///         //     search function: AIX  [*] ◁─── resumes here
+    ///         //     search function: BSD  [*]
+    ///         //     search function: GPT  [#] ◁─── last position
+    ///         //     search function: SGI  [ ]
+    ///         ScanResult::FoundProperties => {
+    ///             // Print metadata about partition table entries
+    ///             // Header
+    ///             println!("Partition table");
+    ///             println!("{} {:>10} {:>10}  {:>10}\n----", "number", "start", "size", "part_type");
+    ///
+    ///             for partition in probe.iter_partitions() {
+    ///                 let number = partition.number();
+    ///                 let start = partition.location_in_sectors();
+    ///                 let size = partition.size_in_sectors();
+    ///                 let part_type = partition.partition_type();
+    ///
+    ///                 // Row
+    ///                 println!("#{}: {:>10} {:>10}  0x{:x}", number, start, size, part_type)
+    ///             }
+    ///         }
+    ///         _ => panic!("could not find any supported partition metadata"),
+    ///     }
+    ///
     ///     Ok(())
     /// }
     /// ```
     pub fn run_scan(&mut self) -> ScanResult {
         log::debug!("Probe::run_scan searching for next device properties");
 
-        unsafe {
-            let rc = libblkid::blkid_do_probe(self.inner);
-            Self::to_scan_result(rc, "libblkid::blkid_do_probe", "Probe::run_scan")
-        }
+        let rc = unsafe { libblkid::blkid_do_probe(self.inner) };
+        Self::to_scan_result(rc, "libblkid::blkid_do_probe", "Probe::run_scan")
     }
 
     /// Sets the current position in the sequence of search functions to that of the one executed before last.
@@ -1017,6 +1145,7 @@ impl Probe {
         log::debug!("Probe::delete_properties deleting property");
         if !is_read_only {
             let dry_run = if is_dry_run { 1 } else { 0 };
+
             let result = unsafe { libblkid::blkid_do_wipe(ptr, dry_run) };
 
             match result {
@@ -1520,6 +1649,334 @@ impl Probe {
                 Err(ProbeError::Config(err_msg))
             }
         }
+    }
+
+    //---------- partitions search functions
+
+    #[doc(hidden)]
+    /// Enables/Disables partitions search functions.
+    fn configure_chain_partitions(
+        ptr: libblkid::blkid_probe,
+        enable: bool,
+    ) -> Result<(), ProbeError> {
+        log::debug!("Probe::configure_chain_partitions enable: {:?}", enable);
+
+        let operation = if enable { "enable" } else { "disable" };
+        let enable = if enable { 1 } else { 0 };
+
+        let result = unsafe { libblkid::blkid_probe_enable_partitions(ptr, enable) };
+
+        match result {
+            0 => {
+                log::debug!(
+                    "Probe::configure_chain_partitions {}d partitions chain",
+                    operation
+                );
+
+                Ok(())
+            }
+            code => {
+                let err_msg = format!("failed to {} partitions scanning", operation);
+                log::debug!("Probe::configure_chain_partitions {}. libblkid::blkid_probe_enable_partitions returned error code {:?}", err_msg, code);
+
+                Err(ProbeError::Config(err_msg))
+            }
+        }
+    }
+
+    #[doc(hidden)]
+    /// Activate partition search functions.
+    pub(super) fn enable_chain_partitions(&mut self) -> Result<(), ProbeError> {
+        log::debug!("Probe::enable_chain_partitions enabling partitions chain");
+        Self::configure_chain_partitions(self.inner, true)
+    }
+
+    #[doc(hidden)]
+    /// Deactivate partition search functions.
+    pub(super) fn disable_chain_partitions(&mut self) -> Result<(), ProbeError> {
+        log::debug!("Probe::disable_chain_partitions disabling partitions chain");
+        Self::configure_chain_partitions(self.inner, false)
+    }
+
+    /// Returns an iterator over all supported partition table types.
+    pub fn iter_supported_partition_tables() -> All<PartitionTableType> {
+        log::debug!("Probe::iter_supported_partition_tables iterating over list of supported partition tables");
+        enum_iterator::all::<PartitionTableType>()
+    }
+
+    /// Specifies which kind of partition table to search for/exclude when scanning a device. By default,
+    /// a `Probe` will try to identify any of the supported [`PartitionTableType`]s.
+    ///
+    /// **Warning:** Each time this method is called, [`Probe`] discards the last saved position in
+    /// the sequence of search functions. So, when [`Probe::run_scan`] is called, the search
+    /// sequence starts over instead of resuming from where it left off.
+    ///
+    /// Therefore, it is **strongly advised NOT to call** this function while **in a loop**.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use rsblkid::core::partition::PartitionTableType;
+    /// use rsblkid::probe::{Filter, Probe};
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let probe = Probe::builder()
+    ///         .scan_device("/dev/vda")
+    ///         .scan_device_partitions(true)
+    ///         // Specify which partition tables to search for when scanning the device, by
+    ///         // default all supported partition table identification functions are tried.
+    ///         .scan_partitions_for_partition_tables(Filter::In,
+    ///             vec![
+    ///                 PartitionTableType::AIX,
+    ///                 PartitionTableType::BSD,
+    ///                 PartitionTableType::GPT,
+    ///                 PartitionTableType::DOS,
+    ///             ])
+    ///         .build()?;
+    ///
+    ///     // Do some work...
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn scan_partitions_for_partition_tables(
+        &mut self,
+        filter: Filter,
+        pt_types: &[PartitionTableType],
+    ) -> Result<(), ProbeError> {
+        log::debug!(
+            "Probe::scan_partitions_for_partition_tables scanning partitions for partition tables {} [{:?}]",
+            filter,
+            pt_types
+        );
+        // convert PartitionTableType to CString
+        let filters_cstring: Vec<_> = pt_types.iter().map(|ptt| ptt.to_c_string()).collect();
+
+        // convert to char array
+        let mut filters: Vec<_> = filters_cstring
+            .iter()
+            .map(|cstr| cstr.as_ptr() as *mut _)
+            .collect();
+
+        // Add a terminal NULL pointer to the array of char arrays
+        filters.push(std::ptr::null_mut());
+
+        let result = unsafe {
+            libblkid::blkid_probe_filter_partitions_type(
+                self.inner,
+                filter.into(),
+                filters.as_mut_ptr(),
+            )
+        };
+
+        match result {
+            0 => {
+                log::debug!("Probe::scan_partitions_for_partition_tables scan successful");
+
+                Ok(())
+            }
+            code => {
+                let err_msg = format!(
+                    "failed to find partitions matching the criteria: [{:?}]",
+                    pt_types
+                );
+                log::debug!("Probe::scan_partitions_for_partition_tables {}. libblkid::blkid_probe_filter_partitions_type returned error code {:?}", err_msg,  code);
+
+                Err(ProbeError::Config(err_msg))
+            }
+        }
+    }
+
+    /// Inverts the scanning [`Filter`](crate::probe::Filter) defined during the [`Probe`]'s creation.
+    ///
+    /// **Warning:** Each time this method is called, [`Probe`] discards the last saved position in
+    /// the sequence of search functions. So, when [`Probe::run_scan`] is called, the search
+    /// sequence starts over instead of resuming from where it left off.
+    ///
+    /// Therefore, it is **strongly advised NOT to call** this function while **in a loop**.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use rsblkid::core::partition::PartitionTableType;
+    /// use rsblkid::probe::{Filter, Probe};
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut probe = Probe::builder()
+    ///         .scan_device("/dev/vda")
+    ///         .scan_device_partitions(true)
+    ///         // Search ONLY for the presence of a GPT partition table
+    ///         .scan_partitions_for_partition_tables(Filter::In,
+    ///             vec![
+    ///                 PartitionTableType::GPT,
+    ///             ])
+    ///         .build()?;
+    ///
+    ///     // Do some work...
+    ///
+    ///     // From now on, the Probe will search for ALL supported partition tables EXCEPT GPT...
+    ///     probe.invert_partitions_scanning_filter()?;
+    ///
+    ///     // ...
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn invert_partitions_scanning_filter(&mut self) -> Result<(), ProbeError> {
+        log::debug!(
+            "Probe::invert_partitions_scanning_filter inverting partitions scanning filter"
+        );
+        let result = unsafe { libblkid::blkid_probe_invert_partitions_filter(self.inner) };
+
+        match result {
+            0 => {
+                log::debug!(
+                    "Probe::invert_partitions_scanning_filter inverted partitions scanning filter"
+                );
+
+                Ok(())
+            }
+            code => {
+                let err_msg = "failed to invert partitions scanning filter".to_owned();
+                log::debug!("Probe::invert_partitions_scanning_filter {}. libblkid::blkid_probe_invert_partitions_filter returned error code {:?}", err_msg, code);
+
+                Err(ProbeError::Config(err_msg))
+            }
+        }
+    }
+
+    /// Resets the scanning [`Filter`](crate::probe::Filter) of a [`Probe`] to its value
+    /// at creation.
+    ///
+    /// **Warning:** Each time this method is called, [`Probe`] discards the last saved position in
+    /// the sequence of search functions. So, when [`Probe::run_scan`] is called, the search
+    /// sequence starts over instead of resuming from where it left off.
+    ///
+    /// Therefore, it is **strongly advised NOT to call** this function while **in a loop**.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use rsblkid::core::partition::PartitionTableType;
+    /// use rsblkid::probe::{Filter, Probe};
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut probe = Probe::builder()
+    ///         .scan_device("/dev/vda")
+    ///         .scan_device_partitions(true)
+    ///         // Search ONLY for the presence of partition entries in a GPT partition table
+    ///         .scan_partitions_for_partition_tables(Filter::In,
+    ///             vec![
+    ///                 PartitionTableType::GPT,
+    ///             ])
+    ///         .build()?;
+    ///
+    ///     // Do some work...
+    ///
+    ///     // From now on, the Probe will search in ALL supported partition tables EXCEPT GPT...
+    ///     probe.invert_partitions_scanning_filter()?;
+    ///
+    ///     // ...
+    ///
+    ///     // From this point on, we are BACK to searching ONLY in a GPT partition table...
+    ///     probe.reset_partitions_scanning_filter()?;
+    ///
+    ///     // ...
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn reset_partitions_scanning_filter(&mut self) -> Result<(), ProbeError> {
+        log::debug!(
+            "Probe::reset_partitions_scanning_filter resetting partitions scanning filter to initial value"
+        );
+        let result = unsafe { libblkid::blkid_probe_reset_partitions_filter(self.inner) };
+
+        match result {
+            0 => {
+                log::debug!(
+            "Probe::reset_partitions_scanning_filter partitions scanning filter reset to initial value"
+        );
+
+                Ok(())
+            }
+            code => {
+                let err_msg =
+                    "failed to reset partitions scanning filter to initial value".to_owned();
+                log::debug!("Probe::reset_partitions_scanning_filter {}. libblkid::blkid_probe_reset_partitions_filter returned error code {:?}", err_msg, code);
+
+                Err(ProbeError::Config(err_msg))
+            }
+        }
+    }
+
+    /// Sets optional properties to collect, or methods to use during a scan.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use rsblkid::probe::{PartitionScanningOption, Probe};
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let probe = Probe::builder()
+    ///         .scan_device("/dev/vda")
+    ///         .scan_device_partitions(true)
+    ///         // Set additional data to collect on partitions, and collection methods to use
+    ///         .partitions_scanning_options(
+    ///             vec![
+    ///                 PartitionScanningOption::EntryDetails,
+    ///                 PartitionScanningOption::ForceGPT,
+    ///             ])
+    ///         .build()?;
+    ///
+    ///     // Do some work...
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn set_partitions_scanning_options(
+        &mut self,
+        options: &[PartitionScanningOption],
+    ) -> Result<(), ProbeError> {
+        let options_str = options
+            .iter()
+            .map(|x| x.to_string())
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        log::debug!(
+            "Probe::set_partitions_scanning_options setting partition scanning options [{}]",
+            options_str
+        );
+
+        let flag = options.iter().fold(0i32, |acc, &item| {
+            let item: i32 = item.into();
+            acc | item
+        });
+
+        let result = unsafe { libblkid::blkid_probe_set_partitions_flags(self.inner, flag) };
+
+        match result {
+            0 => {
+                log::debug!(
+                    "Probe::set_partitions_scanning_options set partition scanning options"
+                );
+
+                Ok(())
+            }
+            code => {
+                let err_msg = format!("failed to set partitions scanning options: {}", options_str);
+                log::debug!("Probe::set_partitions_scanning_options {}. libblkid::blkid_probe_set_partitions_flags returned error code {:?}", err_msg, code);
+
+                Err(ProbeError::Config(err_msg))
+            }
+        }
+    }
+
+    /// Returns an iterator over all [`Partition`](crate::probe::Partition)s found after a device scan.
+    pub fn iter_partitions(&self) -> PartitionIter {
+        log::debug!("Probe::iter_partitions iterating over list of device partitions");
+        PartitionIter::new(self)
     }
 }
 

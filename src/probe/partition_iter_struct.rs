@@ -18,6 +18,27 @@ pub struct PartitionIter<'a> {
 }
 
 impl<'a> PartitionIter<'a> {
+    /// Creates a `PartitionIter`.
+    pub(super) fn new(probe: &'a Probe) -> PartitionIter<'a> {
+        log::debug!("PartitionIter::new creating a new `PartitionIter` instance");
+
+        unsafe {
+            let mut iterator_ptr = MaybeUninit::<libblkid::blkid_partlist>::uninit();
+
+            iterator_ptr.write(libblkid::blkid_probe_get_partitions(probe.inner));
+            let ptr = match iterator_ptr.assume_init() {
+                iterator if iterator.is_null() => None,
+                iterator => Some(iterator),
+            };
+
+            Self {
+                ptr,
+                marker: probe,
+                counter: 0,
+            }
+        }
+    }
+
     /// Returns the top-level [`PartitionTable`] if it exists.
     pub fn partition_table(&self) -> Option<PartitionTable> {
         self.ptr.and_then(|ptr| {

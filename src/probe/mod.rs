@@ -19,6 +19,7 @@
 //!         1. [Select search functions to run](#select-search-functions-to-run)
 //!         2. [Delete device metadata](#delete-device-metadata)
 //!         3. [Collect file system metadata](#collect-file-system-metadata)
+//!         4. [Collect metadata about partitions](#collect-metadata-about-partitions)
 //!
 //! ## Description
 //!
@@ -225,6 +226,7 @@
 //!
 //! To select which search functions to run in each category, use the following methods:
 //! - `superblocks`: [`Probe::scan_superblocks_for_file_systems`]
+//! - `partitions`: [`Probe::scan_partitions_for_partition_tables`]
 //!
 //! **Note:** all `superblocks` search functions are active by default.
 //!
@@ -387,6 +389,68 @@
 //!     // UUID=34084b8e-6196-4d93-a6e8-a4f87f9afbc6
 //!     // VERSION=1.0
 //!     // BLOCK_SIZE=1024
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
+//! #### Collect metadata about partitions
+//!
+//! Unlike file system search functions, which produces a list of
+//! [`Tag`](crate::core::device::Tag)s, scanning for partitions returns a collection of
+//! [`Partition`] structs holding the metadata gathered.
+//!
+//! ```ignore
+//! use rsblkid::core::fs::PartitionTableType;
+//! use rsblkid::probe::{
+//!         Filter, PartitionScanningOption, Probe, ScanResult
+//!     };
+//!
+//! fn main() -> rsblkid::Result<()> {
+//!     let mut probe = Probe::builder()
+//!         .scan_device("/dev/vda")
+//!         // Deactivate file system search functions if not needed (active by default).
+//!         .scan_device_superblocks(false)
+//!         // Activate partition search functions.
+//!         .scan_device_partitions(true)
+//!         // Search for partition entries ONLY in DOS or GPT partition tables
+//!         .scan_partitions_for_partition_tables(Filter::In,
+//!             vec![
+//!                 PartitionTableType::DOS,
+//!                 PartitionTableType::GPT,
+//!             ])
+//!         .build()?;
+//!
+//!     match probe.find_device_properties() {
+//!         ScanResult::FoundProperties => {
+//!             // Print metadata about partition table entries
+//!             // Header
+//!             println!("Partition table");
+//!             println!("{} {:>10} {:>10}  {:>10}\n----", "number", "start", "size", "part_type");
+//!
+//!             for partition in probe.iter_partitions() {
+//!                 let number = partition.number();
+//!                 let start = partition.location_in_sectors();
+//!                 let size = partition.size_in_sectors();
+//!                 let part_type = partition.partition_type();
+//!
+//!                 // Row
+//!                 println!("#{}: {:>10} {:>10}  0x{:x}", number, start, size, part_type)
+//!             }
+//!         }
+//!         _ => eprintln!("could not find any supported partition metadata"),
+//!     }
+//!
+//!     // Example output
+//!     //
+//!     // Partition table
+//!     // number    start      size  part_type
+//!     // ----
+//!     // #1:          34      2014        0x0
+//!     // #2:        2048      2048        0x0
+//!     // #3:        4096      2048        0x0
+//!     // #4:        6144      2048        0x0
+//!     // #5:        8192      2048        0x0
 //!
 //!     Ok(())
 //! }

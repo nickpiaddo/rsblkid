@@ -88,6 +88,14 @@
 //!         // Superblocks scanning is active by default, setting this option to `true` here
 //!         // is redundant.
 //!         .scan_device_superblocks(true)
+//!         // Activate partition search functions.
+//!         .scan_device_partitions(true)
+//!         // Search for partition entries ONLY in DOS or GPT partition tables
+//!         .scan_partitions_for_partition_tables(Filter::In,
+//!             vec![
+//!                 PartitionTableType::DOS,
+//!                 PartitionTableType::GPT,
+//!             ])
 //!         .build()?;
 //!
 //!     match probe.find_device_properties() {
@@ -95,6 +103,23 @@
 //!             // Print collected file system properties
 //!             for property in probe.iter_device_properties() {
 //!                 println!("{property}")
+//!             }
+//!
+//!             println!();
+//!
+//!             // Print metadata about partition table entries
+//!             // Header
+//!             println!("Partition table");
+//!             println!("{} {:>10} {:>10}  {:>10}\n----", "number", "start", "size", "part_type");
+//!
+//!             for partition in probe.iter_partitions() {
+//!                 let number = partition.number();
+//!                 let start = partition.location_in_sectors();
+//!                 let size = partition.size_in_sectors();
+//!                 let part_type = partition.partition_type();
+//!
+//!                 // Row
+//!                 println!("#{}: {:>10} {:>10}  0x{:x}", number, start, size, part_type)
 //!             }
 //!         }
 //!         _ => eprintln!("could not find device properties"),
@@ -106,6 +131,15 @@
 //!     // UUID="ac4f36bf-191b-4fb0-b808-6d7fc9fc88be"
 //!     // BLOCK_SIZE="1024"
 //!     // TYPE="ext4"
+//!     //
+//!     // Partition table
+//!     // number    start      size  part_type
+//!     // ----
+//!     // #1:          34      2014        0x0
+//!     // #2:        2048      2048        0x0
+//!     // #3:        4096      2048        0x0
+//!     // #4:        6144      2048        0x0
+//!     // #5:        8192      2048        0x0
 //!
 //!     Ok(())
 //! }
@@ -289,37 +323,37 @@
 
 //! #### Partitions probing
 //!
-//! | `libblkid`                                     | `rsblkid`                                                                                                  |
-//! | ------------------                             | ---------                                                                                                  |
-//! | [`blkid_probe_enable_partitions`][64]          |                                                                                                            |
-//! | [`blkid_probe_set_partitions_flags`][65]       |                                                                                                            |
-//! | [`blkid_probe_filter_partitions_type`][66]     |                                                                                                            |
-//! | [`blkid_probe_invert_partitions_filter`][67]   |                                                                                                            |
-//! | [`blkid_probe_reset_partitions_filter`][68]    |                                                                                                            |
-//! | [`blkid_known_pttype`][69]                     |                                                                                                            |
-//! | [`blkid_partitions_get_name`][70]              |                                                                                                            |
-//! | [`blkid_partition_get_name`][71]               | [`Partition::name`](crate::probe::Partition::name)                                                         |
-//! | [`blkid_partition_get_flags`][72]              | [`Partition::flags`](crate::probe::Partition::flags)                                                       |
-//! | [`blkid_partition_get_partno`][73]             | [`Partition::number`](crate::probe::Partition::number)                                                     |
-//! | [`blkid_partition_get_size`][74]               | [`Partition::size_in_sectors`](crate::probe::Partition::size_in_sectors)                                   |
-//! | [`blkid_partition_get_start`][75]              | [`Partition::location_in_sectors`](crate::probe::Partition::location_in_sectors)                           |
-//! | [`blkid_partition_get_table`][76]              | [`Partition::partition_table`](crate::probe::Partition::partition_table)                                   |
-//! | [`blkid_partition_get_type`][77]               | [`Partition::partition_type`](crate::probe::Partition::partition_type)                                     |
-//! | [`blkid_partition_get_type_string`][78]        | [`Partition::partition_type_string`](crate::probe::Partition::partition_type_string)                       |
-//! | [`blkid_partition_get_uuid`][79]               | [`Partition::uuid`](crate::probe::Partition::uuid)                                                         |
-//! | [`blkid_partition_is_extended`][80]            | [`Partition::is_extended`](crate::probe::Partition::is_extended)                                           |
-//! | [`blkid_partition_is_logical`][81]             | [`Partition::is_logical`](crate::probe::Partition::is_logical)                                             |
-//! | [`blkid_partition_is_primary`][82]             | [`Partition::is_primary`](crate::probe::Partition::is_primary)                                             |
-//! | [`blkid_partlist_get_partition`][83]           | [`PartitionIter::nth`](crate::probe::PartitionIter::nth)                                                   |
-//! | [`blkid_partlist_get_partition_by_partno`][84] | [`PartitionIter::nth_by_partition_number`](crate::probe::PartitionIter::nth_by_partition_number)           |
-//! | [`blkid_partlist_numof_partitions`][85]        | [`PartitionIter::count`](crate::probe::PartitionIter::count)                                               |
-//! | [`blkid_partlist_devno_to_partition`][86]      | [`PartitionIter::partition_from_device_number`](crate::probe::PartitionIter::partition_from_device_number) |
-//! | [`blkid_partlist_get_table`][87]               | [`PartitionIter::partition_table`](crate::probe::PartitionIter::partition_table)                           |
-//! | [`blkid_parttable_get_id`][88]                 | [`PartitionTable::id`](crate::probe::PartitionTable::id)                                                   |
-//! | [`blkid_parttable_get_offset`][89]             | [`PartitionTable::location_in_bytes`](crate::probe::PartitionTable::location_in_bytes)                     |
-//! | [`blkid_parttable_get_parent`][90]             | [`PartitionTable::parent`](crate::probe::PartitionTable::parent)                                           |
-//! | [`blkid_parttable_get_type`][91]               | [`PartitionTable::partition_table_type`](crate::probe::PartitionTable::partition_table_type)               |
-//! | [`blkid_probe_get_partitions`][92]             |                                                                                                            |
+//! | `libblkid`                                     | `rsblkid`                                                                                                                                                                                                                              |
+//! | ------------------                             | ---------                                                                                                                                                                                                                              |
+//! | [`blkid_probe_enable_partitions`][64]          | [`ProbeBuilder::scan_device_partitions`](crate::probe::ProbeBuilder::scan_device_partitions)                                                                                                                                           |
+//! | [`blkid_probe_set_partitions_flags`][65]       | [`ProbeBuilder::partitions_scanning_options`](crate::probe::ProbeBuilder::partitions_scanning_options)<br>[`Probe::set_partitions_scanning_options`](crate::probe::Probe::set_partitions_scanning_options)                             |
+//! | [`blkid_probe_filter_partitions_type`][66]     | [`ProbeBuilder::scan_partitions_for_partition_tables`](crate::probe::ProbeBuilder::scan_partitions_for_partition_tables)<br>[`Probe::scan_partitions_for_partition_tables`](crate::probe::Probe::scan_partitions_for_partition_tables) |
+//! | [`blkid_probe_invert_partitions_filter`][67]   | [`Probe::invert_partitions_scanning_filter`](crate::probe::Probe::invert_partitions_scanning_filter)                                                                                                                                   |
+//! | [`blkid_probe_reset_partitions_filter`][68]    | [`Probe::reset_partitions_scanning_filter`](crate::probe::Probe::reset_partitions_scanning_filter)                                                                                                                                     |
+//! | [`blkid_known_pttype`][69]                     | Not implemented. [`PartitionTableType`](crate::core::partition::PartitionTableType) lists all supported partition table types.                                                                                                         |
+//! | [`blkid_partitions_get_name`][70]              | [`Probe::iter_supported_partition_tables`](crate::probe::Probe::iter_supported_partition_tables)                                                                                                                                       |
+//! | [`blkid_partition_get_name`][71]               | [`Partition::name`](crate::probe::Partition::name)                                                                                                                                                                                     |
+//! | [`blkid_partition_get_flags`][72]              | [`Partition::flags`](crate::probe::Partition::flags)                                                                                                                                                                                   |
+//! | [`blkid_partition_get_partno`][73]             | [`Partition::number`](crate::probe::Partition::number)                                                                                                                                                                                 |
+//! | [`blkid_partition_get_size`][74]               | [`Partition::size_in_sectors`](crate::probe::Partition::size_in_sectors)                                                                                                                                                               |
+//! | [`blkid_partition_get_start`][75]              | [`Partition::location_in_sectors`](crate::probe::Partition::location_in_sectors)                                                                                                                                                       |
+//! | [`blkid_partition_get_table`][76]              | [`Partition::partition_table`](crate::probe::Partition::partition_table)                                                                                                                                                               |
+//! | [`blkid_partition_get_type`][77]               | [`Partition::partition_type`](crate::probe::Partition::partition_type)                                                                                                                                                                 |
+//! | [`blkid_partition_get_type_string`][78]        | [`Partition::partition_type_string`](crate::probe::Partition::partition_type_string)                                                                                                                                                   |
+//! | [`blkid_partition_get_uuid`][79]               | [`Partition::uuid`](crate::probe::Partition::uuid)                                                                                                                                                                                     |
+//! | [`blkid_partition_is_extended`][80]            | [`Partition::is_extended`](crate::probe::Partition::is_extended)                                                                                                                                                                       |
+//! | [`blkid_partition_is_logical`][81]             | [`Partition::is_logical`](crate::probe::Partition::is_logical)                                                                                                                                                                         |
+//! | [`blkid_partition_is_primary`][82]             | [`Partition::is_primary`](crate::probe::Partition::is_primary)                                                                                                                                                                         |
+//! | [`blkid_partlist_get_partition`][83]           | [`PartitionIter::nth`](crate::probe::PartitionIter::nth)                                                                                                                                                                               |
+//! | [`blkid_partlist_get_partition_by_partno`][84] | [`PartitionIter::nth_by_partition_number`](crate::probe::PartitionIter::nth_by_partition_number)                                                                                                                                       |
+//! | [`blkid_partlist_numof_partitions`][85]        | [`PartitionIter::count`](crate::probe::PartitionIter::count)                                                                                                                                                                           |
+//! | [`blkid_partlist_devno_to_partition`][86]      | [`PartitionIter::partition_from_device_number`](crate::probe::PartitionIter::partition_from_device_number)                                                                                                                             |
+//! | [`blkid_partlist_get_table`][87]               | [`PartitionIter::partition_table`](crate::probe::PartitionIter::partition_table)                                                                                                                                                       |
+//! | [`blkid_parttable_get_id`][88]                 | [`PartitionTable::id`](crate::probe::PartitionTable::id)                                                                                                                                                                               |
+//! | [`blkid_parttable_get_offset`][89]             | [`PartitionTable::location_in_bytes`](crate::probe::PartitionTable::location_in_bytes)                                                                                                                                                 |
+//! | [`blkid_parttable_get_parent`][90]             | [`PartitionTable::parent`](crate::probe::PartitionTable::parent)                                                                                                                                                                       |
+//! | [`blkid_parttable_get_type`][91]               | [`PartitionTable::partition_table_type`](crate::probe::PartitionTable::partition_table_type)                                                                                                                                           |
+//! | [`blkid_probe_get_partitions`][92]             | [`Probe::iter_partitions`](crate::probe::Probe::iter_partitions)                                                                                                                                                                       |
 //!
 //! [64]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Partitions-probing.html#blkid-probe-enable-partitions
 //! [65]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Partitions-probing.html#blkid-probe-set-partitions-flags

@@ -11,8 +11,10 @@ use std::path::PathBuf;
 // From this library
 use crate::core::device::Usage;
 use crate::core::partition::FileSystem;
+use crate::core::partition::PartitionTableType;
 use crate::probe::Filter;
 use crate::probe::FsProperty;
+use crate::probe::PartitionScanningOption;
 use crate::probe::Probe;
 use crate::probe::ProbeBuilderError;
 
@@ -72,8 +74,26 @@ any of the supported [`FileSystem`]s,")) ]
             Some((criterion, usage)), doc = "Limits file system scanning to superblocks with
 particular [`Usage`](crate::core::device::Usage) flags."))]
     scan_superblocks_with_usage_flags: Option<(Filter, Vec<Usage>)>,
+
     #[builder(default = None, setter(strip_option, doc = "Sets the list of file system properties ([`FsProperty`](flag::FsProperty)) to collect."))]
     collect_fs_properties: Option<Vec<FsProperty>>,
+
+    #[builder(
+        default = false,
+        setter(
+            doc = "Activates partitions search functions when set to `true`. By default, set to `false`."
+        )
+    )]
+    scan_device_partitions: bool,
+
+    #[builder(default = None,
+        setter(transform = |criterion: Filter, pt_types: Vec<PartitionTableType>| Some((criterion, pt_types)),
+        doc = "Sets which partition table types to search for/exclude when scanning a device. By
+default, a [`Probe`] will try to identify any of the supported [`PartitionTableType`]s."))]
+    scan_partitions_for_partition_tables: Option<(Filter, Vec<PartitionTableType>)>,
+
+    #[builder(default = None, setter(strip_option, doc = "Sets optional scanning criteria for partition search functions."))]
+    partitions_scanning_options: Option<Vec<PartitionScanningOption>>,
 }
 
 #[allow(non_camel_case_types)]
@@ -87,6 +107,9 @@ impl<
         __scan_superblocks_for_file_systems: ::typed_builder::Optional<Option<(Filter, Vec<FileSystem>)>>,
         __scan_superblocks_with_usage_flags: ::typed_builder::Optional<Option<(Filter, Vec<Usage>)>>,
         __collect_fs_properties: ::typed_builder::Optional<Option<Vec<FsProperty>>>,
+        __scan_device_partitions: ::typed_builder::Optional<bool>,
+        __scan_partitions_for_partition_tables: ::typed_builder::Optional<Option<(Filter, Vec<PartitionTableType>)>>,
+        __partitions_scanning_options: ::typed_builder::Optional<Option<Vec<PartitionScanningOption>>>,
     >
     ProbeBuilder<(
         __scan_device,
@@ -98,6 +121,9 @@ impl<
         __scan_superblocks_for_file_systems,
         __scan_superblocks_with_usage_flags,
         __collect_fs_properties,
+        __scan_device_partitions,
+        __scan_partitions_for_partition_tables,
+        __partitions_scanning_options,
     )>
 {
     /// Finishes configuring, and creates a new [`Probe`] instance.
@@ -107,7 +133,10 @@ impl<
     /// ```ignore
     /// use rsblkid::core::device::Usage;
     /// use rsblkid::core::partition::FileSystem;
-    /// use rsblkid::probe::{Filter, FsProperty, Probe};
+    /// use rsblkid::core::partition::PartitionTableType;
+    /// use rsblkid::probe::{
+    ///         Filter, FsProperty, PartitionScanningOption, Probe,
+    ///     };
     ///
     /// fn main() -> rsblkid::Result<()> {
     ///     let probe_builder = Probe::builder();
@@ -148,6 +177,24 @@ impl<
     ///                 FsProperty::Version,
     ///             ]
     ///         )
+    ///         // Activate partitions search functions. By default, device partitions scanning
+    ///         // is NOT active.
+    ///         .scan_device_partitions(true)
+    ///         // Specify which partition tables to search for when scanning the device, by
+    ///         // default all supported partition table identification functions are tried.
+    ///         .scan_partitions_for_partition_tables(Filter::In,
+    ///             vec![
+    ///                 PartitionTableType::AIX,
+    ///                 PartitionTableType::BSD,
+    ///                 PartitionTableType::GPT,
+    ///                 PartitionTableType::DOS,
+    ///             ])
+    ///         // Set additional data to collect on partitions, and collection methods to use
+    ///         .partitions_scanning_options(
+    ///             vec![
+    ///                 PartitionScanningOption::EntryDetails,
+    ///                 PartitionScanningOption::ForceGPT,
+    ///             ])
     ///         .build();
     ///
     ///     assert!(probe.is_ok());
@@ -203,6 +250,30 @@ impl<
             }
 
             probe.collect_fs_properties(sb_flags.as_slice())?
+        }
+
+        // ## Partitions chain.
+
+        // Enable / Disable partitions scanning functions.
+        if builder.scan_device_partitions {
+            probe.enable_chain_partitions()?
+        } else {
+            probe.disable_chain_partitions()?
+        }
+
+        // Restrict partition table types to scan for
+        if let Some((criterion, pt_types)) = builder.scan_partitions_for_partition_tables {
+            probe.scan_partitions_for_partition_tables(criterion, pt_types.as_slice())?
+        }
+
+        // Set search selectors for partition properties.
+        if let Some(mut part_flags) = builder.partitions_scanning_options {
+            // Required if we want to erase detected items on device or in memory
+            if builder.allow_writes {
+                part_flags.push(PartitionScanningOption::Magic);
+            }
+
+            probe.set_partitions_scanning_options(part_flags.as_slice())?
         }
 
         Ok(probe)

@@ -195,3 +195,13 @@ gen_fs_test!(
     "session_offset",
     640 * 2048
 );
+
+generate_partition_table_tests![
+    "atari-primary",
+    "atari-xgm",
+    "bsd",
+    "dos_bsd",
+    "gpt",
+    "sgi",
+    "sun"
+];
