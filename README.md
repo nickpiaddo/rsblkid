@@ -44,6 +44,103 @@ install the required dependencies on your system.
 
 ## Example
 
+Extract device metadata about `/dev/vda`.
+
+```rust
+use rsblkid::probe::{Probe, ScanResult};
+
+fn main() -> rsblkid::Result<()> {
+   let mut probe = Probe::builder()
+       .scan_device("/dev/vda")
+       // Superblocks scanning is active by default, setting this option to
+       // `true` here is redundant.
+       .scan_device_superblocks(true)
+       // Activate partition search functions.
+       .scan_device_partitions(true)
+       // Search for partition entries ONLY in DOS or GPT partition tables
+       .scan_partitions_for_partition_tables(Filter::In,
+           vec![
+               PartitionTableType::DOS,
+               PartitionTableType::GPT,
+           ])
+       // Activate topology search functions.
+       .scan_device_topology(true)
+       .build()?;
+
+    match probe.find_device_properties() {
+       ScanResult::FoundProperties => {
+         // Print collected file system properties
+         for property in probe.iter_device_properties() {
+             println!("{property}")
+         }
+
+         println!();
+
+         // Print metadata about partition table entries
+         // Header
+         println!("Partition table");
+         println!("{} {:>10} {:>10}  {:>10}\n----", "number", "start", "size", "part_type");
+
+         for partition in probe.iter_partitions() {
+             let number = partition.number();
+             let start = partition.location_in_sectors();
+             let size = partition.size_in_sectors();
+             let part_type = partition.partition_type();
+
+             // Row
+             println!("#{}: {:>10} {:>10}  0x{:x}", number, start, size, part_type)
+         }
+
+         println!();
+
+         // Print metadata about device topology
+         let topology = probe.topology()?;
+
+         let alignment_offset = topology.alignment_offset_in_bytes();
+         let dax_support = if topology.supports_dax() { "yes" } else { "no" };
+         let minimum_io_size = topology.minimum_io_size();
+         let optimal_io_size = topology.optimal_io_size();
+         let logical_sector_size = topology.logical_sector_size();
+         let physical_sector_size = topology.physical_sector_size();
+
+
+         println!("Alignment offset (bytes): {}", alignment_offset);
+         println!("Direct Access support (DAX): {}", dax_support);
+         println!("Minimum I/O size (bytes): {}", minimum_io_size);
+         println!("Optimal I/O size (bytes): {}", optimal_io_size);
+         println!("Logical sector size (bytes): {}", logical_sector_size);
+         println!("Physical sector size (bytes): {}", physical_sector_size);
+       }
+       _ => eprintln!("could not find device properties"),
+    }
+
+    // Example output
+    //
+    // LABEL="nixos"
+    // UUID="ac4f36bf-191b-4fb0-b808-6d7fc9fc88be"
+    // BLOCK_SIZE="1024"
+    // TYPE="ext4"
+    //
+    // Partition table
+    // number    start      size  part_type
+    // ----
+    // #1:          34      2014        0x0
+    // #2:        2048      2048        0x0
+    // #3:        4096      2048        0x0
+    // #4:        6144      2048        0x0
+    // #5:        8192      2048        0x0
+    //
+    // Alignment offset (bytes): 0
+    // Direct Access support (DAX): no
+    // Minimum I/O size (bytes): 512
+    // Optimal I/O size (bytes): 0
+    // Logical sector size (bytes): 512
+    // Physical sector size (bytes): 512
+
+    Ok(())
+}
+```
+
 ## Install required dependencies
 
 ### Alpine Linux

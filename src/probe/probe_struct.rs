@@ -31,6 +31,8 @@ use crate::probe::ProbeBuilder;
 use crate::probe::ProbeError;
 use crate::probe::ScanResult;
 use crate::probe::TagIter;
+use crate::probe::Topology;
+use crate::probe::TopologyError;
 
 use crate::ffi_utils;
 
@@ -1977,6 +1979,79 @@ impl Probe {
     pub fn iter_partitions(&self) -> PartitionIter {
         log::debug!("Probe::iter_partitions iterating over list of device partitions");
         PartitionIter::new(self)
+    }
+
+    //---------- device topology search functions
+
+    #[doc(hidden)]
+    /// Activates/Deactivates topology search functions.
+    fn configure_chain_topology(
+        ptr: libblkid::blkid_probe,
+        enable: bool,
+    ) -> Result<(), ProbeError> {
+        log::debug!("Probe::configure_chain_topology enable: {:?}", enable);
+
+        let operation = if enable { "enable" } else { "disable" };
+        let enable = if enable { 1 } else { 0 };
+
+        let result = unsafe { libblkid::blkid_probe_enable_topology(ptr, enable) };
+
+        match result {
+            0 => {
+                log::debug!(
+                    "Probe::configure_chain_topology {}d topology chain",
+                    operation
+                );
+
+                Ok(())
+            }
+            code => {
+                let err_msg = format!(
+                    "Probe::configure_chain_topology failed to {} topology chain",
+                    operation
+                );
+                log::debug!("Probe::configure_chain_topology {}. libblkid::blkid_probe_enable_topology returned error code {:?}", err_msg, code);
+
+                Err(ProbeError::Config(err_msg))
+            }
+        }
+    }
+
+    #[doc(hidden)]
+    /// Activate topology search functions.
+    pub(super) fn enable_chain_topology(&mut self) -> Result<(), ProbeError> {
+        log::debug!("Probe::enable_chain_topology enabling topology chain");
+        Self::configure_chain_topology(self.inner, true)
+    }
+
+    #[doc(hidden)]
+    /// Deactivate topology search functions.
+    pub(super) fn disable_chain_topology(&mut self) -> Result<(), ProbeError> {
+        log::debug!("Probe::disable_chain_topology disabling topology chain");
+        Self::configure_chain_topology(self.inner, false)
+    }
+
+    /// Returns metadata about a device's topology.
+    pub fn topology(&self) -> Result<Topology, ProbeError> {
+        log::debug!("Probe::topology getting device topology");
+        let mut ptr = MaybeUninit::<libblkid::blkid_topology>::uninit();
+        unsafe {
+            ptr.write(libblkid::blkid_probe_get_topology(self.inner));
+        }
+
+        match unsafe { ptr.assume_init() } {
+            topology if topology.is_null() => {
+                let err_msg = "failed to get device topology".to_owned();
+                log::debug!("Probe::topology {}. libblkid::blkid_probe_get_topology returned a NULL pointer", err_msg);
+
+                Err(ProbeError::from(TopologyError::Creation(err_msg)))
+            }
+            topology => {
+                log::debug!("Probe::topology got device topology");
+
+                Ok(Topology::new(self, topology))
+            }
+        }
     }
 }
 

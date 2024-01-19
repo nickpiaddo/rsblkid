@@ -20,6 +20,7 @@
 //!         2. [Delete device metadata](#delete-device-metadata)
 //!         3. [Collect file system metadata](#collect-file-system-metadata)
 //!         4. [Collect metadata about partitions](#collect-metadata-about-partitions)
+//!         5. [Collect topology metadata](#collect-topology-metadata)
 //!
 //! ## Description
 //!
@@ -451,6 +452,56 @@
 //!     // #3:        4096      2048        0x0
 //!     // #4:        6144      2048        0x0
 //!     // #5:        8192      2048        0x0
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
+//! #### Collect topology metadata
+//!
+//! ```ignore
+//! use rsblkid::probe::{Probe, ScanResult};
+//!
+//! fn main() -> rsblkid::Result<()> {
+//!     let mut probe = Probe::builder()
+//!         .scan_device("/dev/vda")
+//!         // Deactivate file system search functions if not needed (active by default).
+//!         .scan_device_superblocks(false)
+//!         // Activate topology search functions.
+//!         .scan_device_topology(true)
+//!         .build()?;
+//!
+//!     match probe.find_device_properties() {
+//!         ScanResult::FoundProperties => {
+//!             // Print metadata about device topology
+//!             let topology = probe.topology()?;
+//!
+//!             let alignment_offset = topology.alignment_offset_in_bytes();
+//!             let dax_support = if topology.supports_dax() { "yes" } else { "no" };
+//!             let minimum_io_size = topology.minimum_io_size();
+//!             let optimal_io_size = topology.optimal_io_size();
+//!             let logical_sector_size = topology.logical_sector_size();
+//!             let physical_sector_size = topology.physical_sector_size();
+//!
+//!
+//!             println!("Alignment offset (bytes): {}", alignment_offset);
+//!             println!("Direct Access support (DAX): {}", dax_support);
+//!             println!("Minimum I/O size (bytes): {}", minimum_io_size);
+//!             println!("Optimal I/O size (bytes): {}", optimal_io_size);
+//!             println!("Logical sector size (bytes): {}", logical_sector_size);
+//!             println!("Physical sector size (bytes): {}", physical_sector_size);
+//!         }
+//!         _ => eprintln!("could not find any metadata about device topology"),
+//!     }
+//!
+//!     // Example output
+//!     //
+//!     // Alignment offset (bytes): 0
+//!     // Direct Access support (DAX): no
+//!     // Minimum I/O size (bytes): 512
+//!     // Optimal I/O size (bytes): 0
+//!     // Logical sector size (bytes): 512
+//!     // Physical sector size (bytes): 512
 //!
 //!     Ok(())
 //! }

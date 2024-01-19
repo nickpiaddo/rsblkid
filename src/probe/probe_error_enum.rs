@@ -8,6 +8,7 @@ use thiserror::Error;
 
 // From this library
 use crate::core::errors::ConversionError;
+use crate::probe::TopologyError;
 
 /// [`Probe`](crate::probe::Probe) runtime errors.
 #[derive(Debug, Error)]
@@ -39,4 +40,7 @@ pub enum ProbeError {
     /// Error while searching for device properties.
     #[error("{}", .0)]
     Search(String),
+
+    #[error(transparent)]
+    Topology(#[from] TopologyError),
 }

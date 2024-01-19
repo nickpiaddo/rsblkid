@@ -96,6 +96,8 @@
 //!                 PartitionTableType::DOS,
 //!                 PartitionTableType::GPT,
 //!             ])
+//!         // Activate topology search functions.
+//!         .scan_device_topology(true)
 //!         .build()?;
 //!
 //!     match probe.find_device_properties() {
@@ -121,6 +123,26 @@
 //!                 // Row
 //!                 println!("#{}: {:>10} {:>10}  0x{:x}", number, start, size, part_type)
 //!             }
+//!
+//!             println!();
+//!
+//!             // Print metadata about device topology
+//!             let topology = probe.topology()?;
+//!
+//!             let alignment_offset = topology.alignment_offset_in_bytes();
+//!             let dax_support = if topology.supports_dax() { "yes" } else { "no" };
+//!             let minimum_io_size = topology.minimum_io_size();
+//!             let optimal_io_size = topology.optimal_io_size();
+//!             let logical_sector_size = topology.logical_sector_size();
+//!             let physical_sector_size = topology.physical_sector_size();
+//!
+//!
+//!             println!("Alignment offset (bytes): {}", alignment_offset);
+//!             println!("Direct Access support (DAX): {}", dax_support);
+//!             println!("Minimum I/O size (bytes): {}", minimum_io_size);
+//!             println!("Optimal I/O size (bytes): {}", optimal_io_size);
+//!             println!("Logical sector size (bytes): {}", logical_sector_size);
+//!             println!("Physical sector size (bytes): {}", physical_sector_size);
 //!         }
 //!         _ => eprintln!("could not find device properties"),
 //!     }
@@ -140,6 +162,13 @@
 //!     // #3:        4096      2048        0x0
 //!     // #4:        6144      2048        0x0
 //!     // #5:        8192      2048        0x0
+//!     //
+//!     // Alignment offset (bytes): 0
+//!     // Direct Access support (DAX): no
+//!     // Minimum I/O size (bytes): 512
+//!     // Optimal I/O size (bytes): 0
+//!     // Logical sector size (bytes): 512
+//!     // Physical sector size (bytes): 512
 //!
 //!     Ok(())
 //! }
@@ -389,8 +418,8 @@
 //!
 //! | `libblkid`                                       | `rsblkid`                                                                                  |
 //! | ------------------                               | ---------                                                                                  |
-//! | [`blkid_probe_enable_topology`][93]              |                                                                                            |
-//! | [`blkid_probe_get_topology`][94]                 |                                                                                            |
+//! | [`blkid_probe_enable_topology`][93]              | [`ProbeBuilder::scan_device_topology`](crate::probe::ProbeBuilder::scan_device_topology)   |
+//! | [`blkid_probe_get_topology`][94]                 | [`Probe::topology`](crate::probe::Probe::topology)                                         |
 //! | [`blkid_topology_get_alignment_offset`][95]      | [`Topology::alignment_offset_in_bytes`](crate::probe::Topology::alignment_offset_in_bytes) |
 //! | [`blkid_topology_get_dax`][96]                   | [`Topology::supports_dax`](crate::probe::Topology::supports_dax)                           |
 //! | [`blkid_topology_get_logical_sector_size`][97]   | [`Topology::logical_sector_size`](crate::probe::Topology::logical_sector_size)             |

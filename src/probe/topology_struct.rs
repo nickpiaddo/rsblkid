@@ -23,6 +23,16 @@ pub struct Topology<'a> {
 }
 
 impl<'a> Topology<'a> {
+    /// Creates a device `Topology`.
+    pub(super) fn new(_: &'a Probe, topology: libblkid::blkid_topology) -> Topology<'a> {
+        log::debug!("Topology::new creating a new `Topology` instance");
+
+        Self {
+            ptr: topology,
+            _marker: PhantomData,
+        }
+    }
+
     /// Returns the offset of a block device' beginning from its underlying physical alignment.
     pub fn alignment_offset_in_bytes(&self) -> u64 {
         let offset = unsafe { libblkid::blkid_topology_get_alignment_offset(self.ptr) };

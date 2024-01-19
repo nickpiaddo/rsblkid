@@ -94,6 +94,9 @@ default, a [`Probe`] will try to identify any of the supported [`PartitionTableT
 
     #[builder(default = None, setter(strip_option, doc = "Sets optional scanning criteria for partition search functions."))]
     partitions_scanning_options: Option<Vec<PartitionScanningOption>>,
+
+    #[builder(default = false)]
+    scan_device_topology: bool,
 }
 
 #[allow(non_camel_case_types)]
@@ -110,6 +113,7 @@ impl<
         __scan_device_partitions: ::typed_builder::Optional<bool>,
         __scan_partitions_for_partition_tables: ::typed_builder::Optional<Option<(Filter, Vec<PartitionTableType>)>>,
         __partitions_scanning_options: ::typed_builder::Optional<Option<Vec<PartitionScanningOption>>>,
+        __scan_device_topology: ::typed_builder::Optional<bool>,
     >
     ProbeBuilder<(
         __scan_device,
@@ -124,6 +128,7 @@ impl<
         __scan_device_partitions,
         __scan_partitions_for_partition_tables,
         __partitions_scanning_options,
+        __scan_device_topology,
     )>
 {
     /// Finishes configuring, and creates a new [`Probe`] instance.
@@ -195,6 +200,9 @@ impl<
     ///                 PartitionScanningOption::EntryDetails,
     ///                 PartitionScanningOption::ForceGPT,
     ///             ])
+    ///         // Activate device topology search functions. By default, device partitions scanning
+    ///         // is NOT activate.
+    ///         .scan_device_topology(true)
     ///         .build();
     ///
     ///     assert!(probe.is_ok());
@@ -274,6 +282,14 @@ impl<
             }
 
             probe.set_partitions_scanning_options(part_flags.as_slice())?
+        }
+
+        // ## Topology chain.
+
+        if builder.scan_device_topology {
+            probe.enable_chain_topology()?
+        } else {
+            probe.disable_chain_topology()?
         }
 
         Ok(probe)
