@@ -387,16 +387,16 @@
 //!
 //! #### Topology information
 //!
-//! | `libblkid`                                       | `rsblkid` |
-//! | ------------------                               | --------- |
-//! | [`blkid_probe_enable_topology`][93]              |           |
-//! | [`blkid_probe_get_topology`][94]                 |           |
-//! | [`blkid_topology_get_alignment_offset`][95]      |           |
-//! | [`blkid_topology_get_dax`][96]                   |           |
-//! | [`blkid_topology_get_logical_sector_size`][97]   |           |
-//! | [`blkid_topology_get_minimum_io_size`][98]       |           |
-//! | [`blkid_topology_get_optimal_io_size`][99]       |           |
-//! | [`blkid_topology_get_physical_sector_size`][100] |           |
+//! | `libblkid`                                       | `rsblkid`                                                                                  |
+//! | ------------------                               | ---------                                                                                  |
+//! | [`blkid_probe_enable_topology`][93]              |                                                                                            |
+//! | [`blkid_probe_get_topology`][94]                 |                                                                                            |
+//! | [`blkid_topology_get_alignment_offset`][95]      | [`Topology::alignment_offset_in_bytes`](crate::probe::Topology::alignment_offset_in_bytes) |
+//! | [`blkid_topology_get_dax`][96]                   | [`Topology::supports_dax`](crate::probe::Topology::supports_dax)                           |
+//! | [`blkid_topology_get_logical_sector_size`][97]   | [`Topology::logical_sector_size`](crate::probe::Topology::logical_sector_size)             |
+//! | [`blkid_topology_get_minimum_io_size`][98]       | [`Topology::minimum_io_size`](crate::probe::Topology::minimum_io_size)                     |
+//! | [`blkid_topology_get_optimal_io_size`][99]       | [`Topology::optimal_io_size`](crate::probe::Topology::optimal_io_size)                     |
+//! | [`blkid_topology_get_physical_sector_size`][100] | [`Topology::physical_sector_size`](crate::probe::Topology::physical_sector_size)           |
 //!
 //!
 //! [93]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Topology-information.html#blkid-probe-enable-topology

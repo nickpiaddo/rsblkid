@@ -55,6 +55,7 @@ These tools were essential for collecting copies:
 [Logical block addressing][23] [[a]][24]
 [What is a Superblock, Inode, Dentry and a File?][45] [[a]][46]
 [What's a file system's "magic" number in a super block?][47] [[a]][48]
+[[Engineering Notes] I/O Limits: block sizes, alignment and I/O hints][55] [[a]][56]
 
 ## Disks
 
@@ -122,3 +123,5 @@ These tools were essential for collecting copies:
 [52]: rust/passing-vec-string-to-array-of-char-array-in-c.html
 [53]: https://stackoverflow.com/questions/30177845/how-to-initialize-the-logger-for-integration-tests
 [54]: rust/initialize-logger-for-integration-tests.html
+[55]: https://access.redhat.com/articles/3911611
+[56]: filesystems/io-limits-block-sizes-alignment-and-io-hints.html
