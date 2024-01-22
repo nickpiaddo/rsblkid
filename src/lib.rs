@@ -124,9 +124,9 @@
 //!
 //! ### Low-Level functions
 //! #### Library initialization
-//! | `libblkid`               | `rsblkid` |
-//! | ------------------       | --------- |
-//! | [`blkid_init_debug`][23] |           |
+//! | `libblkid`               | `rsblkid`                                                                                                      |
+//! | ------------------       | ---------                                                                                                      |
+//! | [`blkid_init_debug`][23] | [`init_default_debug`](crate::debug::init_default_debug)<br>[`init_full_debug`](crate::debug::init_full_debug) |
 //!
 //! [23]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Library-initialization.html#blkid-init-debug
 //!
@@ -351,5 +351,6 @@
 
 pub use error::*;
 
+pub mod debug;
 mod error;
 pub(crate) mod ffi_utils;
