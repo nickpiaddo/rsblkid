@@ -15,6 +15,10 @@
 //!     1. [Create a `Probe`](#create-a-probe)
 //!     2. [Create a `Probe` in Read/Write mode](#create-a-probe-in-readwrite-mode)
 //!     3. [Limit the search area](#limit-the-search-area)
+//!     4. [Run search functions](#run-search-functions)
+//!         1. [Select search functions to run](#select-search-functions-to-run)
+//!         2. [Delete device metadata](#delete-device-metadata)
+//!         3. [Collect file system metadata](#collect-file-system-metadata)
 //!
 //! ## Description
 //!
@@ -110,6 +114,18 @@
 //! - the partition table types to explore,
 //! - or whether we can alter the metadata stored on device, or in memory.
 //!
+//! Once a [`ProbeBuilder`]'s configuration is complete, a new [`Probe`] is built by invoking
+//! [`ProbeBuilder::build`].
+//!
+//! To collect device properties, [`Probe`] offers four methods:
+//! - [`Probe::run_scan`] / [`Probe::backtrack`]: to manually run search functions and collect data,
+//! - [`Probe::find_device_properties`]: to automatically run search functions, ans collect data
+//! from the first match in a each category (as described in the flowchart above).
+//! - [`Probe::find_all_device_properties`]: follows the same process as
+//! [`Probe::find_device_properties`]. However, instead of moving onto the next category after
+//! finding a match, this method continues to run the remaining search functions in the category,
+//! telling the caller about any data collision it detects.
+//!
 //! ## Examples
 //! ### Create a `Probe`
 //!
@@ -195,6 +211,182 @@
 //!         .scan_device_segment(32486, 104857600)
 //!         .build();
 //!     assert!(probe.is_ok());
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
+//! ### Run search functions
+//! #### Select search functions to run
+//!
+//! By default, when a user asks to scan a category of properties, all supported search functions
+//! are activated.  However, you can choose to run a particular subset of the data scanners
+//! available, as shown in the example below.
+//!
+//! To select which search functions to run in each category, use the following methods:
+//! - `superblocks`: [`Probe::scan_superblocks_for_file_systems`]
+//!
+//! **Note:** all `superblocks` search functions are active by default.
+//!
+//! ```ignore
+//! use rsblkid::core::partition::FileSystem;
+//! use rsblkid::probe::{Filter, Probe};
+//!
+//! fn main() -> rsblkid::Result<()> {
+//!     let probe = Probe::builder()
+//!         .scan_device("/dev/vda")
+//!         // Search device for the following types of file system
+//!         .scan_superblocks_for_file_systems(Filter::In,
+//!             vec![
+//!                 FileSystem::Ext2,
+//!                 FileSystem::Ext3,
+//!                 FileSystem::Ext4,
+//!             ])
+//!         .build();
+//!
+//!     assert!(probe.is_ok());
+//!
+//!     let probe = Probe::builder()
+//!         .scan_device("/dev/vda")
+//!         // Search device for all types of file system EXCEPT the following
+//!         .scan_superblocks_for_file_systems(Filter::Out,
+//!             vec![
+//!                 FileSystem::Ext2,
+//!                 FileSystem::Ext3,
+//!                 FileSystem::Ext4,
+//!             ])
+//!         .build();
+//!
+//!     assert!(probe.is_ok());
+//!     Ok(())
+//! }
+//! ```
+//!
+//! #### Delete device metadata
+//!
+//! When you create a [`Probe`] in read/write mode by calling [`ProbeBuilder::allow_writes`] before
+//! building, you can erase metadata from the device. Either permanently, by invoking
+//! [`Probe::delete_properties_from_device`], or temporarily from memory buffers with
+//! [`Probe::delete_properties_from_memory`]. Only the [`Probe`] instance, on which the method was
+//! called, will discard its copy of the metadata.
+//!
+//! ```ignore
+//! use rsblkid::core::partition::FileSystem;
+//! use rsblkid::probe::{Filter, FsProperty, Probe, ScanResult};
+//!
+//! fn main() -> rsblkid::Result<()> {
+//!     let mut probe = Probe::builder()
+//!         // Assuming `/dev/vda` has an ext4 file system
+//!         .scan_device("/dev/vda")
+//!         // Open device in read/write mode.
+//!         .allow_writes()
+//!         .scan_device_superblocks(true)
+//!         // Collect the following file system properties.
+//!         .collect_fs_properties(
+//!             vec![
+//!                 FsProperty::Label,
+//!                 FsProperty::Version,
+//!             ]
+//!         )
+//!         .build()?;
+//!
+//!     // Before metadata deletion
+//!     let res = probe.run_scan();
+//!     assert_eq!(res, ScanResult::FoundProperties);
+//!
+//!     let properties_before: Vec<_> = probe
+//!         .iter_device_properties()
+//!         .collect();
+//!
+//!     assert_eq!(properties_before.is_empty(), false);
+//!
+//!     // Mark collected file system metadata for deletion from buffers in memory.
+//!     probe.delete_properties_from_memory()?;
+//!
+//!     // Rerun last search function
+//!     let res = probe.run_scan();
+//!     assert_eq!(res, ScanResult::NoProperties);
+//!
+//!     let properties_after: Vec<_> = probe
+//!         .iter_device_properties()
+//!         .collect();
+//!
+//!     assert_eq!(properties_after.is_empty(), true);
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
+//! #### Collect file system metadata
+//!
+//! By default, a [`Probe`] collects a device's `LABEL`, `UUID`, `TYPE`, `SEC_TYPE`,`BLOCK_SIZE`
+//! properties.
+//!
+//! ```ignore
+//! use rsblkid::probe::{Probe, ScanResult};
+//!
+//! fn main() -> rsblkid::Result<()> {
+//!     let mut probe = Probe::builder()
+//!         .scan_device("/dev/vda")
+//!         .build()?;
+//!
+//!     match probe.find_device_properties() {
+//!         // Print collected file system properties
+//!         ScanResult::FoundProperties => {
+//!             for property in probe.iter_device_properties() {
+//!                 println!("{property}")
+//!             }
+//!         }
+//!         _ => eprintln!("could not find any supported file system properties"),
+//!     }
+//!
+//!     // Example output
+//!     //
+//!     // LABEL=DISK1
+//!     // UUID=34084b8e-6196-4d93-a6e8-a4f87f9afbc6
+//!     // BLOCK_SIZE=1024
+//!     // TYPE=ext4
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
+//! You can also collect a custom list of properties.
+//!
+//! ```ignore
+//! use rsblkid::probe::{FsProperty, Probe, ScanResult};
+//!
+//! fn main() -> rsblkid::Result<()> {
+//!     let mut probe = Probe::builder()
+//!         .scan_device("/dev/vda")
+//!         // Collect the following file system properties during the scan
+//!         .collect_fs_properties(vec![
+//!             FsProperty::FsInfo,
+//!             FsProperty::Type,
+//!             FsProperty::Uuid,
+//!             FsProperty::Version,
+//!         ])
+//!         .build()?;
+//!
+//!     match probe.find_device_properties() {
+//!         ScanResult::FoundProperties => {
+//!             // Print collected file system properties
+//!             for property in probe.iter_device_properties() {
+//!                 println!("{property}")
+//!             }
+//!         }
+//!         _ => eprintln!("could not find any supported file system metadata"),
+//!     }
+//!
+//!     // Example output
+//!     //
+//!     // FSBLOCKSIZE=1024
+//!     // FSLASTBLOCK=131072
+//!     // FSSIZE=134217728
+//!     // TYPE=ext4
+//!     // UUID=34084b8e-6196-4d93-a6e8-a4f87f9afbc6
+//!     // VERSION=1.0
+//!     // BLOCK_SIZE=1024
 //!
 //!     Ok(())
 //! }

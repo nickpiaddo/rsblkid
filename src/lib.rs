@@ -79,6 +79,38 @@
 //! The [low-level API](crate::probe), on the other hand, always scans a block device directly. It offers more
 //! fine-grained control over the data collected.
 //!
+//! ```ignore
+//! use rsblkid::probe::{Probe, ScanResult};
+//!
+//! fn main() -> rsblkid::Result<()> {
+//!     let mut probe = Probe::builder()
+//!         .scan_device("/dev/vda")
+//!         // Superblocks scanning is active by default, setting this option to `true` here
+//!         // is redundant.
+//!         .scan_device_superblocks(true)
+//!         .build()?;
+//!
+//!     match probe.find_device_properties() {
+//!         ScanResult::FoundProperties => {
+//!             // Print collected file system properties
+//!             for property in probe.iter_device_properties() {
+//!                 println!("{property}")
+//!             }
+//!         }
+//!         _ => eprintln!("could not find device properties"),
+//!     }
+//!
+//!     // Example output
+//!     //
+//!     // LABEL="nixos"
+//!     // UUID="ac4f36bf-191b-4fb0-b808-6d7fc9fc88be"
+//!     // BLOCK_SIZE="1024"
+//!     // TYPE="ext4"
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
 //! ## From `libblkid` to `rsblkid`
 //!
 //! This section maps `libblkid` functions to `rsblkid` methods. It follows the same layout as
@@ -202,16 +234,16 @@
 //!
 //! #### Low-level tags
 //!
-//! | `libblkid`                       | `rsblkid` |
-//! | ------------------               | --------- |
-//! | [`blkid_do_fullprobe`][43]       |           |
-//! | [`blkid_do_wipe`][44]            |           |
-//! | [`blkid_do_probe`][45]           |           |
-//! | [`blkid_do_safeprobe`][46]       |           |
-//! | [`blkid_probe_get_value`][47]    |           |
-//! | [`blkid_probe_has_value`][48]    |           |
-//! | [`blkid_probe_lookup_value`][49] |           |
-//! | [`blkid_probe_numof_values`][50] |           |
+//! | `libblkid`                       | `rsblkid`                                                                                                                                                                                    |
+//! | ------------------               | ---------                                                                                                                                                                                    |
+//! | [`blkid_do_fullprobe`][43]       | [`Probe::find_device_properties`](crate::probe::Probe::find_device_properties)                                                                                                               |
+//! | [`blkid_do_wipe`][44]            | [`Probe::delete_properties_from_device`](crate::probe::Probe::delete_properties_from_device)<br>[`Probe::delete_properties_from_memory`](crate::probe::Probe::delete_properties_from_memory) |
+//! | [`blkid_do_probe`][45]           | [`Probe::run_scan`](crate::probe::Probe::run_scan)                                                                                                                                           |
+//! | [`blkid_do_safeprobe`][46]       | [`Probe::find_all_device_properties`](crate::probe::Probe::find_all_device_properties)                                                                                                       |
+//! | [`blkid_probe_get_value`][47]    | [`Probe::nth_device_property`](crate::probe::Probe::nth_device_property)                                                                                                                     |
+//! | [`blkid_probe_has_value`][48]    | [`Probe::device_property_has_value`](crate::probe::Probe::device_property_has_value)                                                                                                         |
+//! | [`blkid_probe_lookup_value`][49] | [`Probe::lookup_device_property_value`](crate::probe::Probe::lookup_device_property_value)                                                                                                   |
+//! | [`blkid_probe_numof_values`][50] | [`Probe::count_device_properties`](crate::probe::Probe::count_device_properties)                                                                                                             |
 //!
 //! [43]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Low-level-tags.html#blkid-do-fullprobe
 //! [44]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Low-level-tags.html#blkid-do-wipe

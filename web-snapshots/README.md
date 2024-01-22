@@ -45,6 +45,7 @@ These tools were essential for collecting copies:
 [How to combine two cmp conditions in `Ord::cmp()`][43] [[a]][44]
 [How can I convert a Vec T into a C-friendly *mut T?][49] [[a]][50]
 [Passing Vec String from Rust to char** in C][51] [[a]][52]
+[How to initialize the logger for integration tests?][53] [[a]][54]
 
 ## File systems
 
@@ -119,3 +120,5 @@ These tools were essential for collecting copies:
 [50]: rust/convert-vec-T-into-C-friendly-mut-T.html
 [51]: https://stackoverflow.com/questions/42717473/passing-vecstring-from-rust-to-char-in-c
 [52]: rust/passing-vec-string-to-array-of-char-array-in-c.html
+[53]: https://stackoverflow.com/questions/30177845/how-to-initialize-the-logger-for-integration-tests
+[54]: rust/initialize-logger-for-integration-tests.html

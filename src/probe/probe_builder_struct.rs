@@ -38,7 +38,9 @@ pub(crate) struct PrbBuilder {
 
     #[builder(
         setter(strip_bool),
-        setter(doc = "Sets a [`Probe`] to read/write mode.")
+        setter(
+            doc = "Sets a [`Probe`] to read/write mode.\n\n**Note:** Calling `allow_writes` automatically adds [`FsProperty::Magic`](crate::probe::flag::FsProperty::Magic) to the list of properties to collect."
+        )
     )]
     allow_writes: bool,
 
@@ -194,7 +196,12 @@ impl<
             probe.scan_superblocks_with_usage_flags(criterion, usage.as_slice())?
         }
 
-        if let Some(sb_flags) = builder.collect_fs_properties {
+        if let Some(mut sb_flags) = builder.collect_fs_properties {
+            // Required if we want to erase detected items on device or in memory
+            if builder.allow_writes {
+                sb_flags.push(FsProperty::Magic);
+            }
+
             probe.collect_fs_properties(sb_flags.as_slice())?
         }
 

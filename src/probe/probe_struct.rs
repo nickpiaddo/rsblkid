@@ -12,9 +12,12 @@ use std::os::unix::fs::OpenOptionsExt;
 use std::path::Path;
 
 // From this library
+use crate::core::device::Tag;
+use crate::core::device::TagName;
 use crate::core::device::Usage;
 use crate::core::errors::ConversionError;
 use crate::core::partition::FileSystem;
+use crate::core::partition::RawBytes;
 
 use crate::probe::Filter;
 use crate::probe::FsProperty;
@@ -22,6 +25,8 @@ use crate::probe::IoHint;
 use crate::probe::PrbBuilder;
 use crate::probe::ProbeBuilder;
 use crate::probe::ProbeError;
+use crate::probe::ScanResult;
+use crate::probe::TagIter;
 
 use crate::ffi_utils;
 
@@ -30,7 +35,6 @@ use crate::ffi_utils;
 pub struct Probe {
     pub(crate) inner: libblkid::blkid_probe,
     file: File,
-    #[allow(dead_code)]
     is_read_only: bool,
 }
 
@@ -172,7 +176,12 @@ impl Probe {
             .custom_flags(status_flags)
             .open(file_name)?;
 
-        Self::new(file, scan_segment, false)
+        let mut probe = Self::new(file, scan_segment, false)?;
+        // Required if we want to erase device properties on device or in memory
+        let flags = [FsProperty::Magic];
+        probe.collect_fs_properties(&flags)?;
+
+        Ok(probe)
     }
 
     #[doc(hidden)]
@@ -192,7 +201,11 @@ impl Probe {
         log::debug!("Probe::new_from_file_read_write creating new `Probe` instance from `File`");
 
         if ffi_utils::is_open_read_write(&file)? {
-            Self::new(file, scan_segment, false)
+            let mut probe = Self::new(file, scan_segment, false)?;
+            let flags = [FsProperty::Magic];
+            // Required if we want to erase device properties on device or in memory
+            probe.collect_fs_properties(&flags)?;
+            Ok(probe)
         } else {
             let err_msg =
                 "failed to create a `Probe` in read/write mode from a read-only `File`".to_owned();
@@ -387,6 +400,9 @@ impl Probe {
     ///
     /// For performance, `Probe` maintains an in-memory cache of the characteristics of its
     /// associated device. Calling this function will invalidate the cache's buffers.
+    ///
+    /// The next call to [`Probe::run_scan`] will read data directly from the `Probe`'s associated
+    /// block device.
     pub fn empty_buffers(&mut self) -> Result<(), ProbeError> {
         log::debug!("Probe::empty_buffers emptying buffers");
 
@@ -487,8 +503,361 @@ impl Probe {
         }
     }
 
-    /// Sets the current position in the sequence of search functions to that of the one executed
-    /// before last.
+    /// Reverts the `Probe` to its state at creation.
+    pub fn reset(&mut self) {
+        log::debug!("Probe::reset resetting probe");
+
+        unsafe { libblkid::blkid_reset_probe(self.inner) }
+    }
+
+    #[doc(hidden)]
+    /// Convert a return code to a `ScanResult`.
+    ///
+    /// # Arguments
+    ///
+    /// - `returned_code` -- code returned by any of the `libblkid::blkid_do_*` functions.
+    /// - `libblkid_fn_name` -- fully-qualified libblkid function name (e.g. `libblkid::do_fullprobe`).
+    /// - `fn_name` -- equivalent rsblkid fully-qualified function name (e.g. `Probe::find_device_properties`).
+    fn to_scan_result(returned_code: i32, libblkid_fn_name: &str, fn_name: &str) -> ScanResult {
+        match returned_code {
+            libblkid::BLKID_PROBE_AMBIGUOUS => {
+                let res = ScanResult::ConflictingValues;
+                log::debug!("{} returned {:?}", fn_name, res);
+                res
+            }
+            libblkid::BLKID_PROBE_ERROR => {
+                let res = ScanResult::Error;
+                log::debug!("{} returned {:?}", fn_name, res);
+                res
+            }
+            libblkid::BLKID_PROBE_OK => {
+                let res = ScanResult::FoundProperties;
+                log::debug!("{} returned {:?}", fn_name, res);
+                res
+            }
+            libblkid::BLKID_PROBE_NONE => {
+                let res = ScanResult::NoProperties;
+                log::debug!("{} returned {:?}", fn_name, res);
+                res
+            }
+            code => {
+                log::debug!(
+                    "{} reached an unexpected state. {} returned error code {:?}",
+                    fn_name,
+                    libblkid_fn_name,
+                    code
+                );
+                ScanResult::Exception(code)
+            }
+        }
+    }
+
+    /// Runs search functions for device properties, collects data from the first match in a
+    /// requested category, then moves onto the next (as described in the
+    /// [overview](crate::probe#overview)) of the `probe` module.
+    ///
+    /// # Returns
+    ///
+    /// - [`ScanResult::FoundProperties`] -- when any of the search functions, in any category, has found device properties.
+    /// - [`ScanResult::NoProperties`] -- when no search function has found a match in any category.
+    /// - [`ScanResult::Error`] -- when an error occurred during the scan.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::probe::{Filter, Probe, ScanResult};
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut probe = Probe::builder()
+    ///         // Assuming `/dev/vda` has an ext4 file system
+    ///         .scan_device("/dev/vda")
+    ///         // Search device for the following types of file system.
+    ///         .scan_superblocks_for_file_systems(Filter::In,
+    ///             vec![
+    ///                 FileSystem::APFS,
+    ///                 FileSystem::NTFS,
+    ///                 FileSystem::Ext4,
+    ///                 FileSystem::VFAT,
+    ///                 FileSystem::ZFS,
+    ///             ])
+    ///         .build()?;
+    ///
+    ///     // Probe state
+    ///     // Legend: [*] has run  [ ] did not run  [#] has matched
+    ///     //
+    ///     // Before
+    ///     //
+    ///     // category: superblocks
+    ///     //     search function: APFS [ ]
+    ///     //     search function: NTFS [ ]
+    ///     //     search function: Ext4 [ ]
+    ///     //     search function: VFAT [ ]
+    ///     //     search function: ZFS  [ ]
+    ///     match probe.find_device_properties() {
+    ///         // After
+    ///         //
+    ///         // category: superblocks
+    ///         //     search function: APFS [*]
+    ///         //     search function: NTFS [*]
+    ///         //     search function: Ext4 [#]
+    ///         //     search function: VFAT [ ]
+    ///         //     search function: ZFS  [ ]
+    ///         ScanResult::FoundProperties => {
+    ///             // Print collected file system properties
+    ///             for property in probe.iter_device_properties() {
+    ///                 println!("{property}")
+    ///             }
+    ///         }
+    ///         _ => eprintln!("could not find any supported file system properties"),
+    ///     }
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn find_device_properties(&mut self) -> ScanResult {
+        log::debug!("Probe::find_device_properties collecting all device properties");
+
+        unsafe {
+            let rc = libblkid::blkid_do_fullprobe(self.inner);
+            Self::to_scan_result(
+                rc,
+                "libblkid::blkid_do_fullprobe",
+                "Probe::find_device_properties",
+            )
+        }
+    }
+
+    /// Follows the same process as [`Probe::find_device_properties`]. However, instead of moving
+    /// onto the next category after finding a match, this method continues to run the remaining
+    /// non-executed search functions in each category, telling the caller about any data collision
+    /// it detects.
+    ///
+    /// # Returns
+    ///
+    /// - [`ScanResult::FoundProperties`] -- when any of the search functions, in any category, has found device properties.
+    /// - [`ScanResult::ConflictingValues`] -- when several search functions in the same category
+    /// have found identical device properties with different values.
+    /// - [`ScanResult::NoProperties`] -- when no search function has found a match in any category.
+    /// - [`ScanResult::Error`] -- when an error occurred during the scan.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::probe::{Filter, Probe, ScanResult};
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut probe = Probe::builder()
+    ///         // Assuming `/dev/vda` has an ext4 file system
+    ///         .scan_device("/dev/vda")
+    ///         // Search device for the following types of file system.
+    ///         .scan_superblocks_for_file_systems(Filter::In,
+    ///             vec![
+    ///                 FileSystem::APFS,
+    ///                 FileSystem::NTFS,
+    ///                 FileSystem::Ext4,
+    ///                 FileSystem::VFAT,
+    ///                 FileSystem::ZFS,
+    ///             ])
+    ///         .build()?;
+    ///
+    ///     // Probe state
+    ///     // Legend: [*] has run  [ ] did not run  [#] has matched
+    ///     //
+    ///     // Before
+    ///     //
+    ///     // category: superblocks
+    ///     //     search function: APFS [ ]
+    ///     //     search function: NTFS [ ]
+    ///     //     search function: Ext4 [ ]
+    ///     //     search function: VFAT [ ]
+    ///     //     search function: ZFS  [ ]
+    ///     match probe.find_all_device_properties() {
+    ///         // After
+    ///         //
+    ///         // category: superblocks
+    ///         //     search function: APFS [*]
+    ///         //     search function: NTFS [*]
+    ///         //     search function: Ext4 [#]
+    ///         //     search function: VFAT [*]
+    ///         //     search function: ZFS  [*]
+    ///         ScanResult::FoundProperties => {
+    ///             // Print collected file system properties
+    ///             for property in probe.iter_device_properties() {
+    ///                 println!("{property}")
+    ///             }
+    ///         }
+    ///         _ => eprintln!("could not find any supported file system properties"),
+    ///     }
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn find_all_device_properties(&mut self) -> ScanResult {
+        log::debug!("Probe::find_all_device_properties collecting all device properties and checking value consistencies");
+
+        unsafe {
+            let rc = libblkid::blkid_do_safeprobe(self.inner);
+            Self::to_scan_result(
+                rc,
+                "libblkid::blkid_do_safeprobe",
+                "Probe::find_all_device_properties",
+            )
+        }
+    }
+
+    /// Runs sequentially each search function for device properties in the current category, until
+    /// one matches. It then collects the device properties found, and saves its last position in
+    /// the sequence resuming the search process on the next function call.
+    ///
+    /// When all search functions have run for a given category, `run_scan` moves onto the next,
+    /// and applies the same process again.
+    ///
+    /// # Returns
+    ///
+    /// - [`ScanResult::FoundProperties`] -- when a search function has found device properties.
+    /// - [`ScanResult::NoProperties`] -- when no search function has found a match.
+    /// - [`ScanResult::Error`] -- when an error occurred during the scan.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::probe::{Filter, Probe, ScanResult};
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut probe = Probe::builder()
+    ///         // Assuming `/dev/vda` has an ext4 file system
+    ///         .scan_device("/dev/vda")
+    ///         // Search device for the following types of file system.
+    ///         .scan_superblocks_for_file_systems(Filter::In,
+    ///             vec![
+    ///                 FileSystem::APFS,
+    ///                 FileSystem::NTFS,
+    ///                 FileSystem::Ext4,
+    ///                 FileSystem::VFAT,
+    ///                 FileSystem::ZFS,
+    ///             ])
+    ///         .build()?;
+    ///
+    ///     // Probe state
+    ///     // Legend: [*] has run  [ ] did not run  [#] has matched
+    ///     //
+    ///     // Before
+    ///     //
+    ///     // category: superblocks
+    ///     //     search function: APFS [ ]
+    ///     //     search function: NTFS [ ]
+    ///     //     search function: Ext4 [ ]
+    ///     //     search function: VFAT [ ]
+    ///     //     search function: ZFS  [ ]
+    ///     match probe.run_scan() {
+    ///         // After
+    ///         //
+    ///         // category: superblocks
+    ///         //     search function: APFS [*]
+    ///         //     search function: NTFS [*]
+    ///         //     search function: Ext4 [#] ◁─── last position
+    ///         //     search function: VFAT [ ]
+    ///         //     search function: ZFS  [ ]
+    ///         ScanResult::FoundProperties => {
+    ///             // Print collected file system properties
+    ///             for property in probe.iter_device_properties() {
+    ///                 println!("{property}")
+    ///             }
+    ///         }
+    ///         _ => eprintln!("could not find any supported file system properties"),
+    ///     }
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn run_scan(&mut self) -> ScanResult {
+        log::debug!("Probe::run_scan searching for next device properties");
+
+        unsafe {
+            let rc = libblkid::blkid_do_probe(self.inner);
+            Self::to_scan_result(rc, "libblkid::blkid_do_probe", "Probe::run_scan")
+        }
+    }
+
+    /// Sets the current position in the sequence of search functions to that of the one executed before last.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::probe::{Filter, FsProperty, Probe, ScanResult};
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut probe = Probe::builder()
+    ///         // Assuming `/dev/vda` has an ext4 file system
+    ///         .scan_device("/dev/vda")
+    ///         // Search device for the following types of file system.
+    ///         .scan_superblocks_for_file_systems(Filter::In,
+    ///             vec![
+    ///                 FileSystem::APFS,
+    ///                 FileSystem::NTFS,
+    ///                 FileSystem::Ext4,
+    ///                 FileSystem::VFAT,
+    ///                 FileSystem::ZFS,
+    ///             ])
+    ///         .build()?;
+    ///
+    ///     // Probe state
+    ///     // Legend: [*] has run  [ ] did not run  [#] has matched
+    ///     //
+    ///     // Before
+    ///     //
+    ///     // category: superblocks
+    ///     //     search function: APFS [ ]
+    ///     //     search function: NTFS [ ]
+    ///     //     search function: Ext4 [ ]
+    ///     //     search function: VFAT [ ]
+    ///     //     search function: ZFS  [ ]
+    ///     match probe.run_scan() {
+    ///         // After
+    ///         //
+    ///         // category: superblocks
+    ///         //     search function: APFS [*]
+    ///         //     search function: NTFS [*]
+    ///         //     search function: Ext4 [#] ◁─── last position
+    ///         //     search function: VFAT [ ]
+    ///         //     search function: ZFS  [ ]
+    ///         ScanResult::FoundProperties => {
+    ///             // Print collected file system properties
+    ///             for property in probe.iter_device_properties() {
+    ///                 println!("{property}")
+    ///             }
+    ///         }
+    ///         _ => eprintln!("could not find any supported file system properties"),
+    ///     }
+    ///
+    ///     // Probe state
+    ///     // Legend: [*] has run  [ ] did not run  [#] has matched
+    ///     //
+    ///     // Before
+    ///     //
+    ///     // category: superblocks
+    ///     //     search function: APFS [*]
+    ///     //     search function: NTFS [*]
+    ///     //     search function: Ext4 [#] ◁─── last position
+    ///     //     search function: VFAT [ ]
+    ///     //     search function: ZFS  [ ]
+    ///     probe.backtrack()?;
+    ///     // After
+    ///     //
+    ///     // category: superblocks
+    ///     //     search function: APFS [*]
+    ///     //     search function: NTFS [*] ◁─── moved last position one step up
+    ///     //     search function: Ext4 [ ]
+    ///     //     search function: VFAT [ ]
+    ///     //     search function: ZFS  [ ]
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn backtrack(&mut self) -> Result<(), ProbeError> {
         log::debug!("Probe::backtrack backtracking to previous search function");
 
@@ -513,11 +882,265 @@ impl Probe {
         }
     }
 
-    /// Reverts the `Probe` to its state at creation.
-    pub fn reset(&mut self) {
-        log::debug!("Probe::reset resetting `Probe`");
+    /// Marks the last device properties detected for deletion from memory buffers. It also
+    /// backtracks on the last position in the sequence of search functions, so that the next call
+    /// to [`Probe::run_scan`] will run the last executed search function again, and effectively
+    /// overwrite the data.
+    ///
+    /// **Note:** If you want to delete superblocks with broken checksums, add
+    /// [`FsProperty::BadChecksum`](crate::probe::FsProperty::BadChecksum) to the list of
+    /// properties to collect (see [`Probe::collect_fs_properties`]).
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::probe::{Filter, FsProperty, Probe, ScanResult};
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut probe = Probe::builder()
+    ///         // Assuming `/dev/vda` has an ext4 file system
+    ///         .scan_device("/dev/vda")
+    ///         // Open device in read/write mode.
+    ///         .allow_writes()
+    ///         // Collect the following file system properties.
+    ///         .collect_fs_properties(
+    ///             vec![
+    ///                 FsProperty::Label,
+    ///                 FsProperty::Version,
+    ///             ]
+    ///         )
+    ///         .build()?;
+    ///
+    ///     // Before metadata deletion
+    ///     let res = probe.run_scan();
+    ///     assert_eq!(res, ScanResult::FoundProperties);
+    ///
+    ///     let properties_before: Vec<_> = probe
+    ///         .iter_device_properties()
+    ///         .collect();
+    ///
+    ///     assert_eq!(properties_before.is_empty(), false);
+    ///
+    ///     // Mark collected file system metadata for deletion from buffers in memory.
+    ///     probe.delete_properties_from_memory()?;
+    ///
+    ///     // Rerun last search function
+    ///     let res = probe.run_scan();
+    ///     assert_eq!(res, ScanResult::NoProperties);
+    ///
+    ///     let properties_after: Vec<_> = probe
+    ///         .iter_device_properties()
+    ///         .collect();
+    ///
+    ///     assert_eq!(properties_after.is_empty(), true);
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn delete_properties_from_memory(&mut self) -> Result<(), ProbeError> {
+        log::debug!(
+            "Probe::delete_properties_from_buffer deleting last device properties found from buffer"
+        );
+        Self::delete_properties(self.inner, "buffer", true, self.is_read_only)
+    }
 
-        unsafe { libblkid::blkid_reset_probe(self.inner) }
+    /// Marks the last device properties detected for deletion from the device. It also
+    /// backtracks on the last position in the sequence of search functions, so that the next call
+    /// to [`Probe::run_scan`] will run the last executed search function again, and
+    /// **permanently** overwrite the data.
+    ///
+    /// **Note:** If you want to delete superblocks with broken checksums, add
+    /// [`FsProperty::BadChecksum`](crate::probe::FsProperty::BadChecksum) to the list of
+    /// properties to collect (see [`Probe::collect_fs_properties`]).
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::probe::{Filter, FsProperty, Probe, ScanResult};
+    ///
+    /// fn main() -> rsblkid::Result<()> {
+    ///     let mut probe = Probe::builder()
+    ///         // Assuming `/dev/vda` has an ext4 file system
+    ///         .scan_device("/dev/vda")
+    ///         // Open device in read/write mode.
+    ///         .allow_writes()
+    ///         // Collect the following file system properties.
+    ///         .collect_fs_properties(
+    ///             vec![
+    ///                 FsProperty::Label,
+    ///                 FsProperty::Version,
+    ///             ]
+    ///         )
+    ///         .build()?;
+    ///
+    ///     // Before metadata deletion
+    ///     let res = probe.run_scan();
+    ///     assert_eq!(res, ScanResult::FoundProperties);
+    ///
+    ///     let properties_before: Vec<_> = probe
+    ///         .iter_device_properties()
+    ///         .collect();
+    ///
+    ///     assert_eq!(properties_before.is_empty(), false);
+    ///
+    ///     // Mark collected file system metadata for deletion from `/dev/vda`.
+    ///     probe.delete_properties_from_device()?;
+    ///
+    ///     // Rerun last search function
+    ///     let res = probe.run_scan();
+    ///     assert_eq!(res, ScanResult::NoProperties);
+    ///
+    ///     let properties_after: Vec<_> = probe
+    ///         .iter_device_properties()
+    ///         .collect();
+    ///
+    ///     assert_eq!(properties_after.is_empty(), true);
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn delete_properties_from_device(&mut self) -> Result<(), ProbeError> {
+        log::debug!(
+            "Probe::delete_properties_from_device deleting last property found from device"
+        );
+        Self::delete_properties(self.inner, "device", false, self.is_read_only)
+    }
+
+    fn delete_properties(
+        ptr: libblkid::blkid_probe,
+        target: &str,
+        is_dry_run: bool,
+        is_read_only: bool,
+    ) -> Result<(), ProbeError> {
+        log::debug!("Probe::delete_properties deleting property");
+        if !is_read_only {
+            let dry_run = if is_dry_run { 1 } else { 0 };
+            let result = unsafe { libblkid::blkid_do_wipe(ptr, dry_run) };
+
+            match result {
+                0 => {
+                    log::debug!(
+                        "Probe::delete_properties deleted device properties from {}",
+                        target
+                    );
+
+                    Ok(())
+                }
+                code => {
+                    log::debug!("Probe::delete_properties failed to delete device properties. libblkid::blkid_do_wipe returned error code {:?}", code);
+
+                    Err(ProbeError::DeleteProperty(
+                        "failed to delete device properties".to_owned(),
+                    ))
+                }
+            }
+        } else {
+            Err(ProbeError::IoWrite(
+                "can not delete device properties. `Probe` is in read-only mode".to_owned(),
+            ))
+        }
+    }
+
+    /// Returns an iterator over the properties gathered during a block device scan as [`Tag`](crate::core::device::Tag)s.
+    pub fn iter_device_properties(&self) -> TagIter {
+        log::debug!("Probe::iter_device_properties creating a new `TagIter` instance");
+        TagIter::new(self)
+    }
+
+    /// Returns the `nth` property gathered during a device scan as a [`Tag`](crate::core::device::Tag).
+    pub fn nth_device_property(&self, n: usize) -> Option<Tag> {
+        log::debug!(
+            "Probe::nth_device_property accessing device property number: {:?}",
+            n
+        );
+        self.iter_device_properties().nth(n)
+    }
+
+    /// Returns `true` if the property of a device associated with a `Probe` has a value.
+    pub fn device_property_has_value(&self, property: &TagName) -> bool {
+        let property_cstr = property.to_c_string();
+        let res =
+            unsafe { libblkid::blkid_probe_has_value(self.inner, property_cstr.as_ptr()) == 1 };
+        log::debug!(
+            "Probe::device_property_has_value does property {:?} have a value? answer: {:?} ",
+            property,
+            res
+        );
+
+        res
+    }
+
+    /// Returns the value of a device property.
+    pub fn lookup_device_property_value(&mut self, property: &TagName) -> Option<RawBytes> {
+        let property_cstr = property.to_c_string();
+        let mut data_ptr = MaybeUninit::<*const libc::c_char>::uninit();
+        let mut len: libc::size_t = 0;
+
+        log::debug!(
+            "Probe::lookup_device_property_value looking up value of device property {:?}",
+            property
+        );
+
+        let result = unsafe {
+            libblkid::blkid_probe_lookup_value(
+                self.inner,
+                property_cstr.as_ptr(),
+                data_ptr.as_mut_ptr(),
+                &mut len,
+            )
+        };
+
+        match result {
+            0 => {
+                let data_cstr = unsafe { data_ptr.assume_init() };
+                let value = ffi_utils::const_c_char_array_to_bytes(data_cstr);
+                let value = RawBytes::from(value);
+                log::debug!(
+                    "Probe::lookup_device_property_value device property {:?} has value {:?}",
+                    property,
+                    value
+                );
+
+                Some(value)
+            }
+            code => {
+                log::debug!("Probe::lookup_device_property_value failed to find a value for device property {:?}. libblkid::blkid_probe_lookup_value returned error code {:?}", property, code);
+
+                None
+            }
+        }
+    }
+
+    /// Returns the total number of properties gathered by the `Probe`.
+    ///
+    /// **Warning:** The underlying function [`blkid_probe_numof_values`](https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Low-level-tags.html#blkid-probe-numof-values)
+    /// returns `-1` in case of error. However, we assume that an error occurring while counting the number of values is the same as having no value at all and return `0` instead.
+    ///
+    /// This might explain any discrepancy between values returned by
+    /// [`Probe::count_device_properties`], and the counting function from the device properties
+    /// iterator [`TagIter::count`].
+    pub fn count_device_properties(&self) -> usize {
+        log::debug!("Probe::count_device_properties counting device properties");
+
+        let result = unsafe { libblkid::blkid_probe_numof_values(self.inner) };
+
+        match result {
+            count if count < 0 => {
+                log::debug!("Probe::count_device_properties failed to count device properties. libblkid::blkid_probe_numof_values returned error code {:?}", count);
+
+                0
+            }
+            count => {
+                log::debug!(
+                    "Probe::count_device_properties device properties total: {:?}",
+                    count
+                );
+
+                count as usize
+            }
+        }
     }
 
     #[doc(hidden)]
@@ -574,6 +1197,12 @@ impl Probe {
 
     /// Specifies which file systems to search for/exclude when scanning a device. By default,
     /// a `Probe` will try to identify any of the supported [`FileSystem`]s.
+    ///
+    /// **Warning:** Each time this method is called, [`Probe`] discards the last saved position in
+    /// the sequence of search functions. So, when [`Probe::run_scan`] is called, the search
+    /// sequence starts over instead of resuming from where it left off.
+    ///
+    /// Therefore, it is **strongly advised NOT to call** this function while **in a loop**.
     ///
     /// # Examples
     ///
@@ -652,6 +1281,12 @@ impl Probe {
     /// Specifies which file systems to search for/exclude when scanning a device based on their
     /// [`Usage`]. By default, a `Probe` will try to identify any of the supported [`FileSystem`]s.
     ///
+    /// **Warning:** Each time this method is called, [`Probe`] discards the last saved position in
+    /// the sequence of search functions. So, when [`Probe::run_scan`] is called, the search
+    /// sequence starts over instead of resuming from where it left off.
+    ///
+    /// Therefore, it is **strongly advised NOT to call** this function while **in a loop**.
+    ///
     /// # Arguments
     ///
     /// - `filter` -- [`Filter`](crate::probe::Filter) for including/excluding .
@@ -696,6 +1331,12 @@ impl Probe {
     }
 
     /// Inverts the scanning [`Filter`](crate::probe::Filter) defined during the [`Probe`]'s creation.
+    ///
+    /// **Warning:** Each time this method is called, [`Probe`] discards the last saved position in
+    /// the sequence of search functions. So, when [`Probe::run_scan`] is called, the search
+    /// sequence starts over instead of resuming from where it left off.
+    ///
+    /// Therefore, it is **strongly advised NOT to call** this function while **in a loop**.
     ///
     /// # Examples
     ///
@@ -746,6 +1387,13 @@ impl Probe {
 
     /// Resets the scanning [`Filter`](crate::probe::Filter) of a [`Probe`] to its value
     /// at creation.
+    ///
+    /// **Warning:** Each time this method is called, [`Probe`] discards the last saved position in
+    /// the sequence of search functions. So, when [`Probe::run_scan`] is called, the search
+    /// sequence starts over instead of resuming from where it left off.
+    ///
+    /// Therefore, it is **strongly advised NOT to call** this function while **in a loop**.
+    ///
     /// # Examples
     ///
     /// ```ignore
@@ -806,6 +1454,8 @@ impl Probe {
     /// Collects [`Tag`](crate::core::device::Tag)s matching the given list of file system properties during a
     /// device scan.
     ///
+    /// To access the data gathered, use the [`Probe::iter_device_properties`] method.
+    ///
     /// # Examples
     ///
     /// ```ignore
@@ -815,7 +1465,7 @@ impl Probe {
     ///     let probe = Probe::builder()
     ///         .scan_device("/dev/vda")
     ///         .scan_device_superblocks(true)
-    ///         // Collect `KeyValue` pairs matching the given list of file system properties
+    ///         // Collect `Tag`s matching the given list of file system properties
     ///         // during the device scan.
     ///         .collect_fs_properties(
     ///             vec![

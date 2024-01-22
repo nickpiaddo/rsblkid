@@ -13,6 +13,10 @@ use crate::core::errors::ConversionError;
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum ProbeError {
+    /// Error while configuring a [`Probe`](crate::probe::Probe).
+    #[error("{0}")]
+    Config(String),
+
     /// Error while creating a new [`Probe`](crate::probe::Probe) instance.
     #[error("{0}")]
     Creation(String),
@@ -21,15 +25,21 @@ pub enum ProbeError {
     #[error("{0}")]
     Conversion(#[from] ConversionError),
 
-    /// Error while searching for device properties.
-    #[error("{0}")]
-    Search(String),
+    /// Error while deleting a device properties.
+    #[error("{}", .0)]
+    DeleteProperty(String),
 
     /// Error while performing Input/Output operations.
     #[error(transparent)]
     IoError(#[from] std::io::Error),
 
-    /// Error while configuring a [`Probe`](crate::probe::Probe).
-    #[error("{0}")]
-    Config(String),
+    #[error("{}", .0)]
+    IoWrite(String),
+
+    /// Error while searching for device properties.
+    #[error("{}", .0)]
+    Search(String),
+
+    #[error("{}", .0)]
+    Settings(String),
 }
