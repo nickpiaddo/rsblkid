@@ -9,7 +9,9 @@
 
 // From this library
 pub use conversion_error_enum::ConversionError;
+pub use encode_error_enum::EncodeError;
 pub use parser_error_enum::ParserError;
 
 mod conversion_error_enum;
+mod encode_error_enum;
 mod parser_error_enum;

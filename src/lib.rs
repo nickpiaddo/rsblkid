@@ -320,10 +320,10 @@
 //! ### Common Utils
 //! #### Encoding utils
 //!
-//! | `libblkid`                   | `rsblkid` |
-//! | ------------------           | --------- |
-//! | [`blkid_encode_string`][101] |           |
-//! | [`blkid_safe_string`][102]   |           |
+//! | `libblkid`                   | `rsblkid`                               |
+//! | ------------------           | ---------                               |
+//! | [`blkid_encode_string`][101] | [`core::utils::encode::encode_string`]  |
+//! | [`blkid_safe_string`][102]   | [`core::utils::encode::to_safe_string`] |
 //!
 //! [101]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Encoding-utils.html#blkid-encode-string
 //! [102]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Encoding-utils.html#blkid-safe-string

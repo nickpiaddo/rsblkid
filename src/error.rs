@@ -10,6 +10,7 @@ use thiserror::Error;
 
 // From this library
 use crate::core::errors::ConversionError;
+use crate::core::errors::EncodeError;
 use crate::core::errors::ParserError;
 
 /// A specialized [`Result`](std::result::Result) type for `rsblkid`.
@@ -38,6 +39,9 @@ pub type Result<T> = std::result::Result<T, RsBlkidError>;
 pub enum RsBlkidError {
     #[error(transparent)]
     Conversion(#[from] ConversionError),
+
+    #[error(transparent)]
+    Encode(#[from] EncodeError),
 
     #[error(transparent)]
     Parser(#[from] ParserError),
