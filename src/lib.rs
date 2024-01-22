@@ -450,15 +450,15 @@
 //!
 //! #### Miscellaneous utils
 //!
-//! | `libblkid`                          | `rsblkid` |
-//! | ------------------                  | --------- |
-//! | [`blkid_devno_to_devname`][103]     |           |
-//! | [`blkid_devno_to_wholedisk`][104]   |           |
-//! | [`blkid_get_dev_size`][105]         |           |
-//! | [`blkid_get_library_version`][106]  |           |
-//! | [`blkid_parse_tag_string`][107]     |           |
-//! | [`blkid_parse_version_string`][108] |           |
-//! | [`blkid_send_uevent`][109]          |           |
+//! | `libblkid`                          | `rsblkid`                                                                                            |
+//! | ------------------                  | ---------                                                                                            |
+//! | [`blkid_devno_to_devname`][103]     | [`core::utils::misc::device_path_from_number`]                                                       |
+//! | [`blkid_devno_to_wholedisk`][104]   | [`core::utils::misc::device_base_name_from_number`]                                                  |
+//! | [`blkid_get_dev_size`][105]         | [`core::utils::misc::device_size`]                                                                   |
+//! | [`blkid_get_library_version`][106]  | [`core::utils::misc::library_version`]                                                               |
+//! | [`blkid_parse_tag_string`][107]     | Not implemented. See the [`Tag` documentation page](crate::core::device::Tag) for a parsing example. |
+//! | [`blkid_parse_version_string`][108] | [`core::utils::misc::version_string_to_release_code`]                                                |
+//! | [`blkid_send_uevent`][109]          | [`core::utils::misc::send_uevent`]                                                                   |
 //!
 //!
 //! [103]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Miscellaneous-utils.html#blkid-devno-to-devname

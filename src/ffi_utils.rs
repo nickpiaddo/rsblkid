@@ -32,6 +32,21 @@ where
 }
 
 #[doc(hidden)]
+/// Converts a [`str`](std::str) reference to a [`CString`].
+pub fn as_ref_str_to_c_string<T>(string: T) -> Result<CString, NulError>
+where
+    T: AsRef<str>,
+{
+    let string: &str = string.as_ref();
+    log::debug!(
+        "ffi_utils::as_ref_str_to_c_string converting `&str` to `CString`: {:?}",
+        string
+    );
+
+    CString::new(string.as_bytes())
+}
+
+#[doc(hidden)]
 /// Converts a `const` [`c_char`](libc::c_char) C string to a byte slice.
 ///
 ///  # Safety

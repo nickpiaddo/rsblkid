@@ -69,6 +69,15 @@ These tools were essential for collecting copies:
 [Stratis Software Design][33] [[a]][34]
 [LUKS2 On-Disk Format Specification][35] [[a]][36]
 
+## Udev
+
+[Adding Events to Udev Event Queue][57] [[a]][58]
+[How does udev/uevent work?][59] [[a]][60]
+
+## Linux
+
+[What is the maximum length of a file path in Ubuntu?][61] [[a]][62]
+
 [1]: https://wiki.alpinelinux.org/wiki/Repositories#Managing_repositories
 [2]: alpine-linux/managing-repositories.html
 [3]: https://unix.stackexchange.com/questions/751105/how-to-enable-automatic-login-in-alpine-linux-for-root
@@ -125,3 +134,9 @@ These tools were essential for collecting copies:
 [54]: rust/initialize-logger-for-integration-tests.html
 [55]: https://access.redhat.com/articles/3911611
 [56]: filesystems/io-limits-block-sizes-alignment-and-io-hints.html
+[57]: https://unix.stackexchange.com/questions/493803/adding-events-to-udev-event-queue
+[58]: udev/adding-events-to-udev-event-queue.html
+[59]: https://unix.stackexchange.com/questions/550037/how-does-udev-uevent-work
+[60]: udev/how-does-udev-uevent-work.html
+[61]: https://askubuntu.com/questions/859945/what-is-the-maximum-length-of-a-file-path-in-ubuntu
+[62]: linux/maximum-length-of-a-file-path.html

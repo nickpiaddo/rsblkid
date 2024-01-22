@@ -11,6 +11,7 @@ use thiserror::Error;
 // From this library
 use crate::core::errors::ConversionError;
 use crate::core::errors::EncodeError;
+use crate::core::errors::MiscError;
 use crate::core::errors::ParserError;
 
 use crate::cache::CacheBuilderError;
@@ -73,6 +74,9 @@ pub enum RsBlkidError {
 
     #[error(transparent)]
     EntryIter(#[from] EntryIterError),
+
+    #[error(transparent)]
+    Misc(#[from] MiscError),
 
     #[error(transparent)]
     Parser(#[from] ParserError),
