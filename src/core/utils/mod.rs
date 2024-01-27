@@ -9,3 +9,4 @@
 
 // From this library
 pub mod encode;
+pub mod evaluation;
