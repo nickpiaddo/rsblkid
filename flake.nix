@@ -38,19 +38,33 @@
             # Rust
             cargo
             cargo-audit
+            # Use
+            # `nix shell github:oxalica/rust-overlay#rust-nightly`
+            # to have a temporary shell to use `cargo expand --lib  | bat -p -l rust` to see TypeBuilder imlementation
+            cargo-expand
             cargo-flamegraph
             cargo-modules
             cargo-nextest
             cargo-rr
+            cargo-tarpaulin
             cargo-vet
             cargo-valgrind
             cargo-workspaces
             lldb
+            pkg-config
             rustc
             rust-analyzer
             rustfmt
             rustPackages.clippy
             valgrind
+
+            # QEMU
+            #qemu
+            #OVMF
+
+            # microvm.nix
+            rlwrap
+            socat
 
             # For code linting and formatting
             nodejs_20
@@ -68,6 +82,17 @@
 
           # Rust source path
           RUST_SRC_PATH = rustPlatform.rustLibSrc;
+
+          # Required by `rsblkid-sys`
+          LIBCLANG_PATH = pkgs.lib.makeLibraryPath [ pkgs.libclang ];
+
+          # Inspired by: "C header includes in NixOS"
+          # https://discourse.nixos.org/t/c-header-includes-in-nixos/17410
+          # Solves the root cause of error messages emitted when trying to
+          # compile rsblkid-sys from inside a VM.
+          # --- stderr
+          # src/wrapper.h:1:10: fatal error: 'blkid/blkid.h' file not found
+          C_INCLUDE_PATH="${util-linux.dev}/include";
         };
       });
 }
