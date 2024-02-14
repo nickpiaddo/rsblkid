@@ -101,7 +101,7 @@ pub fn const_c_char_array_to_path_ref<'a>(ptr: *const libc::c_char) -> &'a Path 
         Path::new(OsStr::from_bytes(bytes))
     }
 }
-#[doc(hidden)]
+
 /// Converts a `const` [`c_char`](libc::c_char) C string to a [`PathBuf`].
 ///
 ///  # Safety
