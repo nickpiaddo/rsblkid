@@ -8,7 +8,7 @@ use thiserror::Error;
 
 // From this library
 
-/// `Probe` runtime errors.
+/// [`Probe`](crate::probe::Probe) runtime errors.
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum ProbeError {}

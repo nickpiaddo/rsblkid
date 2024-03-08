@@ -4,6 +4,8 @@
 // From dependency library
 
 // From standard library
+use std::ffi::CString;
+use std::ffi::NulError;
 use std::fmt;
 
 // From this library
@@ -15,6 +17,9 @@ use std::fmt;
 /// > hints may correspond to a RAID device's chunk size and stripe size respectively."
 ///
 /// Source: [[Engineering Notes] I/O Limits: block sizes, alignment and I/O hints](https://access.redhat.com/articles/3911611#4)
+///
+/// Currently, the only I/O hint supported by the library is `"session_offset"` for designating
+/// the location (in bytes) of a session on a multi-session device in Universal Disk Format (UDF).
 #[derive(Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub struct IoHint {
     name: String,
@@ -52,6 +57,11 @@ impl IoHint {
         log::debug!("IoHint::value hint value: {:?}", self.value);
 
         self.value
+    }
+
+    /// Converts the hint's name to [`CString`].
+    pub fn name_to_c_string(&self) -> Result<CString, NulError> {
+        CString::new(self.name.as_str())
     }
 }
 

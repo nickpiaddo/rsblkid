@@ -19,22 +19,22 @@
 //! - `partitions`: for partition description,
 //! - `topology`: for sector size, optimal I/O size, device capabilities, etc.
 //!
-//! The `Probe` struct is the main entry-point of this module. It centralizes all module functionalities.
+//! The [`Probe`] struct is the main entry-point of this module. It centralizes all module functionalities.
 //!
 //! ## Overview
 //!
-//! Unlike a [`Cache`](crate::cache::Cache), a low-level `Probe` reads data primarily from a
+//! Unlike a [`Cache`](crate::cache::Cache), a low-level [`Probe`] reads data primarily from a
 //! block device assigned to it at construction. This block device can be, for example:
 //! - a whole disk (e.g.  `/dev/sda`)
 //! - a disk partition (e.g. `/dev/sda1`)
 //! - or an image file.
 //!
-//! To gather information, a `Probe` tries to identify any disk topology, file system, or partition
+//! To gather information, a [`Probe`] tries to identify any disk topology, file system, or partition
 //! present on a block device. For each category mentioned, a `Probe` uses a chain of search
 //! functions to detect and collect relevant data; search functions are tried in succession until
 //! one matches, as described in the flowchart below.
 //!
-//! For example, to determine which file system a disk uses, a `Probe` will try to find a unique
+//! For example, to determine which file system a disk uses, a [`Probe`] will try to find a unique
 //! identifier (magic number) in the device `superblocks`.
 //!
 //! > "The **superblock** is essentially file system metadata and defines the file system type, size, status,
@@ -48,9 +48,9 @@
 //!
 //! Source: [StackExchange - What is a Superblock, Inode, Dentry and a File?](https://unix.stackexchange.com/a/4403)
 //!
-//! If a magic number matches one in the list of supported file systems, the `Probe` will use a
+//! If a magic number matches one in the list of supported file systems, the [`Probe`] will use a
 //! specialised function to extract file system properties requested by the user (e.g. `LABEL`,
-//! `UUID`, etc.). If asked, the `Probe` will then automatically switch to searching data for other
+//! `UUID`, etc.). If asked, the [`Probe`] will then automatically switch to searching data for other
 //! categories, i.e. `partitions` and `topology`, applying the same process.
 //!
 //! ![Flowchart of a Probe's data gathering process][fig-01]
@@ -96,6 +96,8 @@
 
 pub use io_hint_struct::IoHint;
 pub use probe_error_enum::ProbeError;
+pub use probe_struct::Probe;
 
 mod io_hint_struct;
 mod probe_error_enum;
+mod probe_struct;

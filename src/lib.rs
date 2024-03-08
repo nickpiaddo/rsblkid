@@ -37,8 +37,8 @@
 //!
 //! ## API structure
 //!
-//! `rsblkid`'s API is roughly divided into two parts, a high-level API that keeps information
-//! about block devices in a cache file, and a low-level API that offers more fine grained methods
+//! `rsblkid`'s API is roughly divided into two parts, a [high-level API](crate::cache) that keeps information
+//! about block devices in a cache file, and a [low-level API](crate::probe) that offers more fine grained methods
 //! to extract data about file systems, device partitions, and disk topology.
 //!
 //! Provided it has permission to read raw block devices, the high-level part of the library
@@ -157,27 +157,27 @@
 //!
 //! #### Low-level probing
 //!
-//! | `libblkid`                                | `rsblkid` |
-//! | ----------------------------------------- | --------- |
-//! | [`blkid_free_probe`][24]                  |           |
-//! | [`blkid_new_probe`][25]                   |           |
-//! | [`blkid_new_probe_from_filename`][26]     |           |
-//! | [`blkid_probe_get_devno`][27]             |           |
-//! | [`blkid_probe_get_fd`][28]                |           |
-//! | [`blkid_probe_get_offset`][29]            |           |
-//! | [`blkid_probe_get_sectors`][30]           |           |
-//! | [`blkid_probe_get_sectorsize`][31]        |           |
-//! | [`blkid_probe_get_size`][32]              |           |
-//! | [`blkid_probe_get_wholedisk_devno`][33]   |           |
-//! | [`blkid_probe_hide_range`][34]            |           |
-//! | [`blkid_probe_is_wholedisk`][35]          |           |
-//! | [`blkid_probe_reset_buffers`][36]         |           |
-//! | [`blkid_probe_reset_hints`][37]           |           |
-//! | [`blkid_probe_set_device`][38]            |           |
-//! | [`blkid_probe_set_hint`][39]              |           |
-//! | [`blkid_probe_set_sectorsize`][40]        |           |
-//! | [`blkid_probe_step_back`][41]             |           |
-//! | [`blkid_reset_probe`][42]                 |           |
+//! | `libblkid`                                | `rsblkid`                                                                                        |
+//! | ----------------------------------------- | ---------                                                                                        |
+//! | [`blkid_free_probe`][24]                  | [`Probe`](crate::probe::Probe) is automatically deallocated when it goes out of scope.           |
+//! | [`blkid_new_probe`][25]                   |                                                                                                  |
+//! | [`blkid_new_probe_from_filename`][26]     |                                                                                                  |
+//! | [`blkid_probe_get_devno`][27]             | [`Probe::device_number`](crate::probe::Probe::device_number)                                     |
+//! | [`blkid_probe_get_fd`][28]                | [`Probe::device_file`](crate::probe::Probe::device_file)                                         |
+//! | [`blkid_probe_get_offset`][29]            | [`Probe::scanned_device_segment_location`](crate::probe::Probe::scanned_device_segment_location) |
+//! | [`blkid_probe_get_sectors`][30]           | [`Probe::device_size_in_sectors`](crate::probe::Probe::device_size_in_sectors)                   |
+//! | [`blkid_probe_get_sectorsize`][31]        | [`Probe::device_logical_sector_size`](crate::probe::Probe::device_logical_sector_size)           |
+//! | [`blkid_probe_get_size`][32]              | [`Probe::scanned_device_segment_size`](crate::probe::Probe::scanned_device_segment_size)         |
+//! | [`blkid_probe_get_wholedisk_devno`][33]   | [`Probe::device_whole_disk_number`](crate::probe::Probe::device_whole_disk_number)               |
+//! | [`blkid_probe_hide_range`][34]            | [`Probe::device_skip_bytes`](crate::probe::Probe::device_skip_bytes)                             |
+//! | [`blkid_probe_is_wholedisk`][35]          | [`Probe::is_device_whole_disk`](crate::probe::Probe::is_device_whole_disk)                       |
+//! | [`blkid_probe_reset_buffers`][36]         | [`Probe::empty_buffers`](crate::probe::Probe::empty_buffers)                                     |
+//! | [`blkid_probe_reset_hints`][37]           | [`Probe::discard_hints`](crate::probe::Probe::discard_hints)                                     |
+//! | [`blkid_probe_set_device`][38]            | Not implemented.                                                                                 |
+//! | [`blkid_probe_set_hint`][39]              | [`Probe::set_hint`](crate::probe::Probe::set_hint)                                               |
+//! | [`blkid_probe_set_sectorsize`][40]        |                                                                                                  |
+//! | [`blkid_probe_step_back`][41]             | [`Probe::backtrack`](crate::probe::Probe::backtrack)                                             |
+//! | [`blkid_reset_probe`][42]                 | [`Probe::reset`](crate::probe::Probe::reset)                                                     |
 //!
 //! [24]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Low-level-probing.html#blkid-free-probe
 //! [25]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Low-level-probing.html#blkid-new-probe
