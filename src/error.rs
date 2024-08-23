@@ -13,6 +13,7 @@ use crate::core::errors::ConversionError;
 use crate::core::errors::EncodeError;
 use crate::core::errors::ParserError;
 
+use crate::cache::CacheBuilderError;
 use crate::cache::CacheError;
 
 /// A specialized [`Result`](std::result::Result) type for `rsblkid`.
@@ -31,7 +32,20 @@ pub type Result<T> = std::result::Result<T, RsBlkidError>;
 /// ----
 ///
 /// ```
-/// fn main() -> rsblkid::Result<()> {
+/// use rsblkid::cache::Cache;
+///
+/// fn main() -> rsblkid::Result<()> { // <──── automatic conversion of  ─────┐
+///     //                                    error types to `BlkidError`     │
+///     //                                                                    │
+///     let mut cache = Cache::builder().discard_changes_on_drop().build()?;//│
+///     //                                                            ^       │
+///     //                                                            │       │
+///     //                  might throw a `CacheBuilderError` ────────┴───────┤
+///     //                                                                    │
+///     cache.probe_all_devices()?;//                                         │
+///     //                       ^                                            │
+///     //                       │                                            │
+///     //  might throw a `CacheError` ───────────────────────────────────────┘
 ///
 ///     Ok(())
 /// }
@@ -41,6 +55,9 @@ pub type Result<T> = std::result::Result<T, RsBlkidError>;
 pub enum RsBlkidError {
     #[error(transparent)]
     Cache(#[from] CacheError),
+
+    #[error(transparent)]
+    CacheBuilder(#[from] CacheBuilderError),
 
     #[error(transparent)]
     Conversion(#[from] ConversionError),

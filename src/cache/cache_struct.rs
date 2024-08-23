@@ -9,6 +9,7 @@
 
 /// Set of information about all block devices on a system.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct Cache {
     inner: libblkid::blkid_cache,
 }
