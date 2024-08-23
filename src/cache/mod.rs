@@ -28,3 +28,7 @@
 //!
 //! **Note:** this high-level API provides information about superblocks only (i.e. filesystems).
 //! To get information about device partitions and/or topology you must use the low-level API.
+
+pub use cache_error_enum::CacheError;
+
+mod cache_error_enum;

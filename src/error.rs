@@ -13,6 +13,8 @@ use crate::core::errors::ConversionError;
 use crate::core::errors::EncodeError;
 use crate::core::errors::ParserError;
 
+use crate::cache::CacheError;
+
 /// A specialized [`Result`](std::result::Result) type for `rsblkid`.
 ///
 /// This typedef is generally used at the program-level to avoid writing out [`RsBlkidError`]
@@ -37,6 +39,9 @@ pub type Result<T> = std::result::Result<T, RsBlkidError>;
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum RsBlkidError {
+    #[error(transparent)]
+    Cache(#[from] CacheError),
+
     #[error(transparent)]
     Conversion(#[from] ConversionError),
 
