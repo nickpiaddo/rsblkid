@@ -70,6 +70,10 @@ pub enum ParserError {
     #[error("{0}")]
     UnsignedInt(String),
 
+    /// Error while parsing a string into a [`Usage`](crate::core::device::Usage).
+    #[error("{0}")]
+    Usage(String),
+
     /// Error while parsing a string into a [`Uuid`](crate::core::device::Uuid).
     #[error("{0}")]
     Uuid(String),
