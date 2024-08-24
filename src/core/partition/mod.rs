@@ -1,13 +1,10 @@
 // Copyright (c) 2023 Nick Piaddo
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-//! Shared objects and helper functions.
+//! Module for handling disk partitions.
 
 // From dependency library
 
 // From standard library
 
 // From this library
-pub mod errors;
-pub mod partition;
-pub mod utils;
