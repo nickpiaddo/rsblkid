@@ -74,6 +74,10 @@ pub enum ParserError {
     #[error("{0}")]
     Size(String),
 
+    /// Error while parsing a string into a [`Tag`](crate::core::device::Tag).
+    #[error("{0}")]
+    Tag(String),
+
     /// Error while parsing a string into a [`TagName`](crate::core::device::TagName).
     #[error("{0}")]
     TagName(String),

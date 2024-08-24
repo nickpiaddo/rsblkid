@@ -64,6 +64,10 @@ pub enum ConversionError {
     #[error("{0}")]
     PartitionType(String),
 
+    /// Error while converting bytes into a [`Tag`](crate::core::device::Tag).
+    #[error("{0}")]
+    Tag(String),
+
     /// Error while converting bytes into a [`TagName`](crate::core::device::TagName).
     #[error("{0}")]
     TagName(String),

@@ -12,6 +12,8 @@ use std::str::FromStr;
 use crate::core::errors::ConversionError;
 use crate::core::errors::ParserError;
 
+use crate::core::device::Tag;
+
 /// Tag names supported by `libmount`.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
 #[non_exhaustive]
@@ -430,6 +432,70 @@ impl FromStr for TagName {
 
                 Err(ParserError::TagName(err_msg))
             }
+        }
+    }
+}
+
+impl<T> From<T> for TagName
+where
+    T: AsRef<Tag>,
+{
+    fn from(tag: T) -> TagName {
+        match tag.as_ref() {
+            Tag::Label(_) => Self::Label,
+            Tag::Uuid(_) => Self::Uuid,
+            Tag::PartLabel(_) => Self::PartLabel,
+            Tag::PartUuid(_) => Self::PartUuid,
+            Tag::Id(_) => Self::Id,
+            Tag::PtUuid(_) => Self::PtUuid,
+            Tag::PtType(_) => Self::PtType,
+            Tag::PtMagic(_) => Self::PtMagic,
+            Tag::PtMagicOffset(_) => Self::PtMagicOffset,
+            Tag::PartEntryType(_) => Self::PartEntryType,
+            Tag::PartEntryNumber(_) => Self::PartEntryNumber,
+            Tag::PartEntryUuid(_) => Self::PartEntryUuid,
+            Tag::PartEntryOffset(_) => Self::PartEntryOffset,
+            Tag::PartEntrySize(_) => Self::PartEntrySize,
+            Tag::PartEntryScheme(_) => Self::PartEntryScheme,
+            Tag::PartEntryDisk(_) => Self::PartEntryDisk,
+            Tag::PartEntryFlags(_) => Self::PartEntryFlags,
+            Tag::PartEntryName(_) => Self::PartEntryName,
+            Tag::AlignmentOffset(_) => Self::AlignmentOffset,
+            Tag::LogicalSectorSize(_) => Self::LogicalSectorSize,
+            Tag::PhysicalSectorSize(_) => Self::PhysicalSectorSize,
+            Tag::MinimumIoSize(_) => Self::MinimumIoSize,
+            Tag::OptimalIoSize(_) => Self::OptimalIoSize,
+            Tag::ApplicationId(_) => Self::ApplicationId,
+            Tag::BootSystemId(_) => Self::BootSystemId,
+            Tag::DataPreparerId(_) => Self::DataPreparerId,
+            Tag::PublisherId(_) => Self::PublisherId,
+            Tag::SystemId(_) => Self::SystemId,
+            Tag::VolumeSetId(_) => Self::VolumeSetId,
+            Tag::VolumeId(_) => Self::VolumeId,
+            Tag::Type(_) => Self::Type,
+            Tag::SecType(_) => Self::SecType,
+            Tag::Endianness(_) => Self::Endianness,
+            Tag::SbMagic(_) => Self::SbMagic,
+            Tag::SbMagicOffset(_) => Self::SbMagicOffset,
+            Tag::SbBadChecksum(_) => Self::SbBadChecksum,
+            Tag::Version(_) => Self::Version,
+            Tag::BlockSize(_) => Self::BlockSize,
+            Tag::FsBlockSize(_) => Self::FsBlockSize,
+            Tag::FsSize(_) => Self::FsSize,
+            Tag::FsLastBlock(_) => Self::FsLastBlock,
+            Tag::Usage(_) => Self::Usage,
+            Tag::LabelRaw(_) => Self::LabelRaw,
+            Tag::UuidRaw(_) => Self::UuidRaw,
+            Tag::ExtJournal(_) => Self::ExtJournal,
+            Tag::UuidSub(_) => Self::UuidSub,
+            Tag::LogUuid(_) => Self::LogUuid,
+            Tag::Mount(_) => Self::Mount,
+            Tag::LabelFatboot(_) => Self::LabelFatboot,
+            Tag::LogicalVolumeId(_) => Self::LogicalVolumeId,
+            Tag::SubSystem(_) => Self::SubSystem,
+            Tag::BlockdevInitTime(_) => Self::BlockdevInitTime,
+            Tag::BlockdevSectors(_) => Self::BlockdevSectors,
+            Tag::PoolUuid(_) => Self::PoolUuid,
         }
     }
 }
