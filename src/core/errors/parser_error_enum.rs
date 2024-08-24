@@ -61,4 +61,8 @@ pub enum ParserError {
     /// Error while parsing a string into a [`UnsignedInt`](crate::core::num::UnsignedInt).
     #[error("{0}")]
     UnsignedInt(String),
+
+    /// Error while parsing a string into a [`Uuid`](crate::core::device::Uuid).
+    #[error("{0}")]
+    Uuid(String),
 }
