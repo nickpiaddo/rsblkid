@@ -9,6 +9,7 @@ use thiserror::Error;
 // From standard library
 
 // From this library
+use crate::core::errors::ParserError;
 
 /// A specialized [`Result`](std::result::Result) type for `rsblkid`.
 ///
@@ -33,4 +34,7 @@ pub type Result<T> = std::result::Result<T, RsBlkidError>;
 /// ```
 #[derive(Debug, Error)]
 #[non_exhaustive]
-pub enum RsBlkidError {}
+pub enum RsBlkidError {
+    #[error(transparent)]
+    Parser(#[from] ParserError),
+}
