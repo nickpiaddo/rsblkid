@@ -12,6 +12,10 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum ParserError {
+    /// Error while parsing a string into a [`FileSystem`](crate::core::partition::FileSystem).
+    #[error("{0}")]
+    FileSystem(String),
+
     /// Error while parsing a string into a
     /// [`PartitionTableType`](crate::core::partition::PartitionTableType).
     #[error("{0}")]
