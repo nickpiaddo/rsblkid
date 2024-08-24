@@ -351,6 +351,7 @@
 
 pub use error::*;
 
+pub mod core;
 pub mod debug;
 mod error;
 pub(crate) mod ffi_utils;
