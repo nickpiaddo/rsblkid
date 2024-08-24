@@ -28,6 +28,10 @@ pub enum ParserError {
     #[error("{0}")]
     Guid(String),
 
+    /// Error while parsing a string into a [`Label`](crate::core::device::Label).
+    #[error("{0}")]
+    Label(String),
+
     /// Error while parsing a string into a [`OSType`](crate::core::partition::OSType).
     #[error("{0}")]
     OSType(String),
