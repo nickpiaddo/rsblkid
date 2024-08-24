@@ -16,6 +16,10 @@ pub enum ConversionError {
     #[error("{0}")]
     Bool(String),
 
+    /// Error while converting a [`CStr`](std::ffi::CStr).
+    #[error("{0}")]
+    CStr(String),
+
     /// Error while converting bytes into a [`DeviceNumber`](crate::core::device::DeviceNumber).
     #[error("{0}")]
     DeviceNumber(String),
@@ -59,6 +63,10 @@ pub enum ConversionError {
     /// Error while converting bytes into a [`PartitionType`](crate::core::partition::PartitionType).
     #[error("{0}")]
     PartitionType(String),
+
+    /// Error while converting bytes into a [`TagName`](crate::core::device::TagName).
+    #[error("{0}")]
+    TagName(String),
 
     /// Error while converting bytes into a [`UnixTimestamp`](crate::core::partition::UnixTimestamp).
     #[error("{0}")]

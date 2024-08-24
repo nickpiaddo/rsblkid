@@ -43,6 +43,21 @@ These tools were essential for collecting copies:
 ## File systems
 
 [Partition type GUIDs][17] [[a]][18]
+[Design of the FAT file system][19] [[a]][20]
+[Journaling file system][21] [[a]][22]
+[Logical block addressing][23] [[a]][24]
+
+## Disks
+
+[Cylinder-head-sector][25] [[a]][26]
+
+## Standards
+
+[GUID Partition Table (GPT) Disk Layout][27] [[a]][28]
+[Volume and File Structure of CDROM for Information Interchange][29] [[a]][30]
+[List of partition identifiers for PCs][31] [[a]][32]
+[Stratis Software Design][33] [[a]][34]
+[LUKS2 On-Disk Format Specification][35] [[a]][36]
 
 [1]: https://wiki.alpinelinux.org/wiki/Repositories#Managing_repositories
 [2]: alpine-linux/managing-repositories.html
@@ -62,3 +77,21 @@ These tools were essential for collecting copies:
 [16]: rust/wrapping-unsafe-c-libraries.html
 [17]: https://en.wikipedia.org/wiki/GUID_Partition_Table#Partition_type_GUIDs
 [18]: fs/GPT-partition-type-guid.html
+[19]: https://en.wikipedia.org/wiki/Design_of_the_FAT_file_system#Boot_Sector
+[20]: fs/design-of-the-fat-file-system.html
+[21]: https://en.wikipedia.org/wiki/Journaling_file_system
+[22]: web-snapshots/fs/journaling-file-system.html
+[23]: https://en.wikipedia.org/wiki/Logical_block_addressing
+[24]: web-snapshots/fs/logical-block-addressing.html
+[25]: https://en.wikipedia.org/wiki/Cylinder-head-sector
+[26]: disk/cylinder-head-sector-addressing.html
+[27]: https://uefi.org/specs/UEFI/2.10/05_GUID_Partition_Table_Format.html
+[28]: standards/GPT-MBR-partition-table-format.html
+[29]: https://ecma-international.org/wp-content/uploads/ECMA-119_3rd_edition_december_2017.pdf
+[30]: standards/ISO9660-ECMA-119-3rd-edition-december-2017.pdf
+[31]: https://www.win.tue.nl/~aeb/partitions/partition_types-1.html
+[32]: web-snapshots/standards/MBR-partition-types-list-of-partition-identifiers.html
+[33]: https://stratis-storage.github.io/StratisSoftwareDesign.pdf
+[34]: web-snapshots/standards/StratisSoftwareDesign.pdf
+[35]: https://fossies.org/linux/cryptsetup/docs/on-disk-format-luks2.pdf
+[36]: web-snapshots/standards/on-disk-format-luks2.pdf

@@ -74,6 +74,10 @@ pub enum ParserError {
     #[error("{0}")]
     Size(String),
 
+    /// Error while parsing a string into a [`TagName`](crate::core::device::TagName).
+    #[error("{0}")]
+    TagName(String),
+
     /// Error while parsing a string into a [`UnixTimestamp`](crate::core::partition::UnixTimestamp).
     #[error("{0}")]
     UnixTimestamp(String),
