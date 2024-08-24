@@ -28,13 +28,17 @@ pub enum ConversionError {
     #[error("{0}")]
     Guid(String),
 
-    /// Error while converting bytes into a [`OSType`](crate::core::partition::OSType).
+    /// Error while converting bytes into a [`Id`](crate::core::device::Id).
     #[error("{0}")]
-    OSType(String),
+    Id(String),
 
     /// Error while converting bytes into a [`Label`](crate::core::device::Label).
     #[error("{0}")]
     Label(String),
+
+    /// Error while converting bytes into a [`OSType`](crate::core::partition::OSType).
+    #[error("{0}")]
+    OSType(String),
 
     /// Error while converting bytes into a [`PartitionBitflags`](crate::core::partition::PartitionBitflags).
     #[error("{0}")]
