@@ -11,4 +11,9 @@ use thiserror::Error;
 /// String parser runtime errors.
 #[derive(Debug, Error)]
 #[non_exhaustive]
-pub enum ParserError {}
+pub enum ParserError {
+    /// Error while parsing a string into a
+    /// [`PartitionTableType`](crate::core::partition::PartitionTableType).
+    #[error("{0}")]
+    PartitionTableType(String),
+}

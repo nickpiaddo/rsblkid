@@ -8,3 +8,6 @@
 // From standard library
 
 // From this library
+pub use partition_table_type_enum::PartitionTableType;
+
+mod partition_table_type_enum;

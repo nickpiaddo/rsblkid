@@ -11,4 +11,8 @@ use thiserror::Error;
 /// Type conversion runtime errors.
 #[derive(Debug, Error)]
 #[non_exhaustive]
-pub enum ConversionError {}
+pub enum ConversionError {
+    /// Error while converting bytes into a [`PartitionTableType`](crate::core::partition::PartitionTableType).
+    #[error("{0}")]
+    PartitionTableType(String),
+}
