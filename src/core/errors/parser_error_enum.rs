@@ -40,6 +40,10 @@ pub enum ParserError {
     #[error("{0}")]
     Name(String),
 
+    /// Error while parsing a string into a [`Offset`](crate::core::device::Offset).
+    #[error("{0}")]
+    Offset(String),
+
     /// Error while parsing a string into a [`OSType`](crate::core::partition::OSType).
     #[error("{0}")]
     OSType(String),
