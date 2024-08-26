@@ -12,6 +12,10 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum ConversionError {
+    /// Error while converting bytes into a [`Endian`](crate::core::partition::Endian).
+    #[error("{0}")]
+    Endian(String),
+
     /// Error while converting bytes into a [`FileSystem`](crate::core::partition::FileSystem).
     #[error("{0}")]
     FileSystem(String),
