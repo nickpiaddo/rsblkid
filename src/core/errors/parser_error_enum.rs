@@ -24,4 +24,8 @@ pub enum ParserError {
     /// [`PartitionTableType`](crate::core::partition::PartitionTableType).
     #[error("{0}")]
     PartitionTableType(String),
+
+    /// Error while parsing a string into a [`RawBytes`](crate::core::partition::RawBytes).
+    #[error("{0}")]
+    RawBytes(String),
 }
