@@ -53,4 +53,8 @@ pub enum ParserError {
     /// Error while parsing a string into a [`UnixTimestamp`](crate::core::partition::UnixTimestamp).
     #[error("{0}")]
     UnixTimestamp(String),
+
+    /// Error while parsing a string into a [`UnsignedInt`](crate::core::num::UnsignedInt).
+    #[error("{0}")]
+    UnsignedInt(String),
 }

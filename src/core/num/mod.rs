@@ -9,5 +9,7 @@
 
 // From this library
 pub use bool_struct::Bool;
+pub use unsigned_int_enum::UnsignedInt;
 
 mod bool_struct;
+mod unsigned_int_enum;

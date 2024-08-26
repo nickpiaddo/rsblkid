@@ -47,4 +47,8 @@ pub enum ConversionError {
     /// Error while converting bytes into a [`UnixTimestamp`](crate::core::partition::UnixTimestamp).
     #[error("{0}")]
     UnixTimestamp(String),
+
+    /// Error while converting bytes into a [`UnsignedInt`](crate::core::num::UnsignedInt).
+    #[error("{0}")]
+    UnsignedInt(String),
 }
