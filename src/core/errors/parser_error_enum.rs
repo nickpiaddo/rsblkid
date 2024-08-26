@@ -62,6 +62,10 @@ pub enum ParserError {
     #[error("{0}")]
     RawBytes(String),
 
+    /// Error while parsing a string into a [`Size`](crate::core::device::Size).
+    #[error("{0}")]
+    Size(String),
+
     /// Error while parsing a string into a [`UnixTimestamp`](crate::core::partition::UnixTimestamp).
     #[error("{0}")]
     UnixTimestamp(String),
