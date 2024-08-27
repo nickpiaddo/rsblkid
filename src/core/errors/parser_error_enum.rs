@@ -12,6 +12,10 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum ParserError {
+    /// Error while parsing a string into a [`Bool`](crate::core::num::Bool).
+    #[error("{0}")]
+    Bool(String),
+
     /// Error while parsing a string into an [`Endian`](crate::core::partition::Endian).
     #[error("{0}")]
     Endian(String),

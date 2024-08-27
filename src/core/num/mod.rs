@@ -8,3 +8,6 @@
 // From standard library
 
 // From this library
+pub use bool_struct::Bool;
+
+mod bool_struct;
