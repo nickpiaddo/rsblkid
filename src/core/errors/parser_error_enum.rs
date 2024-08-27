@@ -28,4 +28,8 @@ pub enum ParserError {
     /// Error while parsing a string into a [`RawBytes`](crate::core::partition::RawBytes).
     #[error("{0}")]
     RawBytes(String),
+
+    /// Error while parsing a string into a [`UnixTimestamp`](crate::core::partition::UnixTimestamp).
+    #[error("{0}")]
+    UnixTimestamp(String),
 }

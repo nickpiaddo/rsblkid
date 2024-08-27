@@ -12,8 +12,10 @@ pub use endian_enum::Endian;
 pub use file_system_enum::FileSystem;
 pub use partition_table_type_enum::PartitionTableType;
 pub use raw_bytes_struct::RawBytes;
+pub use unix_timestamp_struct::UnixTimestamp;
 
 mod endian_enum;
 mod file_system_enum;
 mod partition_table_type_enum;
 mod raw_bytes_struct;
+mod unix_timestamp_struct;
