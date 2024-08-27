@@ -21,6 +21,11 @@ pub enum ParserError {
     FileSystem(String),
 
     /// Error while parsing a string into a
+    /// [`PartitionBitflags`](crate::core::partition::PartitionBitflags).
+    #[error("{0}")]
+    PartitionBitflags(String),
+
+    /// Error while parsing a string into a
     /// [`PartitionTableType`](crate::core::partition::PartitionTableType).
     #[error("{0}")]
     PartitionTableType(String),
