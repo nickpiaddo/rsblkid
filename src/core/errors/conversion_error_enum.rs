@@ -20,6 +20,10 @@ pub enum ConversionError {
     #[error("{0}")]
     FileSystem(String),
 
+    /// Error while converting bytes into a [`OSType`](crate::core::partition::OSType).
+    #[error("{0}")]
+    OSType(String),
+
     /// Error while converting bytes into a [`PartitionBitflags`](crate::core::partition::PartitionBitflags).
     #[error("{0}")]
     PartitionBitflags(String),

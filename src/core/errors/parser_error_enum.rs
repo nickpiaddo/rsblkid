@@ -20,6 +20,10 @@ pub enum ParserError {
     #[error("{0}")]
     FileSystem(String),
 
+    /// Error while parsing a string into a [`OSType`](crate::core::partition::OSType).
+    #[error("{0}")]
+    OSType(String),
+
     /// Error while parsing a string into a
     /// [`PartitionBitflags`](crate::core::partition::PartitionBitflags).
     #[error("{0}")]
