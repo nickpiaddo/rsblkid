@@ -16,6 +16,10 @@ pub enum ParserError {
     #[error("{0}")]
     Bool(String),
 
+    /// Error while parsing a string into a [`DeviceNumber`](crate::core::device::DeviceNumber).
+    #[error("{0}")]
+    DeviceNumber(String),
+
     /// Error while parsing a string into an [`Endian`](crate::core::partition::Endian).
     #[error("{0}")]
     Endian(String),

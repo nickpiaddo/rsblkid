@@ -16,6 +16,10 @@ pub enum ConversionError {
     #[error("{0}")]
     Bool(String),
 
+    /// Error while converting bytes into a [`DeviceNumber`](crate::core::device::DeviceNumber).
+    #[error("{0}")]
+    DeviceNumber(String),
+
     /// Error while converting bytes into a [`Endian`](crate::core::partition::Endian).
     #[error("{0}")]
     Endian(String),
