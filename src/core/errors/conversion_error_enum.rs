@@ -36,6 +36,10 @@ pub enum ConversionError {
     #[error("{0}")]
     Label(String),
 
+    /// Error while converting bytes into a [`Name`](crate::core::device::Name).
+    #[error("{0}")]
+    Name(String),
+
     /// Error while converting bytes into a [`OSType`](crate::core::partition::OSType).
     #[error("{0}")]
     OSType(String),
