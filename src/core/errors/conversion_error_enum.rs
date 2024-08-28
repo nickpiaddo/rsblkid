@@ -36,6 +36,10 @@ pub enum ConversionError {
     #[error("{0}")]
     PartitionTableType(String),
 
+    /// Error while converting bytes into a [`PartitionType`](crate::core::partition::PartitionType).
+    #[error("{0}")]
+    PartitionType(String),
+
     /// Error while converting bytes into a [`UnixTimestamp`](crate::core::partition::UnixTimestamp).
     #[error("{0}")]
     UnixTimestamp(String),
