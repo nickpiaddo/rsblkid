@@ -46,6 +46,30 @@
 //! file allows unprivileged users, i.e. anyone other than `root` or a member of the `disk` user
 //! group, to locate devices by label or id.
 //!
+//! ```ignore
+//! # use pretty_assertions::assert_eq;
+//! use std::path::PathBuf;
+//! use rsblkid::core::device::Tag;
+//! use rsblkid::cache::Cache;
+//!
+//! fn main() -> rsblkid::Result<()> {
+//!     let mut cache = Cache::builder()
+//!         .discard_changes_on_drop()
+//!         .build()?;
+//!
+//!     cache.probe_all_devices()?;
+//!
+//!     // Find the absolute path to the device with the UUID.
+//!     let uuid: Tag = r#"UUID="ac4f36bf-191b-4fb0-b808-6d7fc9fc88be""#.parse()?;
+//!     let actual = cache.find_canonical_device_name_from_tag(&uuid);
+//!     let device_name = PathBuf::from("/dev/vda");
+//!     let expected = Some(device_name);
+//!
+//!     assert_eq!(actual, expected);
+//!
+//!     Ok(())
+//! }
+//! ```
 //! To determine the values of the `LABEL` or `UUID` tags of a block device, the high-level API supports two methods:
 //!  - extracting data directly by scanning a block device,
 //!  - or reading information from [udev](https://wiki.archlinux.org/title/Udev)'s
@@ -62,25 +86,25 @@
 //! ### High-Level functions
 //! #### Tag and spec evaluation
 //!
-//! | `libblkid`                            | `rsblkid` |
-//! | ------------------------------------- | --------- |
-//! | [`blkid_evaluate_tag`][1]             |           |
-//! | [`blkid_evaluate_spec`][2]            |           |
+//! | `libblkid`                            | `rsblkid`                                                                                                                                                                                                                |
+//! | ------------------------------------- | ---------                                                                                                                                                                                                                |
+//! | [`blkid_evaluate_tag`][1]             | [`Cache::find_device_name_from_tag`](crate::cache::Cache::find_device_name_from_tag)                                                                                                                                     |
+//! | [`blkid_evaluate_spec`][2]            | [`Cache::find_canonical_device_name_from_tag`](crate::cache::Cache::find_canonical_device_name_from_tag) <br> [`Cache::find_canonical_device_name_from_path`](crate::cache::Cache::find_canonical_device_name_from_path) |
 //!
 //! [1]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Tags-and-Spec-evaluation.html#blkid-evaluate-tag
 //! [2]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Tags-and-Spec-evaluation.html#blkid-evaluate-spec
 //!
 //! #### `Cache` basic routines
 //!
-//! | `libblkid`                                                | `rsblkid` |
-//! | --------------------------------------------------------- | --------- |
-//! | [`blkid_gc_cache`][3]                                     |           |
-//! | [`blkid_get_cache`][4]                                    |           |
-//! | [`blkid_put_cache`][5]                                    |           |
-//! | [`blkid_probe_all`][6]                                    |           |
-//! | [`blkid_probe_all_removable`][7]                          |           |
-//! | [`blkid_probe_all_new`][8]                                |           |
-//! | [`blkid_verify`][9]                                       |           |
+//! | `libblkid`                                                | `rsblkid`                                                                                |
+//! | --------------------------------------------------------- | ---------                                                                                |
+//! | [`blkid_gc_cache`][3]                                     | [`Cache::garbage_collect`](crate::cache::Cache::garbage_collect)                         |
+//! | [`blkid_get_cache`][4]                                    | [`Cache::builder`](crate::cache::Cache::builder)                                         |
+//! | [`blkid_put_cache`][5]                                    | [`Cache`](crate::cache::Cache) is automatically deallocated when it goes out of scope.   |
+//! | [`blkid_probe_all`][6]                                    | [`Cache::probe_all_devices`](crate::cache::Cache::probe_all_devices)                     |
+//! | [`blkid_probe_all_removable`][7]                          | [`Cache::probe_all_removable_devices`](crate::cache::Cache::probe_all_removable_devices) |
+//! | [`blkid_probe_all_new`][8]                                | [`Cache::probe_all_new_devices`](crate::cache::Cache::probe_all_new_devices)             |
+//! | [`blkid_verify`][9]                                       |                                                                                          |
 //!
 //! [3]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Cache.html#blkid-gc-cache
 //! [4]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Cache.html#blkid-get-cache
@@ -92,21 +116,21 @@
 //!
 //! #### Search and iterate over devices in the cache
 //!
-//! | `libblkid`                      | `rsblkid` |
-//! | ------------                    | --------- |
-//! | [`blkid_dev_devname`][10]       |           |
-//! | [`blkid_dev_has_tag`][11]       |           |
-//! | [`blkid_dev_iterate_begin`][12] |           |
-//! | [`blkid_dev_iterate_end`][13]   |           |
-//! | [`blkid_dev_next`][14]          |           |
-//! | [`blkid_dev_set_search`][15]    |           |
-//! | [`blkid_find_dev_with_tag`][16] |           |
-//! | [`blkid_get_dev`][17]           |           |
-//! | [`blkid_get_devname`][18]       |           |
-//! | [`blkid_get_tag_value`][19]     |           |
-//! | [`blkid_tag_iterate_begin`][20] |           |
-//! | [`blkid_tag_iterate_end`][21]   |           |
-//! | [`blkid_tag_next`][22]          |           |
+//! | `libblkid`                      | `rsblkid`                                                                    |
+//! | ------------                    | ---------                                                                    |
+//! | [`blkid_dev_devname`][10]       |                                                                              |
+//! | [`blkid_dev_has_tag`][11]       |                                                                              |
+//! | [`blkid_dev_iterate_begin`][12] |                                                                              |
+//! | [`blkid_dev_iterate_end`][13]   |                                                                              |
+//! | [`blkid_dev_next`][14]          |                                                                              |
+//! | [`blkid_dev_set_search`][15]    |                                                                              |
+//! | [`blkid_find_dev_with_tag`][16] |                                                                              |
+//! | [`blkid_get_dev`][17]           |                                                                              |
+//! | [`blkid_get_devname`][18]       |                                                                              |
+//! | [`blkid_get_tag_value`][19]     | [`Cache::tag_value_from_device`](crate::cache::Cache::tag_value_from_device) |
+//! | [`blkid_tag_iterate_begin`][20] |                                                                              |
+//! | [`blkid_tag_iterate_end`][21]   |                                                                              |
+//! | [`blkid_tag_next`][22]          |                                                                              |
 //!
 //! [10]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Search-and-iterate.html#blkid-dev-devname
 //! [11]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Search-and-iterate.html#blkid-dev-has-tag

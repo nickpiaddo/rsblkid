@@ -20,6 +20,10 @@ pub enum ConversionError {
     #[error("{0}")]
     CStr(String),
 
+    /// Error while converting a [`CString`](std::ffi::CString).
+    #[error("{0}")]
+    CString(String),
+
     /// Error while converting bytes into a [`DeviceNumber`](crate::core::device::DeviceNumber).
     #[error("{0}")]
     DeviceNumber(String),

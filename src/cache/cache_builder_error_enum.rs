@@ -7,8 +7,15 @@ use thiserror::Error;
 // From standard library
 
 // From this library
+use crate::cache::CacheError;
 
-/// `CacheBuilder` runtime errors.
+/// [`CacheBuilder`](crate::cache::CacheBuilder) runtime errors.
 #[derive(Debug, Error)]
 #[non_exhaustive]
-pub enum CacheBuilderError {}
+pub enum CacheBuilderError {
+    #[error(transparent)]
+    Cache(#[from] CacheError),
+
+    #[error("{}", .0)]
+    MutuallyExclusive(String),
+}

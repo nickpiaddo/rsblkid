@@ -1,0 +1,574 @@
+<!DOCTYPE html> <html lang=en style><!--
+ Page saved with SingleFile
+ url: https://nicholasbishop.github.io/rust-conversions/
+--><meta charset=utf-8>
+<meta name=viewport content="width=device-width, initial-scale=1">
+<title>Rust Conversions</title>
+<style>*{box-sizing:border-box}body{font-family:"Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;line-height:1.5;color:#606c71;font-size:17.6px;margin:0}h1{margin:12px}h2{color:#159957;font-weight:normal;margin-top:2rem;margin-bottom:1rem}li{padding-bottom:10px}a{color:#1e6bb8;text-decoration:none}a:hover{text-decoration:underline}a:active,a:hover{outline:0}#header a{color:white;text-decoration:underline}#header a:hover{text-decoration:none}pre a{color:inherit;text-decoration:underline}pre a:hover{color:inherit;text-decoration:none}#header{background-color:#159957;background-image:linear-gradient(120deg,#155799,#159957);color:white;padding:16px;text-align:center;height:140px;display:flex;flex-direction:column;justify-content:center;align-items:center}@media print,screen and (min-width:900px){#content{margin-left:12rem;margin-right:12rem;padding-left:24px;padding-right:24px}}@media print,screen and (min-width:520px){#nav{position:fixed;width:12rem}#nav-inner{position:sticky}#content{margin-left:12rem;padding-left:24px;padding-right:24px}}@media print,screen and (max-width:520px){#content{padding-left:12px;padding-right:12px}h1{font-size:24px}}pre,code{background-color:rgb(243,246,250);border:solid 1px;border-color:rgb(220,230,240);border-radius:0.3rem}pre{font-size:0.9rem;line-height:1.45;padding:0.8rem;overflow:auto}</style>
+<meta name=referrer content=no-referrer><link rel=icon type=image/png href=data:image/png;base64,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><link rel=canonical href=https://nicholasbishop.github.io/rust-conversions/><meta http-equiv=content-security-policy content="default-src 'none'; font-src 'self' data:; img-src 'self' data:; style-src 'unsafe-inline'; media-src 'self' data:; script-src 'unsafe-inline' data:; object-src 'self' data:; frame-src 'self' data:;"><style>img[src="data:,"],source[src="data:,"]{display:none!important}</style></head>
+ <body>
+ <div id=header>
+ <h1>Rust Conversions</h1>
+ <span>
+ Created by <a href=https://nbishop.net/>Nicholas Bishop</a> |
+ <a href=https://github.com/nicholasbishop/rust-conversions>GitHub Repo</a>
+ </span>
+ </div>
+ <div id=nav>
+ <div id=nav-inner>
+ <ul><li><a href=#str>From <code>&amp;str</code></a><li><a href=#string>From <code>String</code></a><li><a href=#u8_slice>From <code>&amp;[u8]</code></a><li><a href=#u8_vec>From <code>Vec&lt;u8&gt;</code></a><li><a href=#path>From <code>&amp;Path</code></a><li><a href=#path_buf>From <code>PathBuf</code></a><li><a href=#os_str>From <code>&amp;OsStr</code></a><li><a href=#os_string>From <code>OsString</code></a><li><a href=#c_str>From <code>&amp;CStr</code></a><li><a href=#c_string>From <code>CString</code></a></ul>
+ </div>
+ </div>
+ <div id=content>
+ <p>This is a reference for converting between various string and
+ byte types in Rust. The types listed are in the sidebar, and
+ each section shows the conversions to all the other types.</p>
+ <p>These conversions are not exhaustive of course. For example,
+ if the target type can be inferred you might be able to use
+ <code>.into()</code> instead of an explicit method
+ like <code>.to_string()</code>. Additionally, <code>unsafe</code>
+ conversions are not currently included.</p>
+ <p>If you spot something that could be improved please file an
+ issue or a pull request in
+ the <a href=https://github.com/nicholasbishop/rust-conversions>GitHub
+ repo</a>.</p>
+ <em>Last updated for Rust 1.66.0.</em>
+ <a name=str><h2>From <code>&amp;str</code></h2></a><pre style=background-color:#f3f6fa><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::path::{<a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>, <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>};
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>str_to_string</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>) -&gt; <a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a> {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>to_string</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>str_to_u8_slice</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>] {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>str_to_u8_vec</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>) -&gt; <a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>().</span><span style=color:#62a35c>to_vec</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>str_to_path</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>::new(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>str_to_path_buf</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>) -&gt; <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>::from(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>str_to_os_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>::new(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>str_to_os_string</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>) -&gt; <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>::from(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// A <a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a> will be returned if the input is not nul-
+</span><span style=font-style:italic;color:#969896>// terminated or contains any interior nul bytes. If your input is not nul-
+</span><span style=font-style:italic;color:#969896>// terminated then a conversion without allocation is not possible, convert
+</span><span style=font-style:italic;color:#969896>// to a <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a> instead.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>str_to_c_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>) -&gt; Result&lt;</span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a>&gt; {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>::from_bytes_with_nul(input.</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// A <a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a> will be returned if the input contains any nul bytes.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>str_to_c_string</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>) -&gt; Result&lt;<a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a>&gt; {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>::new(input)
+</span><span style=color:#323232>}
+</span></pre>
+<a name=string></a><h2><a name=string>From <code></code></a><code><a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a></code></h2><pre style=background-color:#f3f6fa><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::path::{<a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>, <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>};
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>string_to_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a> </span><span style=color:#323232>{
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_str</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>string_to_u8_slice</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>] {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>string_to_u8_vec</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>) -&gt; <a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>into_bytes</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>string_to_path</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>::new(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>string_to_path_buf</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>) -&gt; <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>::from(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>string_to_os_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>::new(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>string_to_os_string</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>) -&gt; <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>::from(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// A <a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a> will be returned if the input is not nul-
+</span><span style=font-style:italic;color:#969896>// terminated or contains any interior nul bytes. If your input is not nul-
+</span><span style=font-style:italic;color:#969896>// terminated then a conversion without allocation is not possible, convert
+</span><span style=font-style:italic;color:#969896>// to a <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a> instead.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>string_to_c_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>) -&gt; Result&lt;</span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a>&gt; {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>::from_bytes_with_nul(input.</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// A <a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a> will be returned if the input contains any nul bytes.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>string_to_c_string</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>) -&gt; Result&lt;<a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a>&gt; {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>::new(input)
+</span><span style=color:#323232>}
+</span></pre>
+<a name=u8_slice><h2>From <code>&amp;[u8]</code></h2></a><pre style=background-color:#f3f6fa><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::borrow::Cow;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::os::unix::ffi::{<a href=https://doc.rust-lang.org/std/os/unix/ffi/trait.OsStrExt.html>OsStrExt</a>, <a href=https://doc.rust-lang.org/std/os/unix/ffi/trait.OsStringExt.html>OsStringExt</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::path::{<a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>, <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a>::<a href=https://doc.rust-lang.org/std/str/struct.Utf8Error.html>Utf8Error</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::string::<a href=https://doc.rust-lang.org/std/string/struct.FromUtf8Error.html>FromUtf8Error</a>;
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_slice_to_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>]) -&gt; Result&lt;</span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>, <a href=https://doc.rust-lang.org/std/str/struct.Utf8Error.html>Utf8Error</a>&gt; {
+</span><span style=color:#323232>    std::<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a>::from_utf8(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_slice_to_string</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>]) -&gt; Result&lt;<a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>, <a href=https://doc.rust-lang.org/std/string/struct.FromUtf8Error.html>FromUtf8Error</a>&gt; {
+</span><span style=color:#323232>    </span><span style=color:#0086b3><a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a></span><span style=color:#323232>::from_utf8(input.</span><span style=color:#62a35c>to_vec</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This never fails, but invalid UTF-8 sequences will be replaced with
+</span><span style=font-style:italic;color:#969896>// "�". This returns a `Cow&lt;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a>&gt;`; call `to_string()` to convert it to
+</span><span style=font-style:italic;color:#969896>// a `String`.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_slice_to_string_lossy</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>]) -&gt; Cow&lt;</span><span style=font-weight:bold;color:#a71d5d><a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>&gt; {
+</span><span style=color:#323232>    </span><span style=color:#0086b3><a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a></span><span style=color:#323232>::from_utf8_lossy(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_slice_to_u8_vec</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>]) -&gt; <a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>to_vec</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_slice_to_path_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>]) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>::new(OsStr::from_bytes(input))
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_slice_to_path_buf_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>]) -&gt; <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>::from(OsStr::from_bytes(input))
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_slice_to_os_str_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>]) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>::from_bytes(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_slice_to_os_string_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>]) -&gt; <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>::from_vec(input.</span><span style=color:#62a35c>to_vec</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// A <a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a> will be returned if the input is not nul-
+</span><span style=font-style:italic;color:#969896>// terminated or contains any interior nul bytes. If your input is not nul-
+</span><span style=font-style:italic;color:#969896>// terminated then a conversion without allocation is not possible, convert
+</span><span style=font-style:italic;color:#969896>// to a <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a> instead.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_slice_to_c_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>]) -&gt; Result&lt;</span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a>&gt; {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>::from_bytes_with_nul(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// A <a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a> will be returned if the input contains any nul bytes.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_slice_to_c_string</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>]) -&gt; Result&lt;<a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a>&gt; {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>::new(input)
+</span><span style=color:#323232>}
+</span></pre>
+<a name=u8_vec></a><h2><a name=u8_vec>From <code></code></a><code><a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;u8&gt;</code></h2><pre style=background-color:#f3f6fa><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::os::unix::ffi::{<a href=https://doc.rust-lang.org/std/os/unix/ffi/trait.OsStrExt.html>OsStrExt</a>, <a href=https://doc.rust-lang.org/std/os/unix/ffi/trait.OsStringExt.html>OsStringExt</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::path::{<a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>, <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a>::<a href=https://doc.rust-lang.org/std/str/struct.Utf8Error.html>Utf8Error</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::string::<a href=https://doc.rust-lang.org/std/string/struct.FromUtf8Error.html>FromUtf8Error</a>;
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_vec_to_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt;) -&gt; Result&lt;</span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>, <a href=https://doc.rust-lang.org/std/str/struct.Utf8Error.html>Utf8Error</a>&gt; {
+</span><span style=color:#323232>    std::<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a>::from_utf8(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_vec_to_string</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt;) -&gt; Result&lt;<a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>, <a href=https://doc.rust-lang.org/std/string/struct.FromUtf8Error.html>FromUtf8Error</a>&gt; {
+</span><span style=color:#323232>    </span><span style=color:#0086b3><a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a></span><span style=color:#323232>::from_utf8(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_vec_to_u8_slice</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt;) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>] {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_slice</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_vec_to_path_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt;) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>::new(OsStr::from_bytes(input))
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_vec_to_path_buf_unix</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt;) -&gt; <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>::from(OsString::from_vec(input))
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_vec_to_os_str_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt;) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>::from_bytes(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_vec_to_os_string_unix</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt;) -&gt; <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>::from_vec(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// A <a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a> will be returned if the input is not nul-
+</span><span style=font-style:italic;color:#969896>// terminated or contains any interior nul bytes. If your input is not nul-
+</span><span style=font-style:italic;color:#969896>// terminated then a conversion without allocation is not possible, convert
+</span><span style=font-style:italic;color:#969896>// to a <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a> instead.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_vec_to_c_str</span><span style=color:#323232>(
+</span><span style=color:#323232>    input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt;,
+</span><span style=color:#323232>) -&gt; Result&lt;</span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a>&gt; {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>::from_bytes_with_nul(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// A <a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a> will be returned if the input contains any nul bytes.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>u8_vec_to_c_string</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt;) -&gt; Result&lt;<a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a>&gt; {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>::new(input)
+</span><span style=color:#323232>}
+</span></pre>
+<a name=path><h2>From <code>&amp;Path</code></h2></a><pre style=background-color:#f3f6fa><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::os::unix::ffi::<a href=https://doc.rust-lang.org/std/os/unix/ffi/trait.OsStrExt.html>OsStrExt</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::path::{<a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>, <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>};
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// Returns None if the input is not valid UTF-8.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_to_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>) -&gt; Option&lt;</span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>to_str</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// Returns None if the input is not valid UTF-8.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_to_string</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>) -&gt; Option&lt;<a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>to_str</span><span style=color:#323232>().</span><span style=color:#62a35c>map</span><span style=color:#323232>(|s| s.</span><span style=color:#62a35c>to_string</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_to_u8_slice_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>] {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_os_str</span><span style=color:#323232>().</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_to_u8_vec_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>) -&gt; <a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_os_str</span><span style=color:#323232>().</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>().</span><span style=color:#62a35c>to_vec</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_to_path_buf</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>) -&gt; <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a> {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>to_path_buf</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_to_os_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a> {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_os_str</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_to_os_string</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>) -&gt; <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a> {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_os_str</span><span style=color:#323232>().</span><span style=color:#62a35c>to_os_string</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-style:italic;color:#969896>//
+</span><span style=font-style:italic;color:#969896>// A <a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a> will be returned if the input is not nul-
+</span><span style=font-style:italic;color:#969896>// terminated or contains any interior nul bytes. If your input is not nul-
+</span><span style=font-style:italic;color:#969896>// terminated then a conversion without allocation is not possible, convert
+</span><span style=font-style:italic;color:#969896>// to a <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a> instead.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_to_c_str_unix</span><span style=color:#323232>(
+</span><span style=color:#323232>    input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>,
+</span><span style=color:#323232>) -&gt; Result&lt;</span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a>&gt; {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>::from_bytes_with_nul(input.</span><span style=color:#62a35c>as_os_str</span><span style=color:#323232>().</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-style:italic;color:#969896>//
+</span><span style=font-style:italic;color:#969896>// A <a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a> will be returned if the input contains any nul bytes.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_to_c_string_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>) -&gt; Result&lt;<a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a>&gt; {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>::new(input.</span><span style=color:#62a35c>as_os_str</span><span style=color:#323232>().</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span></pre>
+<a name=path_buf></a><h2><a name=path_buf>From <code></code></a><code><a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a></code></h2><pre style=background-color:#f3f6fa><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::os::unix::ffi::{<a href=https://doc.rust-lang.org/std/os/unix/ffi/trait.OsStrExt.html>OsStrExt</a>, <a href=https://doc.rust-lang.org/std/os/unix/ffi/trait.OsStringExt.html>OsStringExt</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::path::{<a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>, <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>};
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// Returns None if the input is not valid UTF-8.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_buf_to_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>) -&gt; Option&lt;</span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_path</span><span style=color:#323232>().</span><span style=color:#62a35c>to_str</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// Returns None if the input is not valid UTF-8.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_buf_to_string</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>) -&gt; Option&lt;<a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_path</span><span style=color:#323232>().</span><span style=color:#62a35c>to_str</span><span style=color:#323232>().</span><span style=color:#62a35c>map</span><span style=color:#323232>(|s| s.</span><span style=color:#62a35c>to_string</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_buf_to_u8_slice_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>] {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_os_str</span><span style=color:#323232>().</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_buf_to_u8_vec_unix</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>) -&gt; <a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>into_os_string</span><span style=color:#323232>().</span><span style=color:#62a35c>into_vec</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_buf_to_path</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a> {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_path</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_buf_to_os_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a> {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_os_str</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_buf_to_os_string</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>) -&gt; <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a> {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>into_os_string</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-style:italic;color:#969896>//
+</span><span style=font-style:italic;color:#969896>// A <a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a> will be returned if the input is not nul-
+</span><span style=font-style:italic;color:#969896>// terminated or contains any interior nul bytes. If your input is not nul-
+</span><span style=font-style:italic;color:#969896>// terminated then a conversion without allocation is not possible, convert
+</span><span style=font-style:italic;color:#969896>// to a <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a> instead.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_buf_to_c_str_unix</span><span style=color:#323232>(
+</span><span style=color:#323232>    input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>,
+</span><span style=color:#323232>) -&gt; Result&lt;</span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a>&gt; {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>::from_bytes_with_nul(input.</span><span style=color:#62a35c>as_os_str</span><span style=color:#323232>().</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-style:italic;color:#969896>//
+</span><span style=font-style:italic;color:#969896>// A <a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a> will be returned if the input contains any nul bytes.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>path_buf_to_c_string_unix</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>) -&gt; Result&lt;<a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a>&gt; {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>::new(input.</span><span style=color:#62a35c>into_os_string</span><span style=color:#323232>().</span><span style=color:#62a35c>into_vec</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span></pre>
+<a name=os_str><h2>From <code>&amp;OsStr</code></h2></a><pre style=background-color:#f3f6fa><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::os::unix::ffi::<a href=https://doc.rust-lang.org/std/os/unix/ffi/trait.OsStrExt.html>OsStrExt</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::path::{<a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>, <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>};
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// Returns None if the input is not valid UTF-8.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_str_to_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>) -&gt; Option&lt;</span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>to_str</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// Returns None if the input is not valid UTF-8.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_str_to_string</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>) -&gt; Option&lt;<a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>to_str</span><span style=color:#323232>().</span><span style=color:#62a35c>map</span><span style=color:#323232>(|s| s.</span><span style=color:#62a35c>to_string</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_str_to_u8_slice_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>] {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_str_to_u8_vec_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>) -&gt; <a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>().</span><span style=color:#62a35c>to_vec</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_str_to_path</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>::new(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_str_to_path_buf</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>) -&gt; <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>::from(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_str_to_os_string</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>) -&gt; <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a> {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>to_os_string</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-style:italic;color:#969896>//
+</span><span style=font-style:italic;color:#969896>// A <a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a> will be returned if the input is not nul-
+</span><span style=font-style:italic;color:#969896>// terminated or contains any interior nul bytes. If your input is not nul-
+</span><span style=font-style:italic;color:#969896>// terminated then a conversion without allocation is not possible, convert
+</span><span style=font-style:italic;color:#969896>// to a <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a> instead.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_str_to_c_str_unix</span><span style=color:#323232>(
+</span><span style=color:#323232>    input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>,
+</span><span style=color:#323232>) -&gt; Result&lt;</span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a>&gt; {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>::from_bytes_with_nul(input.</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-style:italic;color:#969896>//
+</span><span style=font-style:italic;color:#969896>// A <a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a> will be returned if the input contains any nul bytes.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_str_to_c_string_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>) -&gt; Result&lt;<a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a>&gt; {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>::new(input.</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span></pre>
+<a name=os_string></a><h2><a name=os_string>From <code></code></a><code><a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a></code></h2><pre style=background-color:#f3f6fa><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::os::unix::ffi::{<a href=https://doc.rust-lang.org/std/os/unix/ffi/trait.OsStrExt.html>OsStrExt</a>, <a href=https://doc.rust-lang.org/std/os/unix/ffi/trait.OsStringExt.html>OsStringExt</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::path::{<a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>, <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>};
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// Returns None if the input is not valid UTF-8.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_string_to_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>) -&gt; Option&lt;</span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>to_str</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_string_to_string</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>) -&gt; Result&lt;<a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>into_string</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_string_to_u8_slice_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>] {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_string_to_u8_vec_unix</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>) -&gt; <a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>into_vec</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_string_to_path</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>::new(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_string_to_path_buf</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>) -&gt; <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>::from(input)
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_string_to_os_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a> {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_os_str</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-style:italic;color:#969896>//
+</span><span style=font-style:italic;color:#969896>// A <a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a> will be returned if the input is not nul-
+</span><span style=font-style:italic;color:#969896>// terminated or contains any interior nul bytes. If your input is not nul-
+</span><span style=font-style:italic;color:#969896>// terminated then a conversion without allocation is not possible, convert
+</span><span style=font-style:italic;color:#969896>// to a <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a> instead.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_string_to_c_str_unix</span><span style=color:#323232>(
+</span><span style=color:#323232>    input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>,
+</span><span style=color:#323232>) -&gt; Result&lt;</span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.FromBytesWithNulError.html>FromBytesWithNulError</a>&gt; {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>::from_bytes_with_nul(input.</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-style:italic;color:#969896>//
+</span><span style=font-style:italic;color:#969896>// A <a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a> will be returned if the input contains any nul bytes.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>os_string_to_c_string_unix</span><span style=color:#323232>(
+</span><span style=color:#323232>    input: <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>,
+</span><span style=color:#323232>) -&gt; Result&lt;<a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.NulError.html>NulError</a>&gt; {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>::new(input.</span><span style=color:#62a35c>into_vec</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span></pre>
+<a name=c_str><h2>From <code>&amp;CStr</code></h2></a><pre style=background-color:#f3f6fa><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::os::unix::ffi::<a href=https://doc.rust-lang.org/std/os/unix/ffi/trait.OsStrExt.html>OsStrExt</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::path::{<a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>, <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a>::<a href=https://doc.rust-lang.org/std/str/struct.Utf8Error.html>Utf8Error</a>;
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_str_to_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>) -&gt; Result&lt;</span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>, <a href=https://doc.rust-lang.org/std/str/struct.Utf8Error.html>Utf8Error</a>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>to_str</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_str_to_string</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>) -&gt; Result&lt;<a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>, <a href=https://doc.rust-lang.org/std/str/struct.Utf8Error.html>Utf8Error</a>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>to_str</span><span style=color:#323232>().</span><span style=color:#62a35c>map</span><span style=color:#323232>(|s| s.</span><span style=color:#62a35c>to_string</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_str_to_u8_slice</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>] {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>to_bytes</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_str_to_u8_vec</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>) -&gt; <a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>to_bytes</span><span style=color:#323232>().</span><span style=color:#62a35c>to_vec</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_str_to_path_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>::new(OsStr::from_bytes(input.</span><span style=color:#62a35c>to_bytes</span><span style=color:#323232>()))
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_str_to_path_buf_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>) -&gt; <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>::new(OsStr::from_bytes(input.</span><span style=color:#62a35c>to_bytes</span><span style=color:#323232>())).</span><span style=color:#62a35c>to_path_buf</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_str_to_os_str_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>::from_bytes(input.</span><span style=color:#62a35c>to_bytes</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_str_to_os_string_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>) -&gt; <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>::from_bytes(input.</span><span style=color:#62a35c>to_bytes</span><span style=color:#323232>()).</span><span style=color:#62a35c>to_os_string</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_str_to_c_string</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>) -&gt; <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>::from(input)
+</span><span style=color:#323232>}
+</span></pre>
+<a name=c_string></a><h2><a name=c_string>From <code></code></a><code><a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a></code></h2><pre style=background-color:#f3f6fa><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::<a href=https://doc.rust-lang.org/std/ffi/struct.IntoStringError.html>IntoStringError</a>;
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::ffi::{<a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::os::unix::ffi::{<a href=https://doc.rust-lang.org/std/os/unix/ffi/trait.OsStrExt.html>OsStrExt</a>, <a href=https://doc.rust-lang.org/std/os/unix/ffi/trait.OsStringExt.html>OsStringExt</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::path::{<a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>, <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>};
+</span><span style=font-weight:bold;color:#a71d5d>use </span><span style=color:#323232>std::<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a>::<a href=https://doc.rust-lang.org/std/str/struct.Utf8Error.html>Utf8Error</a>;
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_string_to_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>) -&gt; Result&lt;</span><span style=font-weight:bold;color:#a71d5d>&amp;<a href=https://doc.rust-lang.org/std/primitive.str.html>str</a></span><span style=color:#323232>, <a href=https://doc.rust-lang.org/std/str/struct.Utf8Error.html>Utf8Error</a>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_c_str</span><span style=color:#323232>().</span><span style=color:#62a35c>to_str</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_string_to_string</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>) -&gt; Result&lt;<a href=https://doc.rust-lang.org/std/string/struct.String.html>String</a>, <a href=https://doc.rust-lang.org/std/ffi/struct.IntoStringError.html>IntoStringError</a>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>into_string</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_string_to_u8_slice</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232>[</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>] {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_string_to_u8_vec</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>) -&gt; <a href=https://doc.rust-lang.org/std/vec/struct.Vec.html>Vec</a>&lt;</span><span style=font-weight:bold;color:#a71d5d>u8</span><span style=color:#323232>&gt; {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>into_bytes</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_string_to_path_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/path/struct.Path.html>Path</a>::new(OsStr::from_bytes(input.</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>()))
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_string_to_path_buf_unix</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>) -&gt; <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/path/struct.PathBuf.html>PathBuf</a>::from(OsString::from_vec(input.</span><span style=color:#62a35c>into_bytes</span><span style=color:#323232>()))
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_string_to_os_str_unix</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.OsStr.html>OsStr</a>::from_bytes(input.</span><span style=color:#62a35c>as_bytes</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-style:italic;color:#969896>// This conversion is only allowed on Unix.
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_string_to_os_string_unix</span><span style=color:#323232>(input: <a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>) -&gt; <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a> {
+</span><span style=color:#323232>    <a href=https://doc.rust-lang.org/std/ffi/struct.OsString.html>OsString</a>::from_vec(input.</span><span style=color:#62a35c>into_bytes</span><span style=color:#323232>())
+</span><span style=color:#323232>}
+</span><span style=color:#323232>
+</span><span style=font-weight:bold;color:#a71d5d>pub fn </span><span style=font-weight:bold;color:#795da3>c_string_to_c_str</span><span style=color:#323232>(input: </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CString.html>CString</a>) -&gt; </span><span style=font-weight:bold;color:#a71d5d>&amp;</span><span style=color:#323232><a href=https://doc.rust-lang.org/std/ffi/struct.CStr.html>CStr</a> {
+</span><span style=color:#323232>    input.</span><span style=color:#62a35c>as_c_str</span><span style=color:#323232>()
+</span><span style=color:#323232>}
+</span></pre>
+ </div>

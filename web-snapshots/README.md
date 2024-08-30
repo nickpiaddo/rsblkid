@@ -39,6 +39,9 @@ These tools were essential for collecting copies:
 
 [Using C Libraries in Rust][13] [[a]][14]
 [Wrapping Unsafe C Libraries in Rust][15] [[a]][16]
+[Rust Conversions][37] [[a]][38]
+[How to build a Rust API with the builder pattern][39] [[a]][40]
+[Hand-Implementing PartialEq, Eq, Hash, PartialOrd and Ord in Rust][41] [[a]][42]
 
 ## File systems
 
@@ -95,3 +98,9 @@ These tools were essential for collecting copies:
 [34]: web-snapshots/standards/StratisSoftwareDesign.pdf
 [35]: https://fossies.org/linux/cryptsetup/docs/on-disk-format-luks2.pdf
 [36]: web-snapshots/standards/on-disk-format-luks2.pdf
+[37]: https://nicholasbishop.github.io/rust-conversions/
+[38]: rust/rust-conversions.html
+[39]: https://blog.logrocket.com/build-rust-api-builder-pattern/
+[40]: rust/build-a-rust-api-with-the-builder-pattern.html
+[41]: https://www.philipdaniels.com/blog/2019/rust-equality-and-ordering/
+[42]: rust/rust-equality-and-ordering.html
