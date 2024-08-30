@@ -72,3 +72,4 @@ mod cache_builder_error_enum;
 mod cache_builder_struct;
 mod cache_error_enum;
 mod cache_struct;
+mod operation_enum;
