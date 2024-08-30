@@ -68,10 +68,12 @@ pub use cache_builder_struct::CacheBuilder;
 pub use cache_error_enum::CacheError;
 pub use cache_struct::Cache;
 pub use device_struct::Device;
+pub use entry_iter_error_enum::EntryIterError;
 
 mod cache_builder_error_enum;
 mod cache_builder_struct;
 mod cache_error_enum;
 mod cache_struct;
 mod device_struct;
+mod entry_iter_error_enum;
 mod operation_enum;
