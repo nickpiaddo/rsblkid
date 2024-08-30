@@ -16,6 +16,7 @@ use crate::core::errors::ParserError;
 use crate::cache::CacheBuilderError;
 use crate::cache::CacheError;
 use crate::cache::EntryIterError;
+use crate::cache::TagIterError;
 
 /// A specialized [`Result`](std::result::Result) type for `rsblkid`.
 ///
@@ -71,4 +72,7 @@ pub enum RsBlkidError {
 
     #[error(transparent)]
     Parser(#[from] ParserError),
+
+    #[error(transparent)]
+    TagIter(#[from] TagIterError),
 }
