@@ -95,5 +95,7 @@
 //! If however, the user does not want data on the device's topology we go to the `End` node.
 
 pub use io_hint_struct::IoHint;
+pub use probe_error_enum::ProbeError;
 
 mod io_hint_struct;
+mod probe_error_enum;

@@ -18,6 +18,8 @@ use crate::cache::CacheError;
 use crate::cache::EntryIterError;
 use crate::cache::TagIterError;
 
+use crate::probe::ProbeError;
+
 /// A specialized [`Result`](std::result::Result) type for `rsblkid`.
 ///
 /// This typedef is generally used at the program-level to avoid writing out [`RsBlkidError`]
@@ -72,6 +74,9 @@ pub enum RsBlkidError {
 
     #[error(transparent)]
     Parser(#[from] ParserError),
+
+    #[error(transparent)]
+    Probe(#[from] ProbeError),
 
     #[error(transparent)]
     TagIter(#[from] TagIterError),
