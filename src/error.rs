@@ -20,6 +20,7 @@ use crate::cache::TagIterError;
 
 use crate::probe::ProbeBuilderError;
 use crate::probe::ProbeError;
+use crate::probe::TopologyError;
 
 /// A specialized [`Result`](std::result::Result) type for `rsblkid`.
 ///
@@ -84,4 +85,7 @@ pub enum RsBlkidError {
 
     #[error(transparent)]
     TagIter(#[from] TagIterError),
+
+    #[error(transparent)]
+    Topology(#[from] TopologyError),
 }

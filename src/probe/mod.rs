@@ -470,6 +470,7 @@ pub use probe_error_enum::ProbeError;
 pub use probe_struct::Probe;
 pub use scan_result_enum::ScanResult;
 pub use tag_iter_struct::TagIter;
+pub use topology_error_enum::TopologyError;
 
 mod filter_enum;
 mod fs_property_enum;
@@ -484,3 +485,4 @@ mod probe_error_enum;
 mod probe_struct;
 mod scan_result_enum;
 mod tag_iter_struct;
+mod topology_error_enum;
