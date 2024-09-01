@@ -14,7 +14,7 @@
 //! 4. [Examples](#examples)
 //!     1. [Create a `Probe`](#create-a-probe)
 //!     2. [Create a `Probe` in Read/Write mode](#create-a-probe-in-readwrite-mode)
-//!     3. [Limit search area](#limit-search-area)
+//!     3. [Limit the search area](#limit-the-search-area)
 //!
 //! ## Description
 //!
@@ -178,7 +178,7 @@
 //! }
 //! ```
 //!
-//! ### Limit search area
+//! ### Limit the search area
 //!
 //! By default, a [`Probe`] scans the device it is assigned in its entirety. Nonetheless, `rsblkid` allows
 //! you to limit the area it searches for properties, by providing a location and region size
@@ -200,6 +200,7 @@
 //! }
 //! ```
 
+pub use filter_enum::Filter;
 pub use io_hint_struct::IoHint;
 pub use probe_builder_error_enum::ProbeBuilderError;
 pub(crate) use probe_builder_struct::PrbBuilder;
@@ -207,6 +208,7 @@ pub use probe_builder_struct::ProbeBuilder;
 pub use probe_error_enum::ProbeError;
 pub use probe_struct::Probe;
 
+mod filter_enum;
 mod io_hint_struct;
 mod probe_builder_error_enum;
 mod probe_builder_struct;
