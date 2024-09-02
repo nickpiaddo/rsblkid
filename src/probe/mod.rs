@@ -208,6 +208,7 @@ pub(crate) use probe_builder_struct::PrbBuilder;
 pub use probe_builder_struct::ProbeBuilder;
 pub use probe_error_enum::ProbeError;
 pub use probe_struct::Probe;
+pub use scan_result_enum::ScanResult;
 pub use tag_iter_struct::TagIter;
 
 mod filter_enum;
@@ -217,4 +218,5 @@ mod probe_builder_error_enum;
 mod probe_builder_struct;
 mod probe_error_enum;
 mod probe_struct;
+mod scan_result_enum;
 mod tag_iter_struct;
