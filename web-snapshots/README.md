@@ -20,6 +20,7 @@ These tools were essential for collecting copies:
 ## Alpine Linux
 
 [Managing repositories][1] [[a]][2]
+
 [How to enable automatic login in alpine linux for root][3] [[a]][4]
 
 ## Linux Kernel
@@ -33,28 +34,43 @@ These tools were essential for collecting copies:
 ## NixOS
 
 [C header includes in NixOS][9] [[a]][10]
+
 [NixOS - Environment variables][11] [[a]][12]
 
 ## Rust
 
 [Using C Libraries in Rust][13] [[a]][14]
+
 [Wrapping Unsafe C Libraries in Rust][15] [[a]][16]
+
 [Rust Conversions][37] [[a]][38]
+
 [How to build a Rust API with the builder pattern][39] [[a]][40]
+
 [Hand-Implementing PartialEq, Eq, Hash, PartialOrd and Ord in Rust][41] [[a]][42]
+
 [How to combine two cmp conditions in `Ord::cmp()`][43] [[a]][44]
+
 [How can I convert a Vec T into a C-friendly *mut T?][49] [[a]][50]
+
 [Passing Vec String from Rust to char** in C][51] [[a]][52]
+
 [How to initialize the logger for integration tests?][53] [[a]][54]
 
 ## File systems
 
 [Partition type GUIDs][17] [[a]][18]
+
 [Design of the FAT file system][19] [[a]][20]
+
 [Journaling file system][21] [[a]][22]
+
 [Logical block addressing][23] [[a]][24]
+
 [What is a Superblock, Inode, Dentry and a File?][45] [[a]][46]
+
 [What's a file system's "magic" number in a super block?][47] [[a]][48]
+
 [[Engineering Notes] I/O Limits: block sizes, alignment and I/O hints][55] [[a]][56]
 
 ## Disks
@@ -64,14 +80,19 @@ These tools were essential for collecting copies:
 ## Standards
 
 [GUID Partition Table (GPT) Disk Layout][27] [[a]][28]
+
 [Volume and File Structure of CDROM for Information Interchange][29] [[a]][30]
+
 [List of partition identifiers for PCs][31] [[a]][32]
+
 [Stratis Software Design][33] [[a]][34]
+
 [LUKS2 On-Disk Format Specification][35] [[a]][36]
 
 ## Udev
 
 [Adding Events to Udev Event Queue][57] [[a]][58]
+
 [How does udev/uevent work?][59] [[a]][60]
 
 ## Linux
