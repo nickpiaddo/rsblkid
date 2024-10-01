@@ -22,11 +22,13 @@ store content, as well as extract additional information such as:
 
 ## Usage
 
+This crate requires `libblkid` version `2.39.2` or later.
+
 Add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rsblkid = "0.1.0"
+rsblkid = { version = "0.2.0", features = ["v2_39"] }
 ```
 
 Then install the system packages below before running `cargo build`:
@@ -34,8 +36,6 @@ Then install the system packages below before running `cargo build`:
 - `util-linux`: to generate Rust bindings from `libblkid`'s header files.
 - `libclang`: to satisfy the [dependency][4] of [`bindgen`][5] on `libclang`.
 - `pkg-config`: to detect system libraries.
-
-This crate requires `libblkid` version `2.39.2` or later.
 
 Read the [installation instructions](#install-required-dependencies) below to
 install the required dependencies on your system.

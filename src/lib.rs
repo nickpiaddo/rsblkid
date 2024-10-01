@@ -3,8 +3,9 @@
 
 //! # Table of Contents
 //! 1. [Description](#description)
-//! 2. [API structure](#api-structure)
-//! 3. [From `libblkid` to `rsblkid`](#from-libblkid-to-rsblkid)
+//! 2. [Crate features](#crate-features)
+//! 3. [API structure](#api-structure)
+//! 4. [From `libblkid` to `rsblkid`](#from-libblkid-to-rsblkid)
 //!     1. [High-Level functions](#high-level-functions)
 //!         1. [Tag and spec evaluation](#tag-and-spec-evaluation)
 //!         2. [`Cache` basic routines](#cache-basic-routines)
@@ -35,6 +36,21 @@
 //! `rsblkid` presents the data it gathers as key/value pairs (tags), where the keys can be for
 //! example  a device's `LABEL`, `UUID`, file system `TYPE`, etc. (see
 //! [`FsProperty`](crate::probe::FsProperty) for the list of keys supported by `rsblkid`).
+//!
+//! ## Crate features
+//!
+//! By default, this crate does its best to accommodate the version of `libblkid` present on a
+//! system. However, newer versions may introduce new variables and/or functions. To ensure you
+//! have access to all the features provided by your edition of `libblkid`, this crate exposes
+//! matching version features.
+//!
+//! For example if you have `libblkid-2.39.2` installed, [enable the
+//! feature](https://doc.rust-lang.org/cargo/reference/features.html) `v2_39` in your `Cargo.toml`.
+//!
+//! ```text
+//! [dependencies]
+//! rsblkid = { version = "x.x.x", features = ["v2_39"] }
+//! ```
 //!
 //! ## API structure
 //!
