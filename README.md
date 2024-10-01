@@ -28,7 +28,7 @@ Add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rsblkid = { version = "0.2.0", features = ["v2_39"] }
+rsblkid = { version = "0.2.1", features = ["v2_39"] }
 ```
 
 Then install the system packages below before running `cargo build`:

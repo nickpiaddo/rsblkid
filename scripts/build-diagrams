@@ -443,6 +443,7 @@ if isSet "${OUTPUT_DIR}"; then
     d2 --center \
       --dark-theme 200 \
       --layout=elk \
+      --bundle=true \
       --font-regular "${ATKINSON_REGULAR}" \
       --font-italic "${ATKINSON_ITALIC}" \
       --font-bold "${ATKINSON_BOLD}" \
@@ -456,6 +457,7 @@ else
     d2 --center \
       --dark-theme 200 \
       --layout=elk \
+      --bundle=true \
       --font-regular "${ATKINSON_REGULAR}" \
       --font-italic "${ATKINSON_ITALIC}" \
       --font-bold "${ATKINSON_BOLD}" \
