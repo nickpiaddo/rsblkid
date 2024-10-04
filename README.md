@@ -7,6 +7,9 @@
 ![Crates.io MSRV](https://img.shields.io/crates/msrv/rsblkid?labelColor=%23222222&color=%239c179e)
 ![Crates.io License](https://img.shields.io/crates/l/rsblkid?labelColor=%23222222&color=%230d0887)
 
+⚠️ WARNING: **This library is still in development, thus not yet suitable for
+use in production.**
+
 The `rsblkid` library is a safe Rust wrapper around [`util-linux/libblkid`][3].
 
 `rsblkid` can identify disks (block devices), the file systems they use to
@@ -28,7 +31,7 @@ Add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rsblkid = { version = "0.2.1", features = ["v2_39"] }
+rsblkid = { version = "0.2.2", features = ["v2_39"] }
 ```
 
 Then install the system packages below before running `cargo build`:
