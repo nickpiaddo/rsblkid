@@ -24,7 +24,7 @@ v2_39 = []
 [dependencies]
 embed-doc-image = "0.1.4"
 enum-iterator = "2.1.0"
-libblkid = { package="rsblkid-sys", version="0.1.0" }
+libblkid = { package="rsblkid-sys", version="0.2.0" }
 libc = "0.2.151"
 log = "0.4.20"
 num_enum = "0.7.3"
