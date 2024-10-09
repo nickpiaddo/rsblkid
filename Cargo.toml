@@ -16,11 +16,6 @@ exclude = ["web-snapshots/*", "test_harness/*", "scripts/*"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[features]
-# The feature flags below allow `rsblkid` to conditionally compile the features
-# introduced by the matching `libblkid` version.
-v2_39 = []
-
 [dependencies]
 embed-doc-image = "0.1.4"
 enum-iterator = "2.1.0"

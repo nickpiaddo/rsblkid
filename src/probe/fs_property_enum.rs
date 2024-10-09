@@ -65,7 +65,7 @@ pub enum FsProperty {
     UuidRaw = libblkid::BLKID_SUBLKS_UUIDRAW,
     /// Extract property `VERSION`.
     Version = libblkid::BLKID_SUBLKS_VERSION,
-    #[cfg(feature = "v2_39")]
+    #[cfg(v2_39)]
     /// Extract properties `FSSIZE`, `FSLASTBLOCK`, `FSBLOCKSIZE`.
     FsInfo = libblkid::BLKID_SUBLKS_FSINFO,
 }
@@ -85,7 +85,7 @@ impl FsProperty {
             FsProperty::Uuid => "UUID",
             FsProperty::UuidRaw => "UUID raw",
             FsProperty::Version => "Version",
-            #[cfg(feature = "v2_39")]
+            #[cfg(v2_39)]
             FsProperty::FsInfo => "Fs Info",
         }
     }

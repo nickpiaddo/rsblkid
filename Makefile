@@ -1,10 +1,9 @@
 FIGURES =$(wildcard assets/diagrams/flowcharts/*.d2)
 SVG_OUTPUT_DIR = assets/diagrams/svg
-FEATURES = --features v2_39
 
 # Build the library
 all:
-	cargo build $(FEATURES)
+	cargo build
 
 # Build figures and diagrams
 fig-build: $(FIGURES)
@@ -12,18 +11,18 @@ fig-build: $(FIGURES)
 
 # Build the library documentation
 doc:
-	cargo doc $(FEATURES) --no-deps -p rsblkid-sys -p rsblkid
+	cargo doc --no-deps -p rsblkid-sys -p rsblkid
 
 # Rebuild documentation and diagrams
 doc-rebuild: fig-build doc
 
 # Run unit/integration tests
 test:
-	cargo nextest run $(FEATURES)
+	cargo nextest run
 
 # Run doc tests
 doctest:
-	cargo test $(FEATURES) --doc
+	cargo test --doc
 
 # Run all tests
 fulltest: test doctest
