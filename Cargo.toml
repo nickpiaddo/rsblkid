@@ -1,7 +1,7 @@
 [package]
 name = "rsblkid"
 description = "Safe Rust wrapper around the `util-linux/libblkid` C library"
-version = "0.2.2"
+version = "0.3.0"
 authors = ["Nick Piaddo <nick.piaddo@protonmail.com>"]
 license = "Apache-2.0 OR MIT"
 rust-version = "1.72"
