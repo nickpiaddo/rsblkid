@@ -230,7 +230,7 @@ impl Probe {
         is_read_only: bool,
     ) -> Result<Probe, ProbeError> {
         let (location, size) = scan_segment;
-        let mut probe = MaybeUninit::<libblkid::blkid_probe>::uninit();
+        let mut probe = MaybeUninit::<libblkid::blkid_probe>::zeroed();
 
         // Allocate a new blkid_probe C struct.
         unsafe {
@@ -1206,7 +1206,7 @@ impl Probe {
     /// Returns the value of a device property.
     pub fn lookup_device_property_value(&mut self, property: &TagName) -> Option<RawBytes> {
         let property_cstr = property.to_c_string();
-        let mut data_ptr = MaybeUninit::<*const libc::c_char>::uninit();
+        let mut data_ptr = MaybeUninit::<*const libc::c_char>::zeroed();
         let mut len: libc::size_t = 0;
 
         log::debug!(
@@ -2034,7 +2034,7 @@ impl Probe {
     /// Returns metadata about a device's topology.
     pub fn topology(&self) -> Result<Topology, ProbeError> {
         log::debug!("Probe::topology getting device topology");
-        let mut ptr = MaybeUninit::<libblkid::blkid_topology>::uninit();
+        let mut ptr = MaybeUninit::<libblkid::blkid_topology>::zeroed();
         unsafe {
             ptr.write(libblkid::blkid_probe_get_topology(self.inner));
         }

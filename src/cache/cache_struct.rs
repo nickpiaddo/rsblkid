@@ -46,7 +46,7 @@ impl<'cache> Cache {
     fn new(dest_file: *const libc::c_char) -> Result<Cache, CacheError> {
         log::debug!("Cache::new creating new `Cache` instance");
 
-        let mut cache = MaybeUninit::<libblkid::blkid_cache>::uninit();
+        let mut cache = MaybeUninit::<libblkid::blkid_cache>::zeroed();
 
         let result = unsafe { libblkid::blkid_get_cache(cache.as_mut_ptr(), dest_file) };
 
@@ -281,7 +281,7 @@ impl<'cache> Cache {
         let key_cstr = tag_name.to_c_string();
         let path_cstr = ffi_utils::as_ref_path_to_c_string(path).ok()?;
 
-        let mut ptr = MaybeUninit::<*mut libc::c_char>::uninit();
+        let mut ptr = MaybeUninit::<*mut libc::c_char>::zeroed();
 
         unsafe {
             ptr.write(libblkid::blkid_get_tag_value(
@@ -358,7 +358,7 @@ impl<'cache> Cache {
         let key_cstr = tag.name().to_c_string();
         let value_cstr = tag.value_to_c_string().ok()?;
 
-        let mut ptr = MaybeUninit::<libblkid::blkid_dev>::uninit();
+        let mut ptr = MaybeUninit::<libblkid::blkid_dev>::zeroed();
         unsafe {
             ptr.write(libblkid::blkid_find_dev_with_tag(
                 self.inner,
@@ -432,7 +432,7 @@ impl<'cache> Cache {
             tag
         );
 
-        let mut device_name_ptr = MaybeUninit::<*mut libc::c_char>::uninit();
+        let mut device_name_ptr = MaybeUninit::<*mut libc::c_char>::zeroed();
 
         unsafe {
             device_name_ptr.write(libblkid::blkid_evaluate_tag(
@@ -477,7 +477,7 @@ impl<'cache> Cache {
             spec
         );
 
-        let mut device_name_ptr = MaybeUninit::<*mut libc::c_char>::uninit();
+        let mut device_name_ptr = MaybeUninit::<*mut libc::c_char>::zeroed();
 
         unsafe {
             device_name_ptr.write(libblkid::blkid_evaluate_spec(
@@ -661,7 +661,7 @@ impl<'cache> Cache {
             ConversionError::CString(err_msg)
         })?;
 
-        let mut ptr = MaybeUninit::<libblkid::blkid_dev>::uninit();
+        let mut ptr = MaybeUninit::<libblkid::blkid_dev>::zeroed();
 
         unsafe {
             ptr.write(libblkid::blkid_get_dev(

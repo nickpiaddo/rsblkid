@@ -12,8 +12,8 @@ use crate::ffi_utils;
 
 /// Returns general information about the `libblkid` library.
 pub fn library_version() -> LibraryInfo {
-    let mut version_string_ptr = MaybeUninit::<*const libc::c_char>::uninit();
-    let mut release_date_ptr = MaybeUninit::<*const libc::c_char>::uninit();
+    let mut version_string_ptr = MaybeUninit::<*const libc::c_char>::zeroed();
+    let mut release_date_ptr = MaybeUninit::<*const libc::c_char>::zeroed();
 
     let release_code = unsafe {
         libblkid::blkid_get_library_version(

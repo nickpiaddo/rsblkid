@@ -39,7 +39,7 @@ impl<'a> Device<'a> {
 
     /// Returns the device's name.
     pub fn name(&self) -> &Path {
-        let mut ptr = MaybeUninit::<*const libc::c_char>::uninit();
+        let mut ptr = MaybeUninit::<*const libc::c_char>::zeroed();
         unsafe {
             ptr.write(libblkid::blkid_dev_devname(self.inner));
         };

@@ -49,7 +49,7 @@ pub fn device_path_from_number(device_number: u64) -> Option<PathBuf> {
         device_number
     );
 
-    let mut ptr = MaybeUninit::<*mut libc::c_char>::uninit();
+    let mut ptr = MaybeUninit::<*mut libc::c_char>::zeroed();
     unsafe {
         ptr.write(libblkid::blkid_devno_to_devname(device_number));
     }
@@ -116,7 +116,7 @@ pub fn device_base_name_from_number(device_number: u64) -> Result<Disk, MiscErro
     );
 
     let mut disk_name_buffer: Vec<libc::c_char> = vec![0; MAX_FILE_PATH_LENGTH];
-    let mut disk_device_number = MaybeUninit::<u64>::uninit();
+    let mut disk_device_number = MaybeUninit::<u64>::zeroed();
 
     let result = unsafe {
         libblkid::blkid_devno_to_wholedisk(

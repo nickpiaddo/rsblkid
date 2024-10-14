@@ -56,7 +56,7 @@ pub fn find_device_name_from_tag(tag: &Tag) -> Option<PathBuf> {
         tag
     );
 
-    let mut device_name_ptr = MaybeUninit::<*mut libc::c_char>::uninit();
+    let mut device_name_ptr = MaybeUninit::<*mut libc::c_char>::zeroed();
 
     unsafe {
         device_name_ptr.write(libblkid::blkid_evaluate_tag(
@@ -101,7 +101,7 @@ fn device_name_from_spec(spec: CString) -> Option<PathBuf> {
         spec
     );
 
-    let mut device_name_ptr = MaybeUninit::<*mut libc::c_char>::uninit();
+    let mut device_name_ptr = MaybeUninit::<*mut libc::c_char>::zeroed();
 
     unsafe {
         device_name_ptr.write(libblkid::blkid_evaluate_spec(

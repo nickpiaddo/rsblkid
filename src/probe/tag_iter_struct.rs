@@ -34,8 +34,8 @@ impl<'a> Iterator for TagIter<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         log::debug!("TagIter::next iterating next element");
 
-        let mut tag_name_ptr = MaybeUninit::<*const libc::c_char>::uninit();
-        let mut tag_value_ptr = MaybeUninit::<*const libc::c_char>::uninit();
+        let mut tag_name_ptr = MaybeUninit::<*const libc::c_char>::zeroed();
+        let mut tag_value_ptr = MaybeUninit::<*const libc::c_char>::zeroed();
 
         let result = unsafe {
             libblkid::blkid_probe_get_value(

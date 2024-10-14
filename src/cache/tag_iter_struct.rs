@@ -28,7 +28,7 @@ impl<'a> TagIter<'a> {
     pub(super) fn new(device: &'a Device) -> Result<TagIter<'a>, TagIterError> {
         log::debug!("TagIter::new creating a new `TagIter` instance");
 
-        let mut iterator = MaybeUninit::<libblkid::blkid_tag_iterate>::uninit();
+        let mut iterator = MaybeUninit::<libblkid::blkid_tag_iterate>::zeroed();
         unsafe {
             iterator.write(libblkid::blkid_tag_iterate_begin(device.inner));
         };
@@ -63,8 +63,8 @@ impl<'a> Iterator for TagIter<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         log::debug!("TagIter::new advancing to next element");
 
-        let mut tag_name_ptr = MaybeUninit::<*const libc::c_char>::uninit();
-        let mut tag_value_ptr = MaybeUninit::<*const libc::c_char>::uninit();
+        let mut tag_name_ptr = MaybeUninit::<*const libc::c_char>::zeroed();
+        let mut tag_value_ptr = MaybeUninit::<*const libc::c_char>::zeroed();
 
         let result = unsafe {
             libblkid::blkid_tag_next(

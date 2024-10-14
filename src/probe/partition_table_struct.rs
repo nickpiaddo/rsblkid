@@ -31,7 +31,7 @@ impl<'a> PartitionTable<'a> {
     pub fn id(&self) -> Option<String> {
         log::debug!("PartitionTable::id getting a partition table's ID");
 
-        let mut ptr = MaybeUninit::<*const libc::c_char>::uninit();
+        let mut ptr = MaybeUninit::<*const libc::c_char>::zeroed();
         unsafe {
             ptr.write(libblkid::blkid_parttable_get_id(self.ptr));
         }
@@ -97,7 +97,7 @@ impl<'a> PartitionTable<'a> {
         log::debug!("PartitionTable::parent getting a partition table's parent partition");
 
         unsafe {
-            let mut ptr = MaybeUninit::<libblkid::blkid_partition>::uninit();
+            let mut ptr = MaybeUninit::<libblkid::blkid_partition>::zeroed();
             ptr.write(libblkid::blkid_parttable_get_parent(self.ptr));
 
             match ptr.assume_init() {
@@ -117,7 +117,7 @@ impl<'a> PartitionTable<'a> {
 
     /// Returns the partition tables type.
     pub fn partition_table_type(&self) -> Option<PartitionTableType> {
-        let mut ptr = MaybeUninit::<*const libc::c_char>::uninit();
+        let mut ptr = MaybeUninit::<*const libc::c_char>::zeroed();
         unsafe {
             ptr.write(libblkid::blkid_parttable_get_type(self.ptr));
         }

@@ -24,7 +24,7 @@ impl<'a> EntryIter<'a> {
     pub(super) fn new(cache: &'a Cache) -> Result<EntryIter<'a>, EntryIterError> {
         log::debug!("EntryIter::new creating a new `EntryIter` instance");
 
-        let mut iterator = MaybeUninit::<libblkid::blkid_dev_iterate>::uninit();
+        let mut iterator = MaybeUninit::<libblkid::blkid_dev_iterate>::zeroed();
         unsafe {
             iterator.write(libblkid::blkid_dev_iterate_begin(cache.inner));
         };
@@ -56,7 +56,7 @@ impl<'a> Iterator for EntryIter<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         log::debug!("EntryIter::next advancing to the next `EntryIter` element");
 
-        let mut device_ptr = MaybeUninit::<libblkid::blkid_dev>::uninit();
+        let mut device_ptr = MaybeUninit::<libblkid::blkid_dev>::zeroed();
 
         let result = unsafe { libblkid::blkid_dev_next(self.inner, device_ptr.as_mut_ptr()) };
 

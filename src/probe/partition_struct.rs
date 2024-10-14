@@ -34,7 +34,7 @@ impl<'a> Partition<'a> {
     pub fn name(&self) -> Option<String> {
         log::debug!("Partition::name getting partition name");
 
-        let mut ptr = MaybeUninit::<*const libc::c_char>::uninit();
+        let mut ptr = MaybeUninit::<*const libc::c_char>::zeroed();
         unsafe {
             ptr.write(libblkid::blkid_partition_get_name(self.ptr));
         }
@@ -157,7 +157,7 @@ impl<'a> Partition<'a> {
     pub fn partition_type_string(&self) -> Option<String> {
         log::debug!("Partition::partition_type_string getting partition type");
 
-        let mut ptr = MaybeUninit::<*const libc::c_char>::uninit();
+        let mut ptr = MaybeUninit::<*const libc::c_char>::zeroed();
         unsafe {
             ptr.write(libblkid::blkid_partition_get_type_string(self.ptr));
         };
@@ -189,7 +189,7 @@ impl<'a> Partition<'a> {
         log::debug!("Partition::partition_table getting partition's parent partition table.");
 
         unsafe {
-            let mut ptr = MaybeUninit::<libblkid::blkid_parttable>::uninit();
+            let mut ptr = MaybeUninit::<libblkid::blkid_parttable>::zeroed();
             ptr.write(libblkid::blkid_partition_get_table(self.ptr));
 
             match ptr.assume_init() {
@@ -214,7 +214,7 @@ impl<'a> Partition<'a> {
     pub fn uuid(&self) -> Option<String> {
         log::debug!("Partition::uuid getting partition uuid");
 
-        let mut ptr = MaybeUninit::<*const libc::c_char>::uninit();
+        let mut ptr = MaybeUninit::<*const libc::c_char>::zeroed();
         unsafe {
             ptr.write(libblkid::blkid_partition_get_uuid(self.ptr));
         }

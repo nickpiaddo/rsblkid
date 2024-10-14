@@ -23,7 +23,7 @@ impl<'a> PartitionIter<'a> {
         log::debug!("PartitionIter::new creating a new `PartitionIter` instance");
 
         unsafe {
-            let mut iterator_ptr = MaybeUninit::<libblkid::blkid_partlist>::uninit();
+            let mut iterator_ptr = MaybeUninit::<libblkid::blkid_partlist>::zeroed();
 
             iterator_ptr.write(libblkid::blkid_probe_get_partitions(probe.inner));
             let ptr = match iterator_ptr.assume_init() {
@@ -44,7 +44,7 @@ impl<'a> PartitionIter<'a> {
         self.ptr.and_then(|ptr| {
 
             log::debug!("PartitionIter::partition_table accessing `PartitionTable`");
-            let mut table_ptr = MaybeUninit::<libblkid::blkid_parttable>::uninit();
+            let mut table_ptr = MaybeUninit::<libblkid::blkid_parttable>::zeroed();
 
             unsafe {
                 table_ptr.write(libblkid::blkid_partlist_get_table(ptr));
@@ -94,7 +94,7 @@ impl<'a> PartitionIter<'a> {
     pub fn partition_from_device_number(&self, device_number: u64) -> Option<Partition> {
         self.ptr.and_then(|ptr| {
             log::debug!("PartitionIter::partition_from_device_number getting `Partition` from device number {:?}", device_number);
-            let mut partition_ptr = MaybeUninit::<libblkid::blkid_partition>::uninit();
+            let mut partition_ptr = MaybeUninit::<libblkid::blkid_partition>::zeroed();
 
             unsafe {
                 partition_ptr.write(libblkid::blkid_partlist_devno_to_partition(
@@ -135,7 +135,7 @@ impl<'a> Iterator for PartitionIter<'a> {
             // PartitionIter exceed the largest possible i32 value.
             let index = i32::try_from(self.counter).ok()?;
 
-            let mut partition_ptr = MaybeUninit::<libblkid::blkid_partition>::uninit();
+            let mut partition_ptr = MaybeUninit::<libblkid::blkid_partition>::zeroed();
 
             unsafe {
                 partition_ptr.write(libblkid::blkid_partlist_get_partition(ptr, index));
