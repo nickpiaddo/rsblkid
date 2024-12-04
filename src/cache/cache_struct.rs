@@ -22,6 +22,7 @@ use crate::cache::CacheBuilder;
 use crate::cache::CacheError;
 use crate::cache::Device;
 use crate::cache::EntryIter;
+use crate::cache::EntryIterError;
 
 use crate::ffi_utils;
 
@@ -629,6 +630,18 @@ impl<'cache> Cache {
     pub fn iter(&'cache self) -> EntryIter<'cache> {
         log::debug!("Cache::iter creating a new `EntryIter` instance");
         EntryIter::new(self).unwrap()
+    }
+
+    /// Returns an iterator over the device entries in the cache.
+    ///
+    /// The iterator yields all items in the `Cache`, from start to end.
+    ///
+    /// # Errors
+    ///
+    /// This method returns an error if it is not able to instantiate a new [`EntryIter`].
+    pub fn try_iter(&'cache self) -> Result<EntryIter<'cache>, EntryIterError> {
+        log::debug!("Cache::try_iter creating a new `EntryIter` instance");
+        EntryIter::new(self)
     }
 
     #[doc(hidden)]
