@@ -16,6 +16,7 @@ use crate::core::device::TagName;
 
 use crate::cache::Cache;
 use crate::cache::TagIter;
+use crate::cache::TagIterError;
 
 use crate::ffi_utils;
 
@@ -224,6 +225,18 @@ impl<'a> Device<'a> {
     pub fn iter(&'a self) -> TagIter<'a> {
         log::debug!("Device::iter creating new `TagIter` instance");
         TagIter::new(self).unwrap()
+    }
+
+    /// Returns an iterator over the device tags.
+    ///
+    /// The iterator yields all device [`Tag`]s from start to end.
+    ///
+    /// # Errors
+    ///
+    /// This method returns an error if it can not instantiate an new [`TagIter`].
+    pub fn try_iter(&'a self) -> Result<TagIter<'a>, TagIterError> {
+        log::debug!("Device::try_iter creating new `TagIter` instance");
+        TagIter::new(self)
     }
 }
 
