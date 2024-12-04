@@ -374,6 +374,14 @@ impl Probe {
         res
     }
 
+    /// Returns `true` if the device associated to the `Probe` is a partition.
+    pub fn is_device_partition(&self) -> bool {
+        let res = unsafe { libblkid::blkid_probe_is_wholedisk(self.inner) == 0 };
+        log::debug!("Probe::is_device_partition {}", res);
+
+        res
+    }
+
     /// Returns the location of the segment being scanned with respect to the device's first byte.
     pub fn scanned_device_segment_location(&self) -> u64 {
         log::debug!(
