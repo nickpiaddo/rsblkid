@@ -570,7 +570,7 @@ impl Probe {
 
     /// Runs search functions for device properties, collects data from the first match in a
     /// requested category, then moves onto the next (as described in the
-    /// [overview](crate::probe#overview)) of the `probe` module.
+    /// [overview](crate::probe#overview) of the `probe` module).
     ///
     /// # Returns
     ///
