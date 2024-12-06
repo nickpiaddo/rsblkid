@@ -437,8 +437,18 @@ where
     T: AsRef<[u8]>,
 {
     type Error = ConversionError;
+    fn try_from((tag_name, value): (TagName, T)) -> Result<Self, Self::Error> {
+        Self::try_from((&tag_name, value))
+    }
+}
 
-    fn try_from(pair: (TagName, T)) -> Result<Self, Self::Error> {
+impl<T> TryFrom<(&TagName, T)> for Tag
+where
+    T: AsRef<[u8]>,
+{
+    type Error = ConversionError;
+
+    fn try_from(pair: (&TagName, T)) -> Result<Self, Self::Error> {
         let (tag_name, value) = pair;
         let value = value.as_ref();
 

@@ -19,7 +19,6 @@ use crate::core::errors::ConversionError;
 
 use crate::core::partition::FileSystem;
 use crate::core::partition::PartitionTableType;
-use crate::core::partition::RawBytes;
 
 use crate::probe::Filter;
 use crate::probe::FsProperty;
@@ -1212,7 +1211,11 @@ impl Probe {
     }
 
     /// Returns the value of a device property.
-    pub fn lookup_device_property_value(&mut self, property: &TagName) -> Option<RawBytes> {
+    pub fn lookup_device_property_value<T>(&mut self, property: T) -> Option<Tag>
+    where
+        T: AsRef<TagName>,
+    {
+        let property = property.as_ref();
         let property_cstr = property.to_c_string();
         let mut data_ptr = MaybeUninit::<*const libc::c_char>::zeroed();
         let mut len: libc::size_t = 0;
@@ -1235,14 +1238,25 @@ impl Probe {
             0 => {
                 let data_cstr = unsafe { data_ptr.assume_init() };
                 let value = ffi_utils::const_c_char_array_to_bytes(data_cstr);
-                let value = RawBytes::from(value);
-                log::debug!(
-                    "Probe::lookup_device_property_value device property {:?} has value {:?}",
-                    property,
-                    value
-                );
 
-                Some(value)
+                Tag::try_from((property, value)).map(|tag| {
+                    log::debug!(
+                        "Probe::lookup_device_property_value device property {:?} has value {:?}",
+                        property,
+                        tag
+                    );
+
+                    tag
+                })
+                .map_err(|e| {
+                    log::debug!(
+                        "Probe::lookup_device_property_value error while converting value of property {:?} {:?}",
+                        property,
+                        e
+                    );
+
+                    e
+                }).ok()
             }
             code => {
                 log::debug!("Probe::lookup_device_property_value failed to find a value for device property {:?}. libblkid::blkid_probe_lookup_value returned error code {:?}", property, code);
