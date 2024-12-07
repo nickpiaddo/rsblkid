@@ -257,9 +257,7 @@ impl<'cache> Cache {
     ///
     ///     cache.probe_all_devices()?;
     ///
-    ///     let tag_name = TagName::Label;
-    ///     let path = "/dev/vda";
-    ///     let actual = cache.tag_value_from_device(&tag_name, path);
+    ///     let actual = cache.tag_value_from_device(TagName::Label, "/dev/vda");
     ///     let value = RawBytes::from(b"nixos".to_vec());
     ///     let expected = Some(value);
     ///
@@ -268,10 +266,12 @@ impl<'cache> Cache {
     ///     Ok(())
     /// }
     /// ```
-    pub fn tag_value_from_device<T>(&self, tag_name: &TagName, path: T) -> Option<RawBytes>
+    pub fn tag_value_from_device<T, P>(&self, tag_name: T, path: P) -> Option<RawBytes>
     where
-        T: AsRef<Path>,
+        P: AsRef<Path>,
+        T: AsRef<TagName>,
     {
+        let tag_name = tag_name.as_ref();
         let path = path.as_ref();
         log::debug!("Cache::tag_value_from_device trying to find the value of tag named: {:?} for device: {:?}", tag_name, path);
         // Only the `LABEL` and `UUID` tags are supported.
