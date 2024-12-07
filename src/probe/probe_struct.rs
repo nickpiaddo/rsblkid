@@ -1197,7 +1197,11 @@ impl Probe {
     }
 
     /// Returns `true` if the property of a device associated with a `Probe` has a value.
-    pub fn device_property_has_value(&self, property: &TagName) -> bool {
+    pub fn device_property_has_value<T>(&self, property: T) -> bool
+    where
+        T: AsRef<TagName>,
+    {
+        let property = property.as_ref();
         let property_cstr = property.to_c_string();
         let res =
             unsafe { libblkid::blkid_probe_has_value(self.inner, property_cstr.as_ptr()) == 1 };
