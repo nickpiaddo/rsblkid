@@ -19,7 +19,9 @@ use crate::probe::Probe;
 use crate::probe::ProbeBuilderError;
 
 #[derive(Debug, TypedBuilder)]
-#[builder(builder_type(name = ProbeBuilder, vis = "pub", doc ="Configures and creates a new [`Probe`] instance.\n\nFor usage, see [`ProbeBuilder::build`] or the overview of the [`probe`](crate::probe#overview) module."),
+#[builder(builder_type(name = ProbeBuilder, vis = "pub", doc ="Configures and creates a new
+[`Probe`] instance.\n\nFor usage, see [`ProbeBuilder::build`] or the overview of the
+[`probe`](crate::probe#overview) module."),
     build_method(vis = "", name = __build))]
 pub(crate) struct PrbBuilder {
     #[builder(
@@ -33,7 +35,8 @@ pub(crate) struct PrbBuilder {
         default,
         setter(
             strip_option,
-            doc = "Sets the [`File`] object, providing access to an open device, as the device to associate with a [`Probe`]."
+            doc = "Sets the [`File`] object, providing access to an open device, as the device to
+associate with a [`Probe`]."
         )
     )]
     scan_file: Option<File>,
@@ -41,7 +44,9 @@ pub(crate) struct PrbBuilder {
     #[builder(
         setter(strip_bool),
         setter(
-            doc = "Sets a [`Probe`] to read/write mode.\n\n**Note:** Calling `allow_writes` automatically adds [`FsProperty::Magic`](crate::probe::flag::FsProperty::Magic) to the list of properties to collect."
+            doc = "Sets a [`Probe`] to read/write mode.\n\n**Note:** Calling `allow_writes`
+automatically adds [`FsProperty::Magic`](crate::probe::flag::FsProperty::Magic) to the
+list of properties to collect."
         )
     )]
     allow_writes: bool,
@@ -60,22 +65,27 @@ pub(crate) struct PrbBuilder {
     #[builder(
         default = true,
         setter(
-            doc = "Deactivates file system search functions when set to `false`. By default, set to `true`."
+            doc = "Deactivates file system search functions when set to `false`. By default, set to
+`true`."
         )
     )]
     scan_device_superblocks: bool,
-    #[builder(default = None, setter(transform = |criterion: Filter, fs_types:
-            Vec<FileSystem>| Some((criterion, fs_types)), doc = "Specifies which file systems to
-search for/exclude when scanning a device. By default, a [`Probe`] will try to identify
-any of the supported [`FileSystem`]s,")) ]
+    #[builder(default = None,
+        setter(transform = |criterion: Filter, fs_types: impl AsRef<[FileSystem]>| Some((criterion,
+        fs_types.as_ref().to_vec())),
+        doc = "Specifies which file systems to search for/exclude when scanning a device. By
+default, a [`Probe`] will try to identify any of the supported [`FileSystem`]s,")) ]
     scan_superblocks_for_file_systems: Option<(Filter, Vec<FileSystem>)>,
 
-    #[builder(default = None, setter(transform = |criterion: Filter, usage: Vec<Usage>|
-            Some((criterion, usage)), doc = "Limits file system scanning to superblocks with
-particular [`Usage`](crate::core::device::Usage) flags."))]
+    #[builder(default = None, setter(transform = |criterion: Filter, usage: impl AsRef<[Usage]>|
+            Some((criterion, usage.as_ref().to_vec())), doc = "Limits file system scanning to
+superblocks with particular [`Usage`](crate::core::device::Usage) flags."))]
     scan_superblocks_with_usage_flags: Option<(Filter, Vec<Usage>)>,
 
-    #[builder(default = None, setter(strip_option, doc = "Sets the list of file system properties ([`FsProperty`](flag::FsProperty)) to collect."))]
+    #[builder(default = None, setter(transform = |fs_properties: impl AsRef<[FsProperty]>|
+            Some(fs_properties.as_ref().to_vec()),
+    doc = "Sets the list of file system properties ([`FsProperty`](flag::FsProperty)) to
+collect."))]
     collect_fs_properties: Option<Vec<FsProperty>>,
 
     #[builder(
@@ -87,12 +97,15 @@ particular [`Usage`](crate::core::device::Usage) flags."))]
     scan_device_partitions: bool,
 
     #[builder(default = None,
-        setter(transform = |criterion: Filter, pt_types: Vec<PartitionTableType>| Some((criterion, pt_types)),
+        setter(transform = |criterion: Filter, pt_types: impl AsRef<[PartitionTableType]>|
+            Some((criterion, pt_types.as_ref().to_vec())),
         doc = "Sets which partition table types to search for/exclude when scanning a device. By
 default, a [`Probe`] will try to identify any of the supported [`PartitionTableType`]s."))]
     scan_partitions_for_partition_tables: Option<(Filter, Vec<PartitionTableType>)>,
 
-    #[builder(default = None, setter(strip_option, doc = "Sets optional scanning criteria for partition search functions."))]
+    #[builder(default = None, setter(transform = |options: impl AsRef<[PartitionScanningOption]>|
+            Some(options.as_ref().to_vec()),
+    doc = "Sets optional scanning criteria for partition search functions."))]
     partitions_scanning_options: Option<Vec<PartitionScanningOption>>,
 
     #[builder(default = false)]
@@ -162,33 +175,32 @@ impl<
     ///         // Specify which file systems to search for when scanning the device, by default all
     ///         // supported file system identification functions are tried.
     ///         .scan_superblocks_for_file_systems(Filter::In,
-    ///             vec![
+    ///             [
     ///                 FileSystem::APFS,
     ///                 FileSystem::Ext4,
     ///                 FileSystem::VFAT,
     ///             ])
     ///         // Exclude superblocks with usage flags matching the ones in the list.
     ///         .scan_superblocks_with_usage_flags(Filter::Out,
-    ///             vec![
+    ///             [
     ///                 Usage::Crypto,
     ///                 Usage::Raid
     ///             ])
     ///         // Collect file system properties matching the ones specified.
     ///         .collect_fs_properties(
-    ///             vec![
+    ///             [
     ///                 FsProperty::Label,
     ///                 FsProperty::Uuid,
     ///                 FsProperty::FsInfo,
     ///                 FsProperty::Version,
-    ///             ]
-    ///         )
+    ///             ])
     ///         // Activate partitions search functions. By default, device partitions scanning
     ///         // is NOT active.
     ///         .scan_device_partitions(true)
     ///         // Specify which partition tables to search for when scanning the device, by
     ///         // default all supported partition table identification functions are tried.
     ///         .scan_partitions_for_partition_tables(Filter::In,
-    ///             vec![
+    ///             [
     ///                 PartitionTableType::AIX,
     ///                 PartitionTableType::BSD,
     ///                 PartitionTableType::GPT,
@@ -196,7 +208,7 @@ impl<
     ///             ])
     ///         // Set additional data to collect on partitions, and collection methods to use
     ///         .partitions_scanning_options(
-    ///             vec![
+    ///             [
     ///                 PartitionScanningOption::EntryDetails,
     ///                 PartitionScanningOption::ForceGPT,
     ///             ])
