@@ -118,7 +118,6 @@ impl<'a> Device<'a> {
     {
         let tag = tag.as_ref();
         let tag_name = tag.name().to_c_string();
-        let tag_value = tag.value_to_c_string();
 
         log::debug!(
             "Device::has_tag checking if device {:?} has tag {:?}",
@@ -127,18 +126,18 @@ impl<'a> Device<'a> {
         );
 
         // We assume tag name and value are valid C char arrays...
-        match tag_value {
-            Ok(tag_value) => Self::check_tag(self.inner, tag_name.as_ptr(), tag_value.as_ptr()),
-            // ...otherwise the tag must not exist.
-            Err(e) => {
+        tag.value_to_c_string()
+            .map(|tag_value| Self::check_tag(self.inner, tag_name.as_ptr(), tag_value.as_ptr()))
+            .map_err(|e| {
                 log::debug!(
                     "Device::has_tag failed to convert tag_name and/or tag_value to CString. {:?}",
                     e
                 );
 
-                false
-            }
-        }
+                e
+            })
+            // ...otherwise the tag must not exist.
+            .unwrap_or(false)
     }
 
     /// Returns `true` if the `Device` has a [`Tag`] with a [`TagName`] matching the function argument.
