@@ -7,8 +7,6 @@
 use thiserror::Error;
 
 // From standard library
-use std::ffi::NulError;
-use std::io;
 
 // From this library
 
@@ -20,13 +18,9 @@ pub enum MiscError {
     #[error("{}", .0)]
     Conversion(String),
 
-    /// Error while converting a value to [`CString`](std::ffi::CString).
-    #[error("error converting to`CString`: {}", .0)]
-    CStringConversion(#[from] NulError),
-
     /// I/O runtime error.
-    #[error(transparent)]
-    Io(#[from] io::Error),
+    #[error("{}", .0)]
+    IoError(String),
 
     /// Error sending udev event for a block device.
     #[error("{}", .0)]

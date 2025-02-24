@@ -44,14 +44,27 @@ pub fn send_uevent<T>(device_path: T, action: UEventAction) -> Result<(), MiscEr
 where
     T: AsRef<Path>,
 {
+    let device_path = device_path.as_ref();
     log::debug!(
         "misc::send_uevent sending ACTION={:?} to {:?}",
         action,
-        device_path.as_ref()
+        device_path
     );
 
-    let absolute_dev_path = fs::canonicalize(&device_path)?;
-    let dev_path_cstr = ffi_utils::as_ref_path_to_c_string(absolute_dev_path)?;
+    let absolute_dev_path = fs::canonicalize(device_path).map_err(|e| {
+        let err_msg = format!("failed to canonicalize device path {:?} {}", device_path, e);
+        MiscError::IoError(err_msg)
+    })?;
+
+    let dev_path_cstr = ffi_utils::as_ref_path_to_c_string(&absolute_dev_path).map_err(|e| {
+        let err_msg = format!(
+            "failed to convert device path {:?} to `CString` {}",
+            absolute_dev_path, e
+        );
+
+        MiscError::Conversion(err_msg)
+    })?;
+
     let action_cstr = action.to_c_string();
 
     let result =
@@ -62,18 +75,17 @@ where
             log::debug!(
                 "misc::send_uevent sent ACTION={:?} to {:?}",
                 action,
-                device_path.as_ref()
+                device_path
             );
 
             Ok(())
         }
         code => {
-            log::debug!("misc::send_uevent failed to send ACTION={:?} to {:?}. libblkid::blkid_send_uevent returned error code {:?}", action, device_path.as_ref(), code);
+            log::debug!("misc::send_uevent failed to send ACTION={:?} to {:?}. libblkid::blkid_send_uevent returned error code {:?}", action, device_path, code);
 
             Err(MiscError::SendUEvent(format!(
                 "error sending udev event {:?} to {:?}",
-                action,
-                device_path.as_ref()
+                action, device_path
             )))
         }
     }

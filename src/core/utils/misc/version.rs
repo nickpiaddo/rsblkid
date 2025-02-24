@@ -56,7 +56,13 @@ where
     T: AsRef<str>,
 {
     let version_string = version_string.as_ref();
-    let version_cstr = ffi_utils::as_ref_str_to_c_string(version_string)?;
+    let version_cstr = ffi_utils::as_ref_str_to_c_string(version_string).map_err(|e| {
+        let err_msg = format!(
+            "failed to convert version string {:?} to `CString` {}",
+            version_string, e
+        );
+        MiscError::Conversion(err_msg)
+    })?;
 
     let version_code = unsafe { libblkid::blkid_parse_version_string(version_cstr.as_ptr()) };
     log::debug!(
