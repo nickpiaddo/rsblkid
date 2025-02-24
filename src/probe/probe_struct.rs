@@ -148,7 +148,11 @@ impl Probe {
         let file = OpenOptions::new()
             .read(true)
             .custom_flags(status_flags)
-            .open(file_name)?;
+            .open(file_name)
+            .map_err(|e| {
+                let err_msg = format!("failed to open file {:?} {}", file_name, e);
+                ProbeError::IoOpen(err_msg)
+            })?;
 
         Self::new(file, scan_segment, false)
     }
@@ -179,7 +183,11 @@ impl Probe {
         let file = OpenOptions::new()
             .read(true)
             .custom_flags(status_flags)
-            .open(file_name)?;
+            .open(file_name)
+            .map_err(|e| {
+                let err_msg = format!("failed to open file {:?} {}", file_name, e);
+                ProbeError::IoOpen(err_msg)
+            })?;
 
         let mut probe = Self::new(file, scan_segment, false)?;
         // Required if we want to erase device properties on device or in memory
@@ -207,7 +215,12 @@ impl Probe {
     ) -> Result<Probe, ProbeError> {
         log::debug!("Probe::new_from_file_read_write creating new `Probe` instance from `File`");
 
-        if ffi_utils::is_open_read_write(&file)? {
+        let status = ffi_utils::is_open_read_write(&file).map_err(|e| {
+            let err_msg = format!("failed to get file status {}", e);
+            ProbeError::IoError(err_msg)
+        })?;
+
+        if status {
             let mut probe = Self::new(file, scan_segment, false)?;
             let flags = [FsProperty::Magic];
             // Required if we want to erase device properties on device or in memory

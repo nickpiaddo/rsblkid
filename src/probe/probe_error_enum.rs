@@ -31,9 +31,14 @@ pub enum ProbeError {
     DeleteProperty(String),
 
     /// Error while performing Input/Output operations.
-    #[error(transparent)]
-    IoError(#[from] std::io::Error),
+    #[error("{}", .0)]
+    IoError(String),
 
+    /// Error while opening a file.
+    #[error("{}", .0)]
+    IoOpen(String),
+
+    /// Error while writing to a file.
     #[error("{}", .0)]
     IoWrite(String),
 
