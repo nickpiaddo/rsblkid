@@ -9,7 +9,7 @@ use thiserror::Error;
 // From this library
 
 /// String parser runtime errors.
-#[derive(Clone, Debug, Error)]
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd)]
 #[non_exhaustive]
 pub enum ParserError {
     /// Error while parsing a string into a [`Bool`](crate::core::num::Bool).
