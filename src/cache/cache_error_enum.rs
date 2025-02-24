@@ -10,7 +10,7 @@ use thiserror::Error;
 use crate::core::errors::ConversionError;
 
 /// [`Cache`](crate::cache::Cache) runtime errors.
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Debug, Error, Hash, Eq, PartialEq, Ord, PartialOrd)]
 #[non_exhaustive]
 pub enum CacheError {
     /// Error while searching for a device by name.

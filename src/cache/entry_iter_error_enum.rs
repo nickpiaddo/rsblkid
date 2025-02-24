@@ -9,7 +9,7 @@ use thiserror::Error;
 // From this library
 
 /// [`EntryIter`](crate::cache::EntryIter) runtime errors.
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Debug, Error, Hash, Eq, PartialEq, Ord, PartialOrd)]
 #[non_exhaustive]
 pub enum EntryIterError {
     /// Error while creating a new [`EntryIter`](crate::cache::EntryIter).

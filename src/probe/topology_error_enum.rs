@@ -9,7 +9,7 @@ use thiserror::Error;
 // From this library
 
 /// [`Topology`](crate::probe::Topology) runtime errors.
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Debug, Error, Hash, Eq, PartialEq, Ord, PartialOrd)]
 #[non_exhaustive]
 pub enum TopologyError {
     /// Error while creating a new [`Topology`](crate::probe::Topology) instance.
