@@ -9,7 +9,7 @@ use thiserror::Error;
 // From this library
 
 /// `encode` module runtime errors.
-#[derive(Debug, Error)]
+#[derive(Clone, Debug, Error)]
 #[non_exhaustive]
 pub enum EncodeError {
     /// Error while encoding udev-unsafe characters.

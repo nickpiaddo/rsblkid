@@ -57,7 +57,7 @@ pub type Result<T> = std::result::Result<T, RsBlkidError>;
 ///     Ok(())
 /// }
 /// ```
-#[derive(Debug, Error)]
+#[derive(Clone, Debug, Error)]
 #[non_exhaustive]
 pub enum RsBlkidError {
     #[error(transparent)]

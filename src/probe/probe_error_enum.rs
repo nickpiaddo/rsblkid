@@ -11,7 +11,7 @@ use crate::core::errors::ConversionError;
 use crate::probe::TopologyError;
 
 /// [`Probe`](crate::probe::Probe) runtime errors.
-#[derive(Debug, Error)]
+#[derive(Clone, Debug, Error)]
 #[non_exhaustive]
 pub enum ProbeError {
     /// Error while configuring a [`Probe`](crate::probe::Probe).

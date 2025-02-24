@@ -9,7 +9,7 @@ use thiserror::Error;
 // From this library
 
 /// [`TagIter`](crate::cache::TagIter) runtime errors.
-#[derive(Debug, Error)]
+#[derive(Clone, Debug, Error)]
 #[non_exhaustive]
 pub enum TagIterError {
     /// Error while creating a new [`TagIter`](crate::cache::TagIter).

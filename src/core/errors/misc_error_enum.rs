@@ -11,7 +11,7 @@ use thiserror::Error;
 // From this library
 
 /// `misc` module runtime errors.
-#[derive(Debug, Error)]
+#[derive(Clone, Debug, Error)]
 #[non_exhaustive]
 pub enum MiscError {
     /// Conversion error.

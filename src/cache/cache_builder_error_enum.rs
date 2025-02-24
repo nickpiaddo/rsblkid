@@ -10,7 +10,7 @@ use thiserror::Error;
 use crate::cache::CacheError;
 
 /// [`CacheBuilder`](crate::cache::CacheBuilder) runtime errors.
-#[derive(Debug, Error)]
+#[derive(Clone, Debug, Error)]
 #[non_exhaustive]
 pub enum CacheBuilderError {
     #[error(transparent)]

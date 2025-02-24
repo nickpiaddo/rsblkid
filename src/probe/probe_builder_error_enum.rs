@@ -10,7 +10,7 @@ use thiserror::Error;
 use crate::probe::ProbeError;
 
 /// [`ProbeBuilder`](crate::probe::ProbeBuilder) runtime errors.
-#[derive(Debug, Error)]
+#[derive(Clone, Debug, Error)]
 #[non_exhaustive]
 pub enum ProbeBuilderError {
     /// Error while creating a new [`Probe`](crate::probe::Probe) instance.
