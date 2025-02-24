@@ -5,7 +5,6 @@
 use thiserror::Error;
 
 // From standard library
-use std::ffi::NulError;
 
 // From this library
 
@@ -13,10 +12,6 @@ use std::ffi::NulError;
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum EncodeError {
-    /// Error while converting a value to [`CString`](std::ffi::CString).
-    #[error("error converting to`CString`: {0}")]
-    CStringConversion(#[from] NulError),
-
     /// Error while encoding udev-unsafe characters.
     #[error("{0}")]
     StringEncoding(String),
