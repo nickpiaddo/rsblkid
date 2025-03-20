@@ -6,22 +6,6 @@
         doc = ::embed_doc_image::embed_image!( "fig-01", "assets/diagrams/svg/fig01-probe-metadata-scanning-process.svg"),))]
 //! Low-level API to probe block devices.
 //!
-//! ----
-//! # Table of Contents
-//! 1. [Description](#description)
-//! 2. [Overview](#overview)
-//! 3. [Usage](#usage)
-//! 4. [Examples](#examples)
-//!     1. [Create a `Probe`](#create-a-probe)
-//!     2. [Create a `Probe` in Read/Write mode](#create-a-probe-in-readwrite-mode)
-//!     3. [Limit the search area](#limit-the-search-area)
-//!     4. [Run search functions](#run-search-functions)
-//!         1. [Select search functions to run](#select-search-functions-to-run)
-//!         2. [Delete device metadata](#delete-device-metadata)
-//!         3. [Collect file system metadata](#collect-file-system-metadata)
-//!         4. [Collect metadata about partitions](#collect-metadata-about-partitions)
-//!         5. [Collect topology metadata](#collect-topology-metadata)
-//!
 //! ## Description
 //!
 //! The `probe` module offers fine-grained tools from three categories to collect, analyse, and

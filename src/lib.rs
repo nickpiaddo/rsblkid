@@ -1,25 +1,6 @@
 // Copyright (c) 2023 Nick Piaddo
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-//! # Table of Contents
-//! 1. [Description](#description)
-//! 2. [API structure](#api-structure)
-//! 3. [From `libblkid` to `rsblkid`](#from-libblkid-to-rsblkid)
-//!     1. [High-Level functions](#high-level-functions)
-//!         1. [Tag and spec evaluation](#tag-and-spec-evaluation)
-//!         2. [`Cache` basic routines](#cache-basic-routines)
-//!         3. [Search and iterate over devices in the cache](#search-and-iterate-over-devices-in-the-cache)
-//!     2. [Low-Level functions](#low-level-functions)
-//!         1. [Library initialization](#library-initialization)
-//!         2. [Low-level probing](#low-level-probing)
-//!         3. [Low-level tags](#low-level-tags)
-//!         4. [Superblocks probing](#superblocks-probing)
-//!         5. [Partitions probing](#partitions-probing)
-//!         6. [Topology information](#topology-information)
-//!     3. [Common utils](#common-utils)
-//!         1. [Encoding utils](#encoding-utils)
-//!         2. [Miscellaneous utils](#miscellaneous-utils)
-//!
 //! ## Description
 //!
 //! The `rsblkid` library is a safe Rust wrapper around `util-linux/libblkid`.
