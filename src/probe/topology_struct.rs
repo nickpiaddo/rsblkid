@@ -65,11 +65,11 @@ impl<'a> Topology<'a> {
         opt_io
     }
 
-    /// Returns the finer-grained sector size in bytes exposed to Linux.
-    pub fn logical_sector_size(&self) -> u64 {
+    /// Returns the size in bytes of the smallest addressable unit of data as exposed by the OS.
+    pub fn logical_block_size(&self) -> u64 {
         let size = unsafe { libblkid::blkid_topology_get_logical_sector_size(self.ptr) };
         log::debug!(
-            "Topology::logical_sector_size logical sector size: {:?}",
+            "Topology::logical_block_size logical block size: {:?}",
             size
         );
         size

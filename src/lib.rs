@@ -133,7 +133,7 @@
 //!             let dax_support = if topology.supports_dax() { "yes" } else { "no" };
 //!             let minimum_io_size = topology.minimum_io_size();
 //!             let optimal_io_size = topology.optimal_io_size();
-//!             let logical_sector_size = topology.logical_sector_size();
+//!             let logical_block_size = topology.logical_block_size();
 //!             let physical_sector_size = topology.physical_sector_size();
 //!
 //!
@@ -141,7 +141,7 @@
 //!             println!("Direct Access support (DAX): {}", dax_support);
 //!             println!("Minimum I/O size (bytes): {}", minimum_io_size);
 //!             println!("Optimal I/O size (bytes): {}", optimal_io_size);
-//!             println!("Logical sector size (bytes): {}", logical_sector_size);
+//!             println!("Logical block size (bytes): {}", logical_block_size);
 //!             println!("Physical sector size (bytes): {}", physical_sector_size);
 //!         }
 //!         _ => eprintln!("could not find device properties"),
@@ -167,7 +167,7 @@
 //!     // Direct Access support (DAX): no
 //!     // Minimum I/O size (bytes): 512
 //!     // Optimal I/O size (bytes): 0
-//!     // Logical sector size (bytes): 512
+//!     // Logical block size (bytes): 512
 //!     // Physical sector size (bytes): 512
 //!
 //!     Ok(())
@@ -422,7 +422,7 @@
 //! | [`blkid_probe_get_topology`][94]                 | [`Probe::topology`](crate::probe::Probe::topology)                                         |
 //! | [`blkid_topology_get_alignment_offset`][95]      | [`Topology::alignment_offset_in_bytes`](crate::probe::Topology::alignment_offset_in_bytes) |
 //! | [`blkid_topology_get_dax`][96]                   | [`Topology::supports_dax`](crate::probe::Topology::supports_dax)                           |
-//! | [`blkid_topology_get_logical_sector_size`][97]   | [`Topology::logical_sector_size`](crate::probe::Topology::logical_sector_size)             |
+//! | [`blkid_topology_get_logical_sector_size`][97]   | [`Topology::logical_block_size`](crate::probe::Topology::logical_block_size)               |
 //! | [`blkid_topology_get_minimum_io_size`][98]       | [`Topology::minimum_io_size`](crate::probe::Topology::minimum_io_size)                     |
 //! | [`blkid_topology_get_optimal_io_size`][99]       | [`Topology::optimal_io_size`](crate::probe::Topology::optimal_io_size)                     |
 //! | [`blkid_topology_get_physical_sector_size`][100] | [`Topology::physical_sector_size`](crate::probe::Topology::physical_sector_size)           |
