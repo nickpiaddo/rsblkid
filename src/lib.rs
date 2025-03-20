@@ -134,7 +134,7 @@
 //!             let minimum_io_size = topology.minimum_io_size();
 //!             let optimal_io_size = topology.optimal_io_size();
 //!             let logical_block_size = topology.logical_block_size();
-//!             let physical_sector_size = topology.physical_sector_size();
+//!             let physical_block_size = topology.physical_block_size();
 //!
 //!
 //!             println!("Alignment offset (bytes): {}", alignment_offset);
@@ -142,7 +142,7 @@
 //!             println!("Minimum I/O size (bytes): {}", minimum_io_size);
 //!             println!("Optimal I/O size (bytes): {}", optimal_io_size);
 //!             println!("Logical block size (bytes): {}", logical_block_size);
-//!             println!("Physical sector size (bytes): {}", physical_sector_size);
+//!             println!("Physical block size (bytes): {}", physical_block_size);
 //!         }
 //!         _ => eprintln!("could not find device properties"),
 //!     }
@@ -168,7 +168,7 @@
 //!     // Minimum I/O size (bytes): 512
 //!     // Optimal I/O size (bytes): 0
 //!     // Logical block size (bytes): 512
-//!     // Physical sector size (bytes): 512
+//!     // Physical block size (bytes): 512
 //!
 //!     Ok(())
 //! }
@@ -425,7 +425,7 @@
 //! | [`blkid_topology_get_logical_sector_size`][97]   | [`Topology::logical_block_size`](crate::probe::Topology::logical_block_size)               |
 //! | [`blkid_topology_get_minimum_io_size`][98]       | [`Topology::minimum_io_size`](crate::probe::Topology::minimum_io_size)                     |
 //! | [`blkid_topology_get_optimal_io_size`][99]       | [`Topology::optimal_io_size`](crate::probe::Topology::optimal_io_size)                     |
-//! | [`blkid_topology_get_physical_sector_size`][100] | [`Topology::physical_sector_size`](crate::probe::Topology::physical_sector_size)           |
+//! | [`blkid_topology_get_physical_sector_size`][100] | [`Topology::physical_block_size`](crate::probe::Topology::physical_block_size)             |
 //!
 //!
 //! [93]: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/libblkid-docs/libblkid-Topology-information.html#blkid-probe-enable-topology

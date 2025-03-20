@@ -75,11 +75,12 @@ impl<'a> Topology<'a> {
         size
     }
 
-    /// Returns the internal physical size in bytes of a sector on a device.
-    pub fn physical_sector_size(&self) -> u64 {
+    /// Returns the size in bytes of the smallest addressable unit of data as exposed by the
+    /// hardware.
+    pub fn physical_block_size(&self) -> u64 {
         let phys_size = unsafe { libblkid::blkid_topology_get_physical_sector_size(self.ptr) };
         log::debug!(
-            "Topology::physical_sector_size physical sector size: {:?}",
+            "Topology::physical_block_size physical block size: {:?}",
             phys_size
         );
         phys_size
