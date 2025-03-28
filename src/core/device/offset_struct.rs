@@ -13,7 +13,7 @@ use crate::core::errors::ParserError;
 use crate::core::num::UnsignedInt;
 
 /// Distance from the beginning of a device.
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Offset(UnsignedInt);
 
 impl Offset {

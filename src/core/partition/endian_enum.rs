@@ -12,7 +12,7 @@ use crate::core::errors::ConversionError;
 use crate::core::errors::ParserError;
 
 /// Data endianness.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Copy, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
 #[non_exhaustive]
 pub enum Endian {
     Big,

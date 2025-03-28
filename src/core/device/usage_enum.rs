@@ -14,7 +14,7 @@ use crate::core::errors::ConversionError;
 use crate::core::errors::ParserError;
 
 /// Device usage.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, IntoPrimitive)]
+#[derive(Clone, Copy, Debug, Hash, Eq, PartialEq, Ord, PartialOrd, IntoPrimitive)]
 #[non_exhaustive]
 #[repr(i32)]
 pub enum Usage {

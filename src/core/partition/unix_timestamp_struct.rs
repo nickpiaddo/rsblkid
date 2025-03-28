@@ -12,7 +12,7 @@ use crate::core::errors::ConversionError;
 use crate::core::errors::ParserError;
 
 /// Number of seconds since Jan. 1, 1970.
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub struct UnixTimestamp {
     ts: u64,
     ts_str: String,

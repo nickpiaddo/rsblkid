@@ -13,7 +13,7 @@ use crate::core::errors::ConversionError;
 use crate::core::errors::ParserError;
 
 /// Supported GPT partitions.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Sequence)]
+#[derive(Clone, Copy, Debug, Hash, Eq, PartialEq, Ord, PartialOrd, Sequence)]
 #[non_exhaustive]
 pub enum Guid {
     /// Unused entry

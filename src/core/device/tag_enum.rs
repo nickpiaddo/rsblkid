@@ -61,7 +61,7 @@ use crate::core::partition::UnixTimestamp;
 ///     Ok(())
 /// }
 /// ```
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
 #[non_exhaustive]
 pub enum Tag {
     // Device Identifier

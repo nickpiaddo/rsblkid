@@ -15,7 +15,7 @@ use crate::core::partition::Guid;
 use crate::core::partition::OSType;
 
 /// Supported partition types.
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
 #[non_exhaustive]
 pub enum PartitionType {
     MBR(OSType),

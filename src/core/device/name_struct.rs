@@ -12,7 +12,7 @@ use crate::core::errors::ConversionError;
 use crate::core::errors::ParserError;
 
 /// A device's name.
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Name(String);
 
 impl Name {

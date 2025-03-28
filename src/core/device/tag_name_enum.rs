@@ -15,7 +15,7 @@ use crate::core::errors::ParserError;
 use crate::core::device::Tag;
 
 /// Tag names supported by `libmount`.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Copy, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
 #[non_exhaustive]
 pub enum TagName {
     // Device Identifier

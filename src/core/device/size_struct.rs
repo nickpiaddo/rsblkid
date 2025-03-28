@@ -13,7 +13,7 @@ use crate::core::errors::ParserError;
 use crate::core::num::UnsignedInt;
 
 /// Size of a device, partition, etc.
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Size(UnsignedInt);
 
 impl Size {

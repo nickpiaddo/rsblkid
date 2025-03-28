@@ -12,7 +12,7 @@ use crate::core::errors::ConversionError;
 use crate::core::errors::ParserError;
 
 /// Bit flags in partition entries.
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub struct PartitionBitflags {
     bitflags: u64,
     bitflags_str: String,

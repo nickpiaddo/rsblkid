@@ -15,7 +15,17 @@ use crate::core::errors::ParserError;
 
 /// Supported MBR partitions.
 #[derive(
-    Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Sequence, IntoPrimitive, TryFromPrimitive,
+    Clone,
+    Copy,
+    Debug,
+    Hash,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Sequence,
+    IntoPrimitive,
+    TryFromPrimitive,
 )]
 #[repr(u8)]
 #[non_exhaustive]

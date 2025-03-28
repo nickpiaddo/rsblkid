@@ -12,7 +12,7 @@ use crate::core::errors::ConversionError;
 use crate::core::errors::ParserError;
 
 /// Unsigned integer restricted to a `u32`, or `u64`.
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
 #[non_exhaustive]
 pub enum UnsignedInt {
     U32(u32, String),

@@ -12,7 +12,7 @@ use crate::core::errors::ParserError;
 use crate::core::utils::encode;
 
 /// Raw bytes.
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub struct RawBytes {
     bytes: Vec<u8>,
     byte_str_lossy: String,

@@ -14,7 +14,7 @@ use crate::core::errors::ConversionError;
 use crate::core::errors::ParserError;
 
 /// Supported file systems.
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Sequence)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd, Sequence)]
 #[non_exhaustive]
 pub enum FileSystem {
     /// Name: `"adaptec_raid_member"`
