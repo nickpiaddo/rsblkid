@@ -87,7 +87,7 @@ impl<'a> Device<'a> {
     /// # Examples
     ///
     /// ```
-    /// use rsblkid::core::device::Tag;
+    /// use rsblkid::device::Tag;
     /// use rsblkid::cache::{Cache, Device};
     /// use std::error::Error;
     ///
@@ -145,7 +145,7 @@ impl<'a> Device<'a> {
     /// # Examples
     ///
     /// ```
-    /// use rsblkid::core::device::TagName;
+    /// use rsblkid::device::TagName;
     /// use rsblkid::cache::{Cache, Device};
     /// use std::error::Error;
     ///

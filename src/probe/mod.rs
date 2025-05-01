@@ -216,7 +216,7 @@
 //! **Note:** all `superblocks` search functions are active by default.
 //!
 //! ```ignore
-//! use rsblkid::core::partition::FileSystem;
+//! use rsblkid::partition::FileSystem;
 //! use rsblkid::probe::{Filter, Probe};
 //!
 //! fn main() -> rsblkid::Result<()> {
@@ -258,7 +258,7 @@
 //! called, will discard its copy of the metadata.
 //!
 //! ```ignore
-//! use rsblkid::core::partition::FileSystem;
+//! use rsblkid::partition::FileSystem;
 //! use rsblkid::probe::{Filter, FsProperty, Probe, ScanResult};
 //!
 //! fn main() -> rsblkid::Result<()> {
@@ -386,7 +386,7 @@
 //! [`Partition`] structs holding the metadata gathered.
 //!
 //! ```ignore
-//! use rsblkid::core::fs::PartitionTableType;
+//! use rsblkid::partition::PartitionTableType;
 //! use rsblkid::probe::{
 //!         Filter, PartitionScanningOption, Probe, ScanResult
 //!     };

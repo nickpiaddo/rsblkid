@@ -149,9 +149,9 @@ impl<
     /// # Examples
     ///
     /// ```ignore
-    /// use rsblkid::core::device::Usage;
-    /// use rsblkid::core::partition::FileSystem;
-    /// use rsblkid::core::partition::PartitionTableType;
+    /// use rsblkid::device::Usage;
+    /// use rsblkid::partition::FileSystem;
+    /// use rsblkid::partition::PartitionTableType;
     /// use rsblkid::probe::{
     ///         Filter, FsProperty, PartitionScanningOption, Probe,
     ///     };

@@ -40,7 +40,7 @@ pub fn library_version() -> LibraryInfo {
 ///
 /// ```
 /// # use pretty_assertions::assert_eq;
-/// use rsblkid::core::utils::misc;
+/// use rsblkid::utils::misc;
 ///
 /// fn main() -> rsblkid::Result<()> {
 ///     let version_string = "2.38.1";

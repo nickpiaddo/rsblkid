@@ -42,7 +42,7 @@ use crate::core::partition::UnixTimestamp;
 ///
 /// ```
 /// # use pretty_assertions::assert_eq;
-/// use rsblkid::core::device::Tag;
+/// use rsblkid::device::Tag;
 ///
 /// fn main() -> rsblkid::Result<()> {
 ///

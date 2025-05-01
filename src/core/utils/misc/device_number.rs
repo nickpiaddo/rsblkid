@@ -19,7 +19,7 @@ const MAX_FILE_PATH_LENGTH: usize = 4097;
 /// ```ignore
 /// # use pretty_assertions::assert_eq;
 /// use std::path::PathBuf;
-/// use rsblkid::core::utils::misc;
+/// use rsblkid::utils::misc;
 ///
 /// fn main() -> rsblkid::Result<()> {
 ///     // Assuming we have the following devices
@@ -85,7 +85,7 @@ pub fn device_path_from_number(device_number: u64) -> Option<PathBuf> {
 ///
 /// ```ignore
 /// # use pretty_assertions::assert_eq;
-/// use rsblkid::core::utils::misc;
+/// use rsblkid::utils::misc;
 ///
 /// fn main() -> rsblkid::Result<()> {
 ///     // Assuming we have the following devices

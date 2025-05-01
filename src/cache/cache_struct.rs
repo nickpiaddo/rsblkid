@@ -246,8 +246,8 @@ impl<'cache> Cache {
     ///
     /// ```ignore
     /// # use pretty_assertions::assert_eq;
-    /// use rsblkid::core::device::TagName;
-    /// use rsblkid::core::partition::RawBytes;
+    /// use rsblkid::device::TagName;
+    /// use rsblkid::partition::RawBytes;
     /// use rsblkid::cache::Cache;
     ///
     /// fn main() -> rsblkid::Result<()> {
@@ -329,7 +329,7 @@ impl<'cache> Cache {
     /// ```ignore
     /// # use pretty_assertions::assert_eq;
     /// use std::path::Path;
-    /// use rsblkid::core::device::Tag;
+    /// use rsblkid::device::Tag;
     /// use rsblkid::cache::Cache;
     ///
     /// fn main() -> rsblkid::Result<()> {
@@ -399,7 +399,7 @@ impl<'cache> Cache {
     /// ```ignore
     /// # use pretty_assertions::assert_eq;
     /// use std::path::PathBuf;
-    /// use rsblkid::core::device::Tag;
+    /// use rsblkid::device::Tag;
     /// use rsblkid::cache::Cache;
     ///
     /// fn main() -> rsblkid::Result<()> {
@@ -521,7 +521,7 @@ impl<'cache> Cache {
     /// ```ignore
     /// # use pretty_assertions::assert_eq;
     /// use std::path::PathBuf;
-    /// use rsblkid::core::device::Tag;
+    /// use rsblkid::device::Tag;
     /// use rsblkid::cache::Cache;
     ///
     /// fn main() -> rsblkid::Result<()> {
@@ -567,7 +567,7 @@ impl<'cache> Cache {
     /// ```ignore
     /// # use pretty_assertions::assert_eq;
     /// use std::path::PathBuf;
-    /// use rsblkid::core::device::Tag;
+    /// use rsblkid::device::Tag;
     /// use rsblkid::cache::Cache;
     ///
     /// fn main() -> rsblkid::Result<()> {

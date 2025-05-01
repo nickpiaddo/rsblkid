@@ -31,7 +31,7 @@
 //! ```ignore
 //! # use pretty_assertions::assert_eq;
 //! use std::path::PathBuf;
-//! use rsblkid::core::device::Tag;
+//! use rsblkid::device::Tag;
 //! use rsblkid::cache::Cache;
 //!
 //! fn main() -> rsblkid::Result<()> {
@@ -452,8 +452,14 @@
 
 pub use error::*;
 
+pub use core::device;
+pub use core::errors;
+pub use core::num;
+pub use core::partition;
+pub use core::utils;
+
 pub mod cache;
-pub mod core;
+mod core;
 pub mod debug;
 mod error;
 pub(crate) mod ffi_utils;

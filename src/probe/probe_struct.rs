@@ -593,8 +593,8 @@ impl Probe {
     /// # Examples
     ///
     /// ```ignore
-    /// use rsblkid::core::partition::FileSystem;
-    /// use rsblkid::core::partition::PartitionTableType;
+    /// use rsblkid::partition::FileSystem;
+    /// use rsblkid::partition::PartitionTableType;
     /// use rsblkid::probe::{Filter, Probe, ScanResult};
     ///
     /// fn main() -> rsblkid::Result<()> {
@@ -707,8 +707,8 @@ impl Probe {
     /// # Examples
     ///
     /// ```ignore
-    /// use rsblkid::core::partition::FileSystem;
-    /// use rsblkid::core::partition::PartitionTableType;
+    /// use rsblkid::partition::FileSystem;
+    /// use rsblkid::partition::PartitionTableType;
     /// use rsblkid::probe::{Filter, Probe, ScanResult};
     ///
     /// fn main() -> rsblkid::Result<()> {
@@ -821,8 +821,8 @@ impl Probe {
     /// # Examples
     ///
     /// ```ignore
-    /// use rsblkid::core::partition::FileSystem;
-    /// use rsblkid::core::partition::PartitionTableType;
+    /// use rsblkid::partition::FileSystem;
+    /// use rsblkid::partition::PartitionTableType;
     /// use rsblkid::probe::{Filter, Probe, ScanResult};
     ///
     /// fn main() -> rsblkid::Result<()> {
@@ -937,7 +937,7 @@ impl Probe {
     /// # Examples
     ///
     /// ```ignore
-    /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::partition::FileSystem;
     /// use rsblkid::probe::{Filter, FsProperty, Probe, ScanResult};
     ///
     /// fn main() -> rsblkid::Result<()> {
@@ -1044,7 +1044,7 @@ impl Probe {
     /// # Examples
     ///
     /// ```ignore
-    /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::partition::FileSystem;
     /// use rsblkid::probe::{Filter, FsProperty, Probe, ScanResult};
     ///
     /// fn main() -> rsblkid::Result<()> {
@@ -1107,7 +1107,7 @@ impl Probe {
     /// # Examples
     ///
     /// ```ignore
-    /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::partition::FileSystem;
     /// use rsblkid::probe::{Filter, FsProperty, Probe, ScanResult};
     ///
     /// fn main() -> rsblkid::Result<()> {
@@ -1377,7 +1377,7 @@ impl Probe {
     /// # Examples
     ///
     /// ```ignore
-    /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::partition::FileSystem;
     /// use rsblkid::probe::{Filter, Probe};
     ///
     /// fn main() -> rsblkid::Result<()> {
@@ -1511,7 +1511,7 @@ impl Probe {
     /// # Examples
     ///
     /// ```ignore
-    /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::partition::FileSystem;
     /// use rsblkid::probe::{Filter, Probe};
     ///
     /// fn main() -> rsblkid::Result<()> {
@@ -1567,7 +1567,7 @@ impl Probe {
     /// # Examples
     ///
     /// ```ignore
-    /// use rsblkid::core::partition::FileSystem;
+    /// use rsblkid::partition::FileSystem;
     /// use rsblkid::probe::{Filter, Probe};
     ///
     /// fn main() -> rsblkid::Result<()> {
@@ -1757,7 +1757,7 @@ impl Probe {
     /// # Examples
     ///
     /// ```ignore
-    /// use rsblkid::core::partition::PartitionTableType;
+    /// use rsblkid::partition::PartitionTableType;
     /// use rsblkid::probe::{Filter, Probe};
     ///
     /// fn main() -> rsblkid::Result<()> {
@@ -1839,7 +1839,7 @@ impl Probe {
     /// # Examples
     ///
     /// ```ignore
-    /// use rsblkid::core::partition::PartitionTableType;
+    /// use rsblkid::partition::PartitionTableType;
     /// use rsblkid::probe::{Filter, Probe};
     ///
     /// fn main() -> rsblkid::Result<()> {
@@ -1898,7 +1898,7 @@ impl Probe {
     /// # Examples
     ///
     /// ```ignore
-    /// use rsblkid::core::partition::PartitionTableType;
+    /// use rsblkid::partition::PartitionTableType;
     /// use rsblkid::probe::{Filter, Probe};
     ///
     /// fn main() -> rsblkid::Result<()> {

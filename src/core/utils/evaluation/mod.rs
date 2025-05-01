@@ -27,8 +27,8 @@ use crate::ffi_utils;
 /// ```ignore
 /// # use pretty_assertions::assert_eq;
 /// use std::path::PathBuf;
-/// use rsblkid::core::device::Tag;
-/// use rsblkid::core::utils::evaluation;
+/// use rsblkid::device::Tag;
+/// use rsblkid::utils::evaluation;
 ///
 /// fn main() -> rsblkid::Result<()> {
 ///
@@ -148,8 +148,8 @@ fn device_name_from_spec(spec: CString) -> Option<PathBuf> {
 /// ```ignore
 /// # use pretty_assertions::assert_eq;
 /// use std::path::PathBuf;
-/// use rsblkid::core::device::Tag;
-/// use rsblkid::core::utils::evaluation;
+/// use rsblkid::device::Tag;
+/// use rsblkid::utils::evaluation;
 ///
 /// fn main() -> rsblkid::Result<()> {
 ///     let label: Tag = r#"UUID="ac4f36bf-191b-4fb0-b808-6d7fc9fc88be""#.parse()?;
@@ -189,8 +189,8 @@ pub fn find_canonical_device_name_from_tag(tag: &Tag) -> Option<PathBuf> {
 /// ```ignore
 /// # use pretty_assertions::assert_eq;
 /// use std::path::PathBuf;
-/// use rsblkid::core::device::Tag;
-/// use rsblkid::core::utils::evaluation;
+/// use rsblkid::device::Tag;
+/// use rsblkid::utils::evaluation;
 ///
 /// fn main() -> rsblkid::Result<()> {
 ///     let path = "/dev/disk/by-uuid/ac4f36bf-191b-4fb0-b808-6d7fc9fc88be";
