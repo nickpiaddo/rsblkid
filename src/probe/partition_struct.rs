@@ -106,9 +106,9 @@ impl<'a> Partition<'a> {
     ///
     /// **Warning:**
     /// - when scanning is limited to a **device segment**, the returned location is still
-    /// expressed with respect to the beginning of the whole device,
+    ///   expressed with respect to the beginning of the whole device,
     /// - for **nested partitions**, the offset can be relative to the location of the partition's
-    /// parent (e.g. `Solaris`), or the beginning of the entire device (e.g. `BSD`).
+    ///   parent (e.g. `Solaris`), or the beginning of the entire device (e.g. `BSD`).
     pub fn location_in_sectors(&self) -> u64 {
         let location = unsafe { libblkid::blkid_partition_get_start(self.ptr) as u64 };
         log::debug!(
@@ -124,9 +124,9 @@ impl<'a> Partition<'a> {
     ///
     /// **Warning:**
     /// - when scanning is limited to a **device segment**, the returned location is still
-    /// expressed with respect to the beginning of the whole device,
+    ///   expressed with respect to the beginning of the whole device,
     /// - for **nested partitions**, the offset can be relative to the location of the partition's
-    /// parent (e.g. `Solaris`), or the beginning of the entire device (e.g. `BSD`).
+    ///   parent (e.g. `Solaris`), or the beginning of the entire device (e.g. `BSD`).
     pub fn location_in_bytes(&self) -> u64 {
         let location_in_sectors = self.location_in_sectors();
         let location = location_in_sectors * 512;

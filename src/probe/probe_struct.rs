@@ -341,7 +341,7 @@ impl Probe {
     /// memory buffers matching the given range are filled with zeros.
     ///
     /// - **Warning:** configuration about segments to skip is discarded when the function
-    /// [`Probe::empty_buffers`] is called.
+    ///   [`Probe::empty_buffers`] is called.
     ///
     /// # Arguments
     ///
@@ -700,7 +700,7 @@ impl Probe {
     ///
     /// - [`ScanResult::FoundProperties`] -- when any of the search functions, in any category, has found device properties.
     /// - [`ScanResult::ConflictingValues`] -- when several search functions in the same category
-    /// have found identical device properties with different values.
+    ///   have found identical device properties with different values.
     /// - [`ScanResult::NoProperties`] -- when no search function has found a match in any category.
     /// - [`ScanResult::Error`] -- when an error occurred during the scan.
     ///

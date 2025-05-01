@@ -60,27 +60,27 @@
 //!
 //! In the example flowchart, it will check for the presence of an `APFS` file system:
 //! - if the test is successful, we transition to the node titled `Collect file system properties`
-//! to gather data on the file system. We then exit the `File system scanner`, and move to the
-//! decision node titled `Scan for partitions?` and check whether the user asked the program to
-//! scan the device for partitions.
+//!   to gather data on the file system. We then exit the `File system scanner`, and move to the
+//!   decision node titled `Scan for partitions?` and check whether the user asked the program to
+//!   scan the device for partitions.
 //! - if however the first file system test fails, we move to the next test, this time for a `BFS`
-//! file system.
+//!   file system.
 //! - if this second test succeeds we proceed to the `Collect file system properties` node,
-//! followed by exiting the `File system scanner` and going to the `Scan for partitions?` node.
+//!   followed by exiting the `File system scanner` and going to the `Scan for partitions?` node.
 //! - this routine is repeated for every file system test in the `File system scanner`. If none
-//! matches we transition to the decision node on partition scanning.
+//!   matches we transition to the decision node on partition scanning.
 //!
 //! Once the scan for file systems is concluded, we determine whether the program need to scan for
 //! partitions.
 //!
 //! Going from the `Scan for partitions?` node:
 //! - if the check succeeds we transition to the decision tree in the `Partitions scanner` box. We
-//! first try to identify the type of partition table used on the device at the `Has an AIX
-//! partition table?` decision node.
+//!   first try to identify the type of partition table used on the device at the `Has an AIX
+//!   partition table?` decision node.
 //! - if that is the case, we go to the `Collect per-partition properties` node, then exit the
-//! `Partition scanner?` box to head to the `Extract device topology?` decision node.
+//!   `Partition scanner?` box to head to the `Extract device topology?` decision node.
 //! - if an `AIX` partition table is not found, we move to the next test `Has a DOS partition
-//! table?`, and so on, and so forth until one matches.
+//!   table?`, and so on, and so forth until one matches.
 //! - if no test succeeds, we exit the test chain and go to the `Extract device topology?` node.
 //!
 //! Finally, at the `Extract device topology?` decision node, if the `Probe` was configured to do
@@ -106,11 +106,11 @@
 //! To collect device properties, [`Probe`] offers four methods:
 //! - [`Probe::run_scan`] / [`Probe::backtrack`]: to manually run search functions and collect data,
 //! - [`Probe::find_device_properties`]: to automatically run search functions, ans collect data
-//! from the first match in a each category (as described in the flowchart above).
+//!   from the first match in a each category (as described in the flowchart above).
 //! - [`Probe::find_all_device_properties`]: follows the same process as
-//! [`Probe::find_device_properties`]. However, instead of moving onto the next category after
-//! finding a match, this method continues to run the remaining search functions in the category,
-//! telling the caller about any data collision it detects.
+//!   [`Probe::find_device_properties`]. However, instead of moving onto the next category after
+//!   finding a match, this method continues to run the remaining search functions in the category,
+//!   telling the caller about any data collision it detects.
 //!
 //! ## Examples
 //! ### Create a `Probe`

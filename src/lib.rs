@@ -55,7 +55,7 @@
 //! To determine the values of the `LABEL` or `UUID` tags of a block device, the high-level API supports two methods:
 //!  - extracting data directly by scanning a block device,
 //!  - or reading information from [udev](https://wiki.archlinux.org/title/Udev)'s
-//! `/dev/disk/by-*` symlinks (method used by default).
+//!    `/dev/disk/by-*` symlinks (method used by default).
 //!
 //! The [low-level API](crate::probe), on the other hand, always scans a block device directly. It offers more
 //! fine-grained control over the data collected.

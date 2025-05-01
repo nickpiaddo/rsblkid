@@ -204,11 +204,11 @@ impl<'cache> Cache {
     /// cache, with probing based on data located in the `/sys` directory.
     ///
     /// - **Warning:** probing removable devices (floppies, CDROMs, ...) is an operation that can
-    /// take a long time to complete. Therefore, it is **strongly** advised **against** calling
-    /// this function repeatedly.
+    ///   take a long time to complete. Therefore, it is **strongly** advised **against** calling
+    ///   this function repeatedly.
     ///
     /// - **Note:** devices detected by this function, will not be saved to the default `blkid.tab`
-    /// cache file when a `Cache` instance goes out of scope.
+    ///   cache file when a `Cache` instance goes out of scope.
     ///
     pub fn probe_all_removable_devices(&mut self) -> Result<(), CacheError> {
         log::debug!("Cache::probe_all_removable_devices probing all removable devices");

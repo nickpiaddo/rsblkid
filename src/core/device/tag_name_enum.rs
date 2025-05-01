@@ -54,9 +54,9 @@ pub enum TagName {
 
     /// Partition type, either:
     /// - `OSType` a numerical code 0xNN (e.g. `0x82` Solaris x86, for more see the [List of
-    /// partition identifiers for PCs](https://www.win.tue.nl/~aeb/partitions/partition_types-1.html)),
+    ///   partition identifiers for PCs](https://www.win.tue.nl/~aeb/partitions/partition_types-1.html)),
     /// - or a `UUID` that defines the purpose and type of a partition (used by `GPT` and `mac`
-    /// partition entries).
+    ///   partition entries).
     // From UEFI specs
     // length: MBR 1 byte, GPT 16 bytes
     PartEntryType,
@@ -82,11 +82,11 @@ pub enum TagName {
     // From UEFI specs
     /// Partition flags:
     /// - BootIndicator field in [legacy MBR partition
-    /// record](https://uefi.org/specs/UEFI/2.10/05_GUID_Partition_Table_Format.html#legacy-master-boot-record-mbr),
-    /// or [Protective MBR partition
-    /// record](https://uefi.org/specs/UEFI/2.10/05_GUID_Partition_Table_Format.html#protective-mbr)
+    ///   record](https://uefi.org/specs/UEFI/2.10/05_GUID_Partition_Table_Format.html#legacy-master-boot-record-mbr),
+    ///   or [Protective MBR partition
+    ///   record](https://uefi.org/specs/UEFI/2.10/05_GUID_Partition_Table_Format.html#protective-mbr)
     /// - Attribute bits, all bits reserved by UEFI; field in [GPT partition
-    /// entry](https://uefi.org/specs/UEFI/2.10/05_GUID_Partition_Table_Format.html#gpt-partition-entry-array)
+    ///   entry](https://uefi.org/specs/UEFI/2.10/05_GUID_Partition_Table_Format.html#gpt-partition-entry-array)
     // length: MBR 1 byte, GPT 8 bytes
     PartEntryFlags,
 
